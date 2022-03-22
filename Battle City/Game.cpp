@@ -1,4 +1,5 @@
 #include <cstring>
+#include <random>
 
 #include "Game.h"
 #include "Wall.h"
@@ -14,6 +15,7 @@
 // Глобальные переменные
 sf::Texture* _atlasTerrain;
 sf::Texture* _atlasEntity;
+std::mt19937 random;
 
 
 Game::~Game() {
@@ -39,7 +41,7 @@ Game::~Game() {
 }
 
 void Game::setupSystem() {
-	srand((unsigned int)time(nullptr));
+	random.seed(steady_clock::now().time_since_epoch().count());
 
 	_renderWindow = new sf::RenderWindow(
 		sf::VideoMode(PIXELS_PER_CELL * SCREEN_COLUMNS,
@@ -132,9 +134,12 @@ bool Game::loop() {
 		return false;
 
 	// Расчёт прошедшего времени за такт
-	clock_t clockNow = clock();
-	clock_t deltaClock = clockNow - _clockLastFrame;
-	float deltaTime = float(deltaClock) / CLOCKS_PER_SEC;
+	using std::chrono::duration;
+	using std::chrono::duration_cast;
+
+	steady_clock::time_point clockNow = steady_clock::now();
+	float deltaTime = 
+		duration_cast<duration<float>>(clockNow - _clockLastFrame).count();
 	_clockLastFrame = clockNow;
 
 	// Счётчик обновлений в секунду (тактов в секунду)

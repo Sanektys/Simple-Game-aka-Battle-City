@@ -1,3 +1,5 @@
+#include <random>
+
 #include "TankEnemy.h"
 #include "Utils.h"
 #include "Wall.h"
@@ -6,6 +8,8 @@
 #include "Game.h"
 #include "Level.h"
 
+
+extern std::mt19937 random;
 
 TankEnemy::TankEnemy() {
 	_type = GameObjectType::TANK_ENEMY;
@@ -94,7 +98,7 @@ void TankEnemy::analize(float dt) {
 	}
 
 	// 20% вероятность изменения направления
-	if (0 == rand() % 5) {
+	if (0 == random() % 5) {
 		// Двигаться в случайном направлении
 		moveRandomDirection(dt);
 		return;
@@ -132,7 +136,7 @@ void TankEnemy::moveRandomDirection(float dt) {
 	Direction prevDirection = getDirection();
 	Direction newDirection;
 	do {
-		newDirection = (Direction)(rand() % ((int)Direction::MAX));
+		newDirection = (Direction)(random() % ((int)Direction::MAX));
 	} while (prevDirection == newDirection);
 	
 	move(newDirection, dt);

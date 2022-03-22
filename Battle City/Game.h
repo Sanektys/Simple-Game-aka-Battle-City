@@ -1,12 +1,13 @@
 #pragma once
 
-#include <ctime>
+#include <chrono>
 
 #include "Level.h"
 
 
 const int OBJECTS_COUNT_MAX = 1024;
 
+using std::chrono::steady_clock;
 
 class GameObject;
 
@@ -59,10 +60,9 @@ class Game
 		sf::RenderWindow* _renderWindow{nullptr};
 		sf::Font* _debugFont{nullptr};
 
-		clock_t _clockLastFrame{0};
-
-		int _diedEnemiesCount{0};
+		steady_clock::time_point _clockLastFrame;
 		float _oneSecond{0.0f};
+		int _diedEnemiesCount{0};
 		int _updatesCount{0};
 		int _ups{0};
 
