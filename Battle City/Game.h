@@ -17,7 +17,7 @@ class GameObject;
 class Game
 {
     public :
-		Game();
+	    Game() {};
 		~Game();
 
 		void setupSystem();
@@ -26,7 +26,11 @@ class Game
 		void shutdown();
 
 		class GameObject* createObject(enum GameObjectType type, float x, float y);
-		void destroyObject(class GameObject* object);
+		void destroyObject(int i) { 
+			delete _objects[i]; 
+			_objects[i] = nullptr;
+		}
+		void destroyObject(const GameObject* object);
 
 		// Проверка пересечения одного объекта другим
 		class GameObject* checkIntersects(float x, float y, float width, float height, 
@@ -37,28 +41,30 @@ class Game
 		int getObjectsCount(enum GameObjectType type);
 
 		int getDiedEnemiesCount() { return _diedEnemiesCount; }
-		void increaseDiedEnemiesCount();
+		void increaseDiedEnemiesCount() { ++_diedEnemiesCount; }
 
     private :
 		void render();
 		void update(float dt);
 
+		Game(const Game&) = delete;
+		Game& operator=(const Game&) = delete;
+
     private :
-		bool _isGameActive;
-		clock_t _clockLastFrame;
+		class GameObject* _objects[OBJECTS_COUNT_MAX]{};
+		class GameObject* _base{nullptr};
+		class GameObject* _playerOne{nullptr};
+		class GameObject* _playerTwo{nullptr};
 
-		sf::RenderWindow* _renderWindow;
+		sf::RenderWindow* _renderWindow{nullptr};
+		sf::Font* _debugFont{nullptr};
 
-		sf::Font* _debugFont;
+		clock_t _clockLastFrame{0};
 
-		class GameObject* _objects[OBJECTS_COUNT_MAX];
+		int _diedEnemiesCount{0};
+		float _oneSecond{0.0f};
+		int _updatesCount{0};
+		int _ups{0};
 
-		class GameObject* _base;
-		class GameObject* _playerOne;
-		class GameObject* _playerTwo;
-
-		int _diedEnemiesCount;
-		float _oneSecond;
-		int _updatesCount;
-		int _ups;
+		bool _isGameActive{true};
 };
