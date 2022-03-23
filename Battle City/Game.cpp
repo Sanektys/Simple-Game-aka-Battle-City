@@ -41,7 +41,7 @@ Game::~Game() {
 }
 
 void Game::setupSystem() {
-	random.seed(steady_clock::now().time_since_epoch().count());
+	random.seed(unsigned(steady_clock::now().time_since_epoch().count()));
 
 	_renderWindow = new sf::RenderWindow(
 		sf::VideoMode(PIXELS_PER_CELL * SCREEN_COLUMNS,
@@ -77,10 +77,10 @@ void Game::initialize() {
 					break;
 			    }
 				case CELL_SYMBOL_SOLID_WALL : {
-					class Wall* wall = dynamic_cast<Wall*>(createObject(
+					class SolidWall* solidWall = dynamic_cast<SolidWall*>(createObject(
 						GameObjectType::SOLID_WALL, (float)c, (float)r));
-					if (wall) {
-					    wall->Wall::setTextureRect(SOLID_BRICK_WALL_IMAGE);
+					if (solidWall) {
+					    solidWall->Wall::setTextureRect(SOLID_BRICK_WALL_IMAGE);
 					}
 					break;
 				}				

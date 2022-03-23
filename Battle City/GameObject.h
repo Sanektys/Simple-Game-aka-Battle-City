@@ -17,6 +17,7 @@ class GameObject
 {
     public :
 	    GameObject();
+		virtual ~GameObject() {}
 
 		virtual void render(sf::RenderWindow* rw);
 		virtual void update(float dt);
@@ -27,6 +28,8 @@ class GameObject
 		void doDamage(int damage);
 
 		// Блок сеттеров/геттеров
+
+		virtual void setTextureRect(sf::IntRect rect);
 		
 		enum class GameObjectType getType() { return _type; }
 
@@ -64,8 +67,6 @@ class GameObject
 
 		void setDirection(enum class Direction direction) { _direction = direction; }
 		enum class Direction getDirection() { return _direction; }
-
-		virtual void setTextureRect(sf::IntRect rect);
 
 		bool getIsSticking() { return _isSticking; }
 

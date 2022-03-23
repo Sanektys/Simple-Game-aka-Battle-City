@@ -44,7 +44,6 @@ void GameObject::render(sf::RenderWindow* rw) {
 		if (_spriteTerrain) {
 			_spriteTerrain->setPosition(column * PIXELS_PER_CELL + (getWidth() * PIXELS_PER_CELL) / 2.0f,
 				                        row * PIXELS_PER_CELL + (getHeight() * PIXELS_PER_CELL) / 2.0f);
-			//_spriteTerrain->setScale(2, 2);
 			rw->draw(*_spriteTerrain);
 		}
 		else if (_spriteEntity) {
