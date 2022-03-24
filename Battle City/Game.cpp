@@ -46,7 +46,7 @@ void Game::setupSystem() {
 	_renderWindow = new sf::RenderWindow(
 		sf::VideoMode(PIXELS_PER_CELL * SCREEN_COLUMNS,
 		              PIXELS_PER_CELL * SCREEN_ROWS, 32),
-		"Battle City", sf::Style::Titlebar | sf::Style::Close);
+		"Battle City", sf::Style::Fullscreen);
 
 	_atlasTerrain = new sf::Texture();
 	_atlasTerrain->loadFromFile("atlas_terrain.png");
@@ -239,7 +239,6 @@ void Game::update(float dt) {
 		initialize();
 }
 
-// Проверка пересечения одного объекта другим
 GameObject* Game::checkIntersects(float x, float y, float width, float height,
 	                              class GameObject* exceptObject) {
 	// Левый верхний угол входного объекта
@@ -273,8 +272,6 @@ GameObject* Game::checkIntersects(float x, float y, float width, float height,
 	return nullptr;
 }
 
-// Проверка на возможность объекта переместиться на позицию x,y
-// Если перемещение возможно, то объект устанавливается на x,y
 bool Game::moveObjectTo(class GameObject* object, float x, float y) {
 	// Координаты желаемой(новой) позиции
 	float newCoordY = y;
@@ -313,7 +310,6 @@ bool Game::moveObjectTo(class GameObject* object, float x, float y) {
 	return false;
 }
 
-// Пересчёт всех объектов определённого типа
 int Game::getObjectsCount(enum GameObjectType type) {
 	int totalCount = 0;
 
