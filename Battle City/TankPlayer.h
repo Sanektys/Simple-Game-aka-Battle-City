@@ -7,17 +7,22 @@ class TankPlayer : public Tank
 {
     public :
 		TankPlayer();
-
-		virtual void setTextureRect(sf::IntRect rect) override;
+		~TankPlayer() override {}
 
 		void update(float dt) override;
 
-		void setKeys(int keyLeft, int keyRight, int keyUp, int keyDown, int keyFire);
+		virtual void setTextureRect(sf::IntRect rect) override;
+
+		void setKeys(sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
+					 sf::Keyboard::Key keyUp, sf::Keyboard::Key keyDown,
+					 sf::Keyboard::Key keyFire);
 
     private :
-		int _keyLeft;
-		int _keyRight;
-		int _keyUp;
-		int _keyDown;
-		int _keyFire;
+	    // Назначаемые клавишы управления танка игроком
+	    /////////////////////
+	    sf::Keyboard::Key _keyLeft {sf::Keyboard::Key::Unknown};
+		sf::Keyboard::Key _keyRight{sf::Keyboard::Key::Unknown};
+		sf::Keyboard::Key _keyUp   {sf::Keyboard::Key::Unknown};
+		sf::Keyboard::Key _keyDown {sf::Keyboard::Key::Unknown};
+		sf::Keyboard::Key _keyFire {sf::Keyboard::Key::Unknown};
 };

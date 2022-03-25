@@ -82,7 +82,7 @@ class Game
 		/// <returns>Возвращает указатель на объект-помеху,
 		/// или nullptr при отсутствии какой-либо помехи</returns>
 		class GameObject* checkIntersects(float x, float y, float width, float height,
-			                              class GameObject* exceptObject);
+			                              class GameObject* exceptObject) const;
 		/// <summary>
 		/// Перемещение объекта на позицию x,y
 		/// <para>Если перемещение невозможно (есть преграда),
@@ -93,18 +93,18 @@ class Game
 		/// <param name="y">новая координата по вертикали</param>
 		/// <returns>Возвращает false если есть помеха,
 		/// и true если перемещение прошло успешно</returns>
-		bool moveObjectTo(class GameObject* object, float x, float y);
+		bool moveObjectTo(class GameObject* object, float x, float y) const;
 		/// <summary>
 		/// Подсчёт количества объектов определённого типа
 		/// </summary>
 		/// <param name="type">тип подсчитываемых объектов</param>
 		/// <returns>Возвращает количество объектов типа type</returns>
-		int getObjectsCount(enum GameObjectType type);
+		int getObjectsCount(enum GameObjectType type) const;
 
 		/// <summary>
 		/// Получение общего количества уничтоженных противников
 		/// </summary>
-		int getDiedEnemiesCount() { return _diedEnemiesCount; }
+		int getDiedEnemiesCount() const { return _diedEnemiesCount; }
 		/// <summary>
 		/// Увеличение количества уничтоженных противников на единицу
 		/// </summary>
@@ -142,6 +142,8 @@ class Game
 
 		// Игровое окно
 		sf::RenderWindow* _renderWindow{nullptr};
+		// Камера игрока
+		sf::View* _playerCamera{nullptr};
 		// Шрифт отладочной информации
 		sf::Font* _debugFont{nullptr};
 

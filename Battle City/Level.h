@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <Windows.h>
 
 #include "Direction.h"
 #include "GameObjectType.h"
@@ -15,6 +14,9 @@ const short SCREEN_COLUMNS  = 60;
 const short LEVEL_ROWS      = SCREEN_ROWS;
 const short LEVEL_COLUMNS   = 50;
 const short PIXELS_PER_CELL = 32;
+
+const short PLAYER_CAMERA_WIDTH  = 16 * 60;
+const short PLAYER_CAMERA_HEIGHT = 9 * 60;
 
 const unsigned char CELL_SYMBOL_PLAYER_1      = '1';
 const unsigned char CELL_SYMBOL_PLAYER_2      = '2';
@@ -30,21 +32,21 @@ const unsigned char FIRST_LEVEL_DATA[LEVEL_ROWS][LEVEL_COLUMNS + 1] =
 	"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
 	"@S      ##                              ##     S @",
 	"@       ##                              ##       @",
-	"@  %%   ##  #%%%%%#            #%%%%%#  ##   %%  @",
+	"@       ##  #%%%%%#            #%%%%%#  ##       @",
 	"@%%%@@@@##@@@@###@@@@##    ##@@@@###@@@@##@@@@%%%@",
 	"@%%   @@@@@@       @@@@@##@@@@@       @@@@@@   %%@",
 	"@       @@            @@@@@@            @@       @",
 	"@                       @@                       @",
 	"@                       @@                       @",
-	"@   @@@######     @@@        @@@     ######@@@   @",
 	"@   @@@######     @@@   S    @@@     ######@@@   @",
+	"@   @@@######     @@@        @@@     ######@@@   @",
 	"@      ##         @@@        @@@         ##      @",
 	"@                 @@@@@@@@@@@@@@                 @",
 	"@                      @@@@                      @",
 	"@      @@@              @@              @@@      @",
 	"@      @@@              @@              @@@      @",
-	"@###   #%%#########            ########%%##   ###@",
-	"@%%#   ##%%%%@@%%####   S    ####%%@@%%%%##   #%%@",
+	"@###   #%%#########     S      ########%%##   ###@",
+	"@%%#   ##%%%%@@%%####        ####%%@@%%%%##   #%%@",
 	"@###    ###%%@@@%%###        ###%%@@@%%###    ###@",
 	"@         ###@@@@@%%%@@    @@%%%@@@@@###         @",
 	"@           #######%%@@@@@@@@%%#######           @",
@@ -102,4 +104,4 @@ const float BULLET_SPEED = 20.0f;
 const float STANDART_BULLET_WIDTH  = 0.125f;
 const float STANDART_BULLET_HEIGHT = 0.25f;
 
-const sf::IntRect BULLET_IMAGE  = sf::IntRect(0, 264, 6, 10);
+const sf::IntRect BULLET_IMAGE = sf::IntRect(0, 264, 6, 10);

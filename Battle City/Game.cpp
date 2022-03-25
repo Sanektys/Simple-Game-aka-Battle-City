@@ -38,21 +38,35 @@ Game::~Game() {
 		delete _renderWindow;
 		_renderWindow = nullptr;
 	}
+
+	if (_playerCamera) {
+		delete _playerCamera;
+		_playerCamera = nullptr;
+	}
 }
 
 void Game::setupSystem() {
+	// Установка зерна рандома
 	random.seed(unsigned(steady_clock::now().time_since_epoch().count()));
 
+	// Создание игрового окна
 	_renderWindow = new sf::RenderWindow(
 		sf::VideoMode(PIXELS_PER_CELL * SCREEN_COLUMNS,
 		              PIXELS_PER_CELL * SCREEN_ROWS, 32),
 		"Battle City", sf::Style::Fullscreen);
 
+	// Иницализация камеры игрока
+	_playerCamera = new sf::View(
+		sf::FloatRect(0.0f, 0.0f,
+					  PLAYER_CAMERA_WIDTH, PLAYER_CAMERA_HEIGHT));
+
+	// Загрузка текстур из атласов
 	_atlasTerrain = new sf::Texture();
 	_atlasTerrain->loadFromFile("atlas_terrain.png");
 	_atlasEntity = new sf::Texture();
 	_atlasEntity->loadFromFile("atlas_entity.png");
 
+	// Загрузка шрифтов
 	_debugFont = new sf::Font;
 	_debugFont->loadFromFile("progresspixel-bold.ttf");
 }
@@ -107,7 +121,9 @@ void Game::initialize() {
 					if (_playerOne) {
 						_playerOne->setTextureRect(FIRST_PLAYER_TANK_IMAGE);
 						dynamic_cast<TankPlayer*>(_playerOne)
-							->setKeys(VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_SPACE);
+							->setKeys(sf::Keyboard::Left, sf::Keyboard::Right,
+									  sf::Keyboard::Up,   sf::Keyboard::Down,
+									  sf::Keyboard::Space);
 					}
 					break;
 				}
@@ -117,7 +133,9 @@ void Game::initialize() {
 					if (_playerTwo) {
 						_playerTwo->setTextureRect(SECOND_PLAYER_TANK_IMAGE);
 						dynamic_cast<TankPlayer*>(_playerTwo)
-							->setKeys('A', 'D', 'W', 'S', 'E');
+							->setKeys(sf::Keyboard::A, sf::Keyboard::D,
+									  sf::Keyboard::W, sf::Keyboard::S,
+									  sf::Keyboard::E);
 					}
 					break;
 				}
@@ -174,12 +192,22 @@ void Game::shutdown() {
 void Game::render() {
 	std::string string;
 	sf::Text text;
+	sf::RectangleShape rectangle;
 	text.setFont(*_debugFont);
 	text.setCharacterSize(24);
 	text.setLetterSpacing(1.6f);
 	
 	// Начало кадра
 	_renderWindow->clear(sf::Color(20, 20, 20));
+
+	// Обновление положения камеры вслед за танком игрока
+	// Смена вида делается перед отрисовкой игровых объектов,
+	// чтобы они были увеличены и корректно отображались относительно танка
+	_playerCamera->setCenter((_playerTwo->getX()
+							 + _playerTwo->getWidth() / 2.0f) * PIXELS_PER_CELL,
+							 (_playerTwo->getY()
+							 + _playerTwo->getHeight() / 2.0f) * PIXELS_PER_CELL);
+	_renderWindow->setView(*_playerCamera);
 
 	// Отрисовка всех игровых объектов
 	int objectsCount = 0;
@@ -188,20 +216,36 @@ void Game::render() {
 			_objects[i]->render(_renderWindow);
 			objectsCount++;
 		}
+	
+	// Сброс вида до разрешения монитора
+	// Всё, что идёт дальше, отрисовывается относительно главного экрана
+	_renderWindow->setView(_renderWindow->getDefaultView());
 
 	// Счётчик обновлений в секунду
 	string = "UPS: " + std::to_string(_ups);
 	text.setString(string);
-	text.setPosition(2250, 2);
+	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 2);
 	text.setFillColor(sf::Color::Color(165, 92, 126, 255));
+	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
+					               text.getGlobalBounds().height + 8.0f));
+	rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
+						               text.getGlobalBounds().top - 4.0f));
+	rectangle.setFillColor(sf::Color::Color(20, 20, 20, 220));
+	_renderWindow->draw(rectangle);
 	_renderWindow->draw(text);
 	
 	// Счётчик объектов в игре
     #ifdef _DEBUG
 	string = "Objects: " + std::to_string(objectsCount);
 	text.setString(string);
-	text.setPosition(2250, 34);
+	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 34);
 	text.setFillColor(sf::Color::Color(125, 155, 185, 200));
+	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
+					               text.getGlobalBounds().height + 8.0f));
+	rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
+						               text.getGlobalBounds().top - 4.0f));
+	rectangle.setFillColor(sf::Color::Color(20, 20, 20, 220));
+	_renderWindow->draw(rectangle);
 	_renderWindow->draw(text);
     #endif
 
@@ -240,7 +284,7 @@ void Game::update(float dt) {
 }
 
 GameObject* Game::checkIntersects(float x, float y, float width, float height,
-	                              class GameObject* exceptObject) {
+	                              class GameObject* exceptObject) const {
 	// Левый верхний угол входного объекта
 	float primaryCoordY = y;
 	float primaryCoordX = x;
@@ -272,7 +316,7 @@ GameObject* Game::checkIntersects(float x, float y, float width, float height,
 	return nullptr;
 }
 
-bool Game::moveObjectTo(class GameObject* object, float x, float y) {
+bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
 	// Координаты желаемой(новой) позиции
 	float newCoordY = y;
 	float newCoordX = x;
@@ -310,7 +354,7 @@ bool Game::moveObjectTo(class GameObject* object, float x, float y) {
 	return false;
 }
 
-int Game::getObjectsCount(enum GameObjectType type) {
+int Game::getObjectsCount(enum GameObjectType type) const {
 	int totalCount = 0;
 
 	for (int i = 0; i < OBJECTS_COUNT_MAX; i++)
