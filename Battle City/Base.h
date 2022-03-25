@@ -3,19 +3,43 @@
 #include "GameObject.h"
 
 
+/// <summary>
+/// Класс игровой базы
+/// </summary>
 class Base : public GameObject
 {
     public :
 	    Base();
 		~Base() override;
 
+	    /// <summary>
+	    /// Метод отрисовки спрайта игровой базы
+	    /// </summary>
+	    /// <param name="rw">- указатель на объект игрового окна</param>
 	    virtual void render(sf::RenderWindow* rw) override;
+		/// <summary>
+		/// Метод обновления состояния объекта игровой базы
+		/// </summary>
+		/// <param name="dt">- дельта времени,
+		/// затраченного на предыдущий игровой такт</param>
 		virtual void update(float dt) override;
 
+		/// <summary>
+		/// Обновление спрайта базы в зависимости от оставшихся очков прочности
+		/// <para>Метод также обеспечивает анимацию огня при сильных
+		/// повреждениях игровой базы</para>
+		/// </summary>
+		/// <param name="rect">- прямоугольник "вырезающий" определённый спрайт
+		/// из всего атласа</param>
 		virtual void setTextureRect(sf::IntRect rect) override;
 
 	private :
+	    Base(const Base&) = delete;
+		Base operator=(const Base&) = delete;
+
+	private :
 	    // Переменные для смены спрайта базы
+        ////////////////	
 	    float _frameSwitchTime{0.0f};
 	    short _horizontalFrameNumber{1};
 		bool _toLeft{true};
