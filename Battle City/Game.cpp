@@ -50,10 +50,9 @@ void Game::setupSystem() {
 	random.seed(unsigned(steady_clock::now().time_since_epoch().count()));
 
 	// Создание игрового окна
-	_renderWindow = new sf::RenderWindow(
-		sf::VideoMode(PIXELS_PER_CELL * SCREEN_COLUMNS,
-		              PIXELS_PER_CELL * SCREEN_ROWS, 32),
-		"Battle City", sf::Style::Fullscreen);
+	_renderWindow = new sf::RenderWindow(sf::VideoMode::getDesktopMode(),
+		                                 "Battle City", sf::Style::Fullscreen);
+	_renderWindow->setMouseCursorVisible(false);
 
 	// Иницализация камеры игрока
 	_playerCamera = new sf::View(
@@ -150,6 +149,10 @@ void Game::initialize() {
 bool Game::loop() {
 	if (!_renderWindow->isOpen())
 		return false;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+		_renderWindow->close();
+		return false;
+	}
 
 	// Расчёт прошедшего времени за такт
 	using std::chrono::duration;
@@ -224,7 +227,7 @@ void Game::render() {
 	// Счётчик обновлений в секунду
 	string = "UPS: " + std::to_string(_ups);
 	text.setString(string);
-	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 2);
+	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 2.0f);
 	text.setFillColor(sf::Color::Color(165, 92, 126, 255));
 	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
 					               text.getGlobalBounds().height + 8.0f));
@@ -238,7 +241,21 @@ void Game::render() {
     #ifdef _DEBUG
 	string = "Objects: " + std::to_string(objectsCount);
 	text.setString(string);
-	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 34);
+	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 34.0f);
+	text.setFillColor(sf::Color::Color(125, 155, 185, 200));
+	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
+					               text.getGlobalBounds().height + 8.0f));
+	rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
+						               text.getGlobalBounds().top - 4.0f));
+	rectangle.setFillColor(sf::Color::Color(20, 20, 20, 220));
+	_renderWindow->draw(rectangle);
+	_renderWindow->draw(text);
+
+	// Текущее разрешение
+	string = std::to_string(sf::VideoMode::getDesktopMode().width) + "x"
+		     + std::to_string(sf::VideoMode::getDesktopMode().height);
+	text.setString(string);
+	text.setPosition(0.0f, 0.0f);
 	text.setFillColor(sf::Color::Color(125, 155, 185, 200));
 	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
 					               text.getGlobalBounds().height + 8.0f));
@@ -350,8 +367,6 @@ bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
 		object->setY(y);
 		return true;
 	}
-
-	return false;
 }
 
 int Game::getObjectsCount(enum GameObjectType type) const {
