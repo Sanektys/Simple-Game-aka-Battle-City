@@ -1,5 +1,4 @@
 #include "SolidWall.h"
-#include "Level.h"
 #include "GameObjectType.h"
 #include "Utils.h"
 
@@ -12,22 +11,25 @@ SolidWall::SolidWall() {
 }
 
 void SolidWall::render(sf::RenderWindow* rw) {
+    // Выбор актуального спрайта из атласа
+    // по оставшейся прочности стены
 	setTextureRect(_spriteTerrain->getTextureRect());
 	
 	GameObject::render(rw);
 }
 
 void SolidWall::setTextureRect(sf::IntRect rect) {
+    // Выбор спрайта по очкам прочности стены
+    // По умолчанию очков 3, поэтому этого варианта тут нет
 	switch (getHealth()) {
-	    case 2 : {
+	    case 2 :
+            // Смещение на одну текстуру вниз в атласе
 		    rect.top = 14 * PIXELS_PER_CELL;
 		    break;
-	    }
-	    case 1 : {
+
+	    case 1 :
 		    rect.top = 15 * PIXELS_PER_CELL;
 		    break;
-	    }
 	}
-	
 	_spriteTerrain->setTextureRect(rect);
 }

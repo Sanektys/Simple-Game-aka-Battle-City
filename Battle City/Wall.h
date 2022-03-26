@@ -12,7 +12,7 @@ class Wall : public GameObject
 {
     public :
 		Wall();
-		~Wall();
+		~Wall() override;
 
 		/// <summary>
 		/// Метод выбора одного из трёх типов спрайтов стены из атласа,

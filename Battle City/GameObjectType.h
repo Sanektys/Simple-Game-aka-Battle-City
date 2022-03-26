@@ -1,6 +1,9 @@
 #pragma once
 
 
+/// <summary>
+/// Перечисление существующих типов игровых объектов
+/// </summary>
 enum class GameObjectType
 {
 	NONE,
