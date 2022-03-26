@@ -1,5 +1,4 @@
 #include "Wall.h"
-#include "Level.h"
 #include "Utils.h"
 #include "GameObjectType.h"
 
@@ -15,27 +14,23 @@ Wall::Wall() {
 }
 
 Wall::~Wall() {
-	if (_spriteTerrain) {
-		delete _spriteTerrain;
-		_spriteTerrain = nullptr;
-	}
-}
-
-void Wall::render(sf::RenderWindow* rw) {
-	GameObject::render(rw);
+    if (_spriteTerrain) {
+        delete _spriteTerrain;
+        _spriteTerrain = nullptr;
+    }
 }
 
 void Wall::setTextureRect(sf::IntRect rect) {
+    // ¬ыбор варианта спрайта дл€ отображени€ в зависимости от случайного типа
+    // ѕо умолчанию при создании всегда тип 1, поэтому его тут нет
 	switch (_variation) {
-	    case 2 : {
+	    case 2 :
 		    rect.left = PIXELS_PER_CELL;
 		    break;
-	    }
-		case 3 : {
+
+		case 3 :
 			rect.left = 2 * PIXELS_PER_CELL;
 			break;
-		}
 	}
-
 	_spriteTerrain->setTextureRect(rect);
 }
