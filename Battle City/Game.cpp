@@ -13,16 +13,18 @@
 
 ///////////////////////////////////////////////////////////
 // Глобальные переменные
-sf::Texture* ATLAS_TERRAIN;
-sf::Texture* ATLAS_ENTITY;
+namespace level {
+    sf::Texture* ATLAS_TERRAIN;
+    sf::Texture* ATLAS_ENTITY;
+}
 std::mt19937* RANDOM;
 
 
 Game::~Game() {
-    if (ATLAS_TERRAIN)
-        delete ATLAS_TERRAIN;
-    if (ATLAS_ENTITY)
-        delete ATLAS_ENTITY;
+    if (level::ATLAS_TERRAIN)
+        delete level::ATLAS_TERRAIN;
+    if (level::ATLAS_ENTITY)
+        delete level::ATLAS_ENTITY;
     if (RANDOM)
         delete RANDOM;
 }
@@ -40,13 +42,13 @@ void Game::setupSystem() {
 	// Иницализация камеры игрока
 	_playerCamera.reset(new sf::View(
 		sf::FloatRect(0.0f, 0.0f,
-					  PLAYER_CAMERA_WIDTH, PLAYER_CAMERA_HEIGHT)));
+					  level::CAMERA_WIDTH, level::CAMERA_HEIGHT)));
 
 	// Загрузка текстур из атласов
-	ATLAS_TERRAIN = new sf::Texture();
-	ATLAS_TERRAIN->loadFromFile("atlas_terrain.png");
-	ATLAS_ENTITY = new sf::Texture();
-	ATLAS_ENTITY->loadFromFile("atlas_entity.png");
+	level::ATLAS_TERRAIN = new sf::Texture();
+	level::ATLAS_TERRAIN->loadFromFile("atlas_terrain.png");
+	level::ATLAS_ENTITY = new sf::Texture();
+	level::ATLAS_ENTITY->loadFromFile("atlas_entity.png");
 
 	// Загрузка шрифтов
 	_debugFont.reset(new sf::Font);
@@ -59,38 +61,38 @@ void Game::initialize() {
 	_diedEnemiesCount = 0;
 
 	// Загрузка уровня
-	for (int r = 0; r < LEVEL_ROWS; r++) {
-		for (int c = 0; c < LEVEL_COLUMNS; c++) {
-			unsigned char cellSymbol = FIRST_LEVEL_DATA[r][c];
+	for (int r = 0; r < level::ROWS; r++) {
+		for (int c = 0; c < level::COLUMNS; c++) {
+			unsigned char cellSymbol = level::FIRST_MAP[r][c];
 
 			switch (cellSymbol) {
-			    case CELL_SYMBOL_BRICK_WALL :
+                case level::SYMBOL_BRICK_WALL :
 				    createObject(GameObjectType::WALL, (float)c, (float)r);
 					break;
 
-                case CELL_SYMBOL_SOLID_WALL :
+                case level::SYMBOL_SOLID_WALL :
 					createObject(GameObjectType::SOLID_WALL, (float)c, (float)r);
 					break;
                     
-			    case CELL_SYMBOL_STEEL_WALL :
+                case level::SYMBOL_STEEL_WALL :
 				    createObject(GameObjectType::STEEL_WALL, (float)c, (float)r);
 				    break;
 			    
-				case CELL_SYMBOL_BASE :
+                case level::SYMBOL_BASE :
 					_base = &createObject(GameObjectType::BASE, (float)c, (float)r);
 					break;
 				
-				case CELL_SYMBOL_PLAYER_1 :
+                case level::SYMBOL_PLAYER_1 :
 					_playerOne = &createObject(
 						GameObjectType::TANK_FIRST_PLAYER, (float)c, (float)r);
 					break;
 				
-				case CELL_SYMBOL_PLAYER_2 :
+                case level::SYMBOL_PLAYER_2 :
                     _playerTwo = &createObject(
                         GameObjectType::TANK_SECOND_PLAYER, (float)c, (float)r);
 					break;
 				
-				case CELL_SYMBOL_ENEMY_SPAWNER :
+                case level::SYMBOL_ENEMY_SPAWNER :
 					//createObject(GameObjectType::ENEMY_SPAWNER, (float)c, (float)r);
 					break;
 			}
@@ -99,6 +101,7 @@ void Game::initialize() {
 }
 
 bool Game::loop() {
+    // Обработка закрытия игрового окна
 	if (!_renderWindow->isOpen())
 		return false;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
@@ -110,6 +113,7 @@ bool Game::loop() {
     using std::chrono::duration_cast;
     steady_clock::time_point clockNow;
 
+    // Постановка игры на паузу
     bool wasPause{false};
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Pause)) {
         wasPause = true;
@@ -174,9 +178,9 @@ void Game::render() {
     // Смена вида делается перед отрисовкой игровых объектов,
     // чтобы они были увеличены и корректно отображались относительно танка
     _playerCamera->setCenter(((*_playerTwo)->getX()
-                             + (*_playerTwo)->getWidth() / 2.0f) * PIXELS_PER_CELL,
+                             + (*_playerTwo)->getWidth() / 2.0f) * level::PIXELS_PER_CELL,
                              ((*_playerTwo)->getY()
-                             + (*_playerTwo)->getHeight() / 2.0f) * PIXELS_PER_CELL);
+                             + (*_playerTwo)->getHeight() / 2.0f) * level::PIXELS_PER_CELL);
     _renderWindow->setView(*_playerCamera);
 
     int objectsCount = 0;
@@ -273,7 +277,7 @@ void Game::update(float dt) {
 		initialize();
 
 	// Все противники уничтожены
-	if (_diedEnemiesCount == ENEMIES_PER_LEVEL)
+	if (_diedEnemiesCount == level::tank::enemy::PER_LEVEL)
 		initialize();
 }
 
@@ -334,8 +338,8 @@ bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
 	// Проверка на неверные координаты (выход за пределы игрового поля)
 	bool conditionOne   = newCoordY < 0.0f;
 	bool conditionTwo   = newCoordX < 0.0f;
-	bool conditionThree = newOverallCoordY >= LEVEL_ROWS;
-	bool conditionFour  = newOverallCoordX >= LEVEL_COLUMNS;
+	bool conditionThree = newOverallCoordY >= level::ROWS;
+	bool conditionFour  = newOverallCoordX >= level::COLUMNS;
 	
 	if (conditionOne || conditionTwo || conditionThree || conditionFour)
 		return false;
@@ -382,41 +386,41 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
 
 	switch (type) {
         case GameObjectType::WALL :
-            object.reset(new Wall(*this, BRICK_WALL_IMAGE));
+            object.reset(new Wall(*this, level::wall::BRICK_IMAGE));
             break;
 
         case GameObjectType::STEEL_WALL :
-            object.reset(new Wall(*this, STEEL_WALL_IMAGE, true));
+            object.reset(new Wall(*this, level::wall::STEEL_IMAGE, true));
             break;
 
         case GameObjectType::SOLID_WALL :
-            object.reset(new SolidWall(*this, SOLID_BRICK_WALL_IMAGE));
+            object.reset(new SolidWall(*this, level::wall::SOLID_BRICK_IMAGE));
             break;
 				
         case GameObjectType::BASE :
-            object.reset(new Base(*this, BASE_IMAGE));
+            object.reset(new Base(*this, level::base::IMAGE));
             break;
 				
         case GameObjectType::TANK_FIRST_PLAYER :
-            object.reset(new TankPlayer(*this, FIRST_PLAYER_TANK_IMAGE,
+            object.reset(new TankPlayer(*this, level::tank::player::FIRST_IMAGE,
                                         sf::Keyboard::Left, sf::Keyboard::Right,
                                         sf::Keyboard::Up,   sf::Keyboard::Down,
                                         sf::Keyboard::Space));
             break;
 
         case GameObjectType::TANK_SECOND_PLAYER :
-            object.reset(new TankPlayer(*this, SECOND_PLAYER_TANK_IMAGE,
+            object.reset(new TankPlayer(*this, level::tank::player::SECOND_IMAGE,
                                         sf::Keyboard::A, sf::Keyboard::D,
                                         sf::Keyboard::W, sf::Keyboard::S,
                                         sf::Keyboard::E));
             break;
 				
         case GameObjectType::TANK_ENEMY :
-            object.reset(new TankEnemy(*this, BASIC_ENEMY_TANK_IMAGE));
+            object.reset(new TankEnemy(*this, level::tank::enemy::basic::IMAGE));
             break;
 				
         case GameObjectType::BULLET :
-            object.reset(new Bullet(*this, BULLET_IMAGE));
+            object.reset(new Bullet(*this, level::bullet::basic::IMAGE));
             break;
 				
         case GameObjectType::ENEMY_SPAWNER :

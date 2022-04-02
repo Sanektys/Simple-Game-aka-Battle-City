@@ -8,8 +8,8 @@
 Tank::Tank(const class Game& game) : GameObject(game) {
     setGroup(GameObjectGroup::ENTITY);
 
-	setWidth(TANK_WIDTH);
-	setHeight(TANK_HEIGHT);
+	setWidth(level::tank::WIDTH);
+    setHeight(level::tank::HEIGHT);
 	_offset = (getHeight() - getWidth()) / 2.0f;
 
 	_maxSpeed = 10.0f;
@@ -28,8 +28,9 @@ Tank::Tank(const class Game& game) : GameObject(game) {
 	_inertiaDirection = Direction::LEFT;
 
 	_spriteEntity.reset(new sf::Sprite());
-	_spriteEntity->setTexture(*ATLAS_ENTITY);
-	_spriteEntity->setOrigin(32, 52);
+	_spriteEntity->setTexture(*(level::ATLAS_ENTITY));
+	_spriteEntity->setOrigin(level::tank::PIXELS_WIDTH / 2.0f + 1.0f,
+                             level::tank::PIXELS_HEIGHT / 2.0f + level::tank::PIXELS_GUN_LENGTH);
 
 	_currentTrackShift = 0.0f;
 }
@@ -54,8 +55,8 @@ void Tank::update(float dt) {
 				
 				float newY = getY() - _offset;
 				float newX = getX() + _offset;
-				float newWidth = TANK_WIDTH;
-				float newHeight = TANK_HEIGHT;
+				float newWidth = level::tank::WIDTH;
+				float newHeight = level::tank::HEIGHT;
 
 				bool topIntersects = bool(getGame().checkIntersects(newX, newY, newWidth, _offset, this));
 				bool bottomIntersects = bool(getGame().checkIntersects(newX, getY() + getHeight(), newWidth, _offset, this));
@@ -85,8 +86,8 @@ void Tank::update(float dt) {
 					
 				float newY = getY() + _offset;
 				float newX = getX() - _offset;
-				float newWidth = TANK_HEIGHT;
-				float newHeight = TANK_WIDTH;
+				float newWidth = level::tank::HEIGHT;
+				float newHeight = level::tank::WIDTH;
 
 				bool rightIntersects = bool(getGame().checkIntersects(getX() + getWidth(),newY, _offset, newHeight, this));
 				bool leftIntersects = bool(getGame().checkIntersects(newX, newY, _offset, newHeight, this));
@@ -539,7 +540,16 @@ void Tank::fire() {
 	if ((_fireCooldownTime > 0) || _rotation)
 		return;
 
-	_fireCooldownTime = TANK_FIRE_COOLDOWN_TIME;
+    switch (getType()) {
+        case GameObjectType::TANK_ENEMY :
+            _fireCooldownTime = level::tank::enemy::basic::FIRE_COOLDOWN_TIME;
+            break;
+            
+        case GameObjectType::TANK_FIRST_PLAYER :
+        case GameObjectType::TANK_SECOND_PLAYER :
+            _fireCooldownTime = level::tank::player::FIRE_COOLDOWN_TIME;
+            break;
+    }
 
 	float bulletPositionX = 0.0f;
 	float bulletPositionY = 0.0f;
@@ -548,27 +558,30 @@ void Tank::fire() {
 
 	calculateFrontCellPosition(bulletPositionX, bulletPositionY);
 
+    // Установка скорости полёта снаряда и его центровка относительно
+    // своих размеров к дулу орудия танка
+    // Здесь width - всегда короткая сторона, а height - всегда длинная
 	switch (getDirection()) {
 	    case Direction::LEFT :
-			bulletSpeedX = -BULLET_SPEED;
-            bulletPositionY -= (STANDART_BULLET_WIDTH / 2.0f);
-            bulletPositionX -= STANDART_BULLET_HEIGHT;
+			bulletSpeedX = -level::bullet::basic::SPEED;
+            bulletPositionY -= (level::bullet::basic::WIDTH / 2.0f);
+            bulletPositionX -= level::bullet::basic::HEIGHT;
 		    break;
 
 		case Direction::RIGHT :
-			bulletSpeedX = BULLET_SPEED;
-            bulletPositionY -= (STANDART_BULLET_WIDTH / 2.0f);
+			bulletSpeedX = level::bullet::basic::SPEED;
+            bulletPositionY -= (level::bullet::basic::WIDTH / 2.0f);
 			break;
 
 		case Direction::UP :
-			bulletSpeedY = -BULLET_SPEED;
-            bulletPositionX -= (STANDART_BULLET_WIDTH / 2.0f);
-            bulletPositionY -= STANDART_BULLET_HEIGHT;
+			bulletSpeedY = -level::bullet::basic::SPEED;
+            bulletPositionX -= (level::bullet::basic::WIDTH / 2.0f);
+            bulletPositionY -= level::bullet::basic::HEIGHT;
 			break;
 
 		case Direction::DOWN :
-			bulletSpeedY = BULLET_SPEED;
-            bulletPositionX -= (STANDART_BULLET_WIDTH / 2.0f);
+			bulletSpeedY = level::bullet::basic::SPEED;
+            bulletPositionX -= (level::bullet::basic::WIDTH / 2.0f);
 			break;
 	}
 	std::unique_ptr<GameObject>& object = 
@@ -580,8 +593,9 @@ void Tank::fire() {
         bullet.setXSpeed(bulletSpeedX);
         bullet.setYSpeed(bulletSpeedY);
         bullet.setDirection(this->getDirection());
-        bullet.setTextureRect(BULLET_IMAGE);
+        bullet.setTextureRect(level::bullet::basic::IMAGE); // Для изменения дефолтного направления
     }
+
 	//Отдача от выстрела
 	_currentSpeed -= _speedup / 6.0f;
 }

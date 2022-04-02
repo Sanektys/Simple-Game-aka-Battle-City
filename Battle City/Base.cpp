@@ -7,16 +7,16 @@ Base::Base(const class Game& game, sf::IntRect rect) : GameObject(game) {
     setGroup(GameObjectGroup::TERRAIN);
 	setType(GameObjectType::BASE);
 
-	setWidth(BASE_COLUMNS);
-	setHeight(BASE_ROWS);
+	setWidth(level::base::COLUMNS);
+	setHeight(level::base::ROWS);
 
-	setHealth(BASE_HEALTH);
+	setHealth(level::base::HEALTH);
 	setDestroyAfterDeath(false);
 
 	_spriteTerrain.reset(new sf::Sprite());
-	_spriteTerrain->setTexture(*ATLAS_TERRAIN);
-	_spriteTerrain->setOrigin(getWidth()  * PIXELS_PER_CELL / 2.0f,
-							  getHeight() * PIXELS_PER_CELL / 2.0f);
+	_spriteTerrain->setTexture(*level::ATLAS_TERRAIN);
+	_spriteTerrain->setOrigin(getWidth()  * level::PIXELS_PER_CELL / 2.0f,
+							  getHeight() * level::PIXELS_PER_CELL / 2.0f);
 
     setTextureRect(rect);
 }
@@ -51,33 +51,33 @@ void Base::setTextureRect(sf::IntRect rect) {
 	switch (getHealth()) {
 		case 8 :
 		case 7 :
-			rect.top = 2 * PIXELS_PER_CELL;
+			rect.top = 2 * level::PIXELS_PER_CELL;
 			break;
 
 		case 6 :
 		case 5 :
-			rect.top = 4 * PIXELS_PER_CELL;
+			rect.top = 4 * level::PIXELS_PER_CELL;
 			// »спользование смещени€ дл€ анимации горени€
-			rect.left = BASE_COLUMNS * PIXELS_PER_CELL
+			rect.left = level::base::COLUMNS * level::PIXELS_PER_CELL
 					    * (_horizontalFrameNumber - 1);
 			break;
 
 		case 4 :
 		case 3 :
-			rect.top = 6 * PIXELS_PER_CELL;
-			rect.left = BASE_COLUMNS * PIXELS_PER_CELL
+            rect.top = 6 * level::PIXELS_PER_CELL;
+			rect.left = level::base::COLUMNS * level::PIXELS_PER_CELL
 				        * (_horizontalFrameNumber - 1);
 			break;
 
 		case 2 :
 		case 1 :
-			rect.top = 8 * PIXELS_PER_CELL;
-			rect.left = BASE_COLUMNS * PIXELS_PER_CELL
+			rect.top = 8 * level::PIXELS_PER_CELL;
+			rect.left = level::base::COLUMNS * level::PIXELS_PER_CELL
 				        * (_horizontalFrameNumber - 1);
 			break;
 
 		case 0 :
-			rect.top = 10 * PIXELS_PER_CELL;
+			rect.top = 10 * level::PIXELS_PER_CELL;
 			break;
 	}   
 	_spriteTerrain->setTextureRect(rect);

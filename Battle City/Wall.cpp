@@ -17,19 +17,19 @@ Wall::Wall(const class Game& game, sf::IntRect rect, bool isInvulnerable)
     _variation = getRandomInt(1, 3);
 
     _spriteTerrain.reset(new sf::Sprite());
-    _spriteTerrain->setTexture(*ATLAS_TERRAIN);
-    _spriteTerrain->setOrigin((getWidth() * (float)PIXELS_PER_CELL) / 2.0f,
-                              (getHeight() * (float)PIXELS_PER_CELL) / 2.0f);
+    _spriteTerrain->setTexture(*level::ATLAS_TERRAIN);
+    _spriteTerrain->setOrigin((getWidth() * (float)level::PIXELS_PER_CELL) / 2.0f,
+                              (getHeight() * (float)level::PIXELS_PER_CELL) / 2.0f);
 
     // ¬ыбор варианта спрайта дл€ отображени€ в зависимости от случайного типа
     // ѕо умолчанию при создании всегда тип 1, поэтому его тут нет
     switch (_variation) {
         case 2:
-            rect.left = PIXELS_PER_CELL;
+            rect.left = level::PIXELS_PER_CELL;
             break;
 
         case 3:
-            rect.left = 2 * PIXELS_PER_CELL;
+            rect.left = 2 * level::PIXELS_PER_CELL;
             break;
     }
     _spriteTerrain->setTextureRect(rect);

@@ -24,11 +24,11 @@ void SolidWall::setTextureRect(sf::IntRect rect) {
 	switch (getHealth()) {
 	    case 2 :
             // Смещение на одну текстуру вниз в атласе
-		    rect.top = 14 * PIXELS_PER_CELL;
+		    rect.top = 14 * level::PIXELS_PER_CELL;
 		    break;
 
 	    case 1 :
-		    rect.top = 15 * PIXELS_PER_CELL;
+		    rect.top = 15 * level::PIXELS_PER_CELL;
 		    break;
 	}
 	_spriteTerrain->setTextureRect(rect);

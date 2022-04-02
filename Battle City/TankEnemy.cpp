@@ -13,13 +13,13 @@ extern std::mt19937* RANDOM;
 TankEnemy::TankEnemy(const class Game& game, sf::IntRect rect) : Tank(game) {
 	setType(GameObjectType::TANK_ENEMY);
 
-	_analizeTime = ENEMY_AI_ANALIZER_TIME;
+	_analizeTime = level::tank::enemy::basic::AI_ANALIZER_TIME;
 	_analizeTimer = getRandomFloat(0.0f, _analizeTime);
 	_lastAnalizeX = 0.0f;
 	_lastAnalizeY = 0.0f;
 
-	setHealth(ENEMY_HEALTH);
-	setMaxSpeed(ENEMY_SPEED);
+	setHealth(level::tank::enemy::basic::HEALTH);
+	setMaxSpeed(level::tank::enemy::basic::SPEED);
 	setSpeedup(10.0f);
 	setBrakingSpeed(8.0f);
 	setRotationTime(0.9f);

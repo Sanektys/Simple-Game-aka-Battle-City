@@ -16,17 +16,17 @@ void GameObject::render(sf::RenderWindow* rw) {
 		if (_spriteTerrain) {
             // Помещение спрайта на игровом поле.
             // Предполагается, что центр спрайта смещён на центр самой текстуры
-			_spriteTerrain->setPosition(getX() * PIXELS_PER_CELL
-                                        + (getWidth() * PIXELS_PER_CELL) / 2.0f,
-				                        getY() * PIXELS_PER_CELL
-                                        + (getHeight() * PIXELS_PER_CELL) / 2.0f);
+			_spriteTerrain->setPosition(getX() * level::PIXELS_PER_CELL
+                                        + (getWidth() * level::PIXELS_PER_CELL) / 2.0f,
+				                        getY() * level::PIXELS_PER_CELL
+                                        + (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
 			rw->draw(*_spriteTerrain);
 		}
 		else if (_spriteEntity) {
-		    _spriteEntity->setPosition(getX() * PIXELS_PER_CELL
-                                       + (getWidth() * PIXELS_PER_CELL) / 2.0f,
-				                       getY() * PIXELS_PER_CELL
-                                       + (getHeight() * PIXELS_PER_CELL) / 2.0f);
+		    _spriteEntity->setPosition(getX() * level::PIXELS_PER_CELL
+                                       + (getWidth() * level::PIXELS_PER_CELL) / 2.0f,
+				                       getY() * level::PIXELS_PER_CELL
+                                       + (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
 			rw->draw(*_spriteEntity);
 		}
 	}

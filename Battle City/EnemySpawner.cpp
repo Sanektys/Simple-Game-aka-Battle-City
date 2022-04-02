@@ -9,7 +9,7 @@ EnemySpawner::EnemySpawner(const class Game& game) : GameObject(game) {
     setGroup(GameObjectGroup::ENTITY);
 	setType(GameObjectType::ENEMY_SPAWNER);
 
-	_spawnTime = getRandomFloat(5.0f, ENEMY_SPAWNER_SPAWN_TIME);
+	_spawnTime = getRandomFloat(5.0f, level::tank::enemy::basic::SPAWN_TIME);
 
 	setPhysical(false);
 }
@@ -24,11 +24,11 @@ void EnemySpawner::update(float dt) {
         // Текущее количество противников на уровне
 		int enemiesOnLevel = getGame().getObjectsCount(GameObjectType::TANK_ENEMY);
         // Оставшееся общее возможное количество противников на уровне
-		int enemiesStorageLeft = ENEMIES_PER_LEVEL - enemiesOnLevel
+		int enemiesStorageLeft = level::tank::enemy::PER_LEVEL - enemiesOnLevel
                                  - getGame().getDiedEnemiesCount();
 
 		if (enemiesStorageLeft > 0
-            && enemiesOnLevel < ENEMIES_PER_LEVEL_IN_ONE_MOMENT)
+            && enemiesOnLevel < level::tank::enemy::PER_LEVEL_IN_ONE_MOMENT)
             // Создание объекта танка противника
 			getGame().createObject(GameObjectType::TANK_ENEMY, getX(), getY());
 	}

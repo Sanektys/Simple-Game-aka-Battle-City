@@ -14,13 +14,13 @@ Bullet::Bullet(const class Game& game, sf::IntRect rect,
     setXSpeed(speedX);
     setYSpeed(speedY);
 
-	setWidth(STANDART_BULLET_WIDTH);
-	setHeight(STANDART_BULLET_HEIGHT);
+	setWidth(level::bullet::basic::WIDTH);
+	setHeight(level::bullet::basic::HEIGHT);
 
 	_spriteEntity.reset(new sf::Sprite());
-	_spriteEntity->setTexture(*ATLAS_ENTITY);
-	_spriteEntity->setOrigin((getWidth() * (float)PIXELS_PER_CELL) / 2.0f,
-		                     (getHeight() * (float)PIXELS_PER_CELL) / 2.0f);
+	_spriteEntity->setTexture(*level::ATLAS_ENTITY);
+	_spriteEntity->setOrigin((getWidth() * level::PIXELS_PER_CELL) / 2.0f,
+		                     (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
     setTextureRect(rect);
 }
 
@@ -41,13 +41,13 @@ void Bullet::setTextureRect(sf::IntRect rect) {
 	switch (getDirection()) {
 	    case Direction::LEFT :
 	    case Direction::RIGHT :
-			setWidth(STANDART_BULLET_HEIGHT);
-			setHeight(STANDART_BULLET_WIDTH);
+			setWidth(level::bullet::basic::HEIGHT);
+			setHeight(level::bullet::basic::WIDTH);
 		    break;
 
         default :
-			setWidth(STANDART_BULLET_WIDTH);
-			setHeight(STANDART_BULLET_HEIGHT);
+			setWidth(level::bullet::basic::WIDTH);
+			setHeight(level::bullet::basic::HEIGHT);
 		    break;
 	}
 	_spriteEntity->setRotation(90.0f * (int)getDirection());

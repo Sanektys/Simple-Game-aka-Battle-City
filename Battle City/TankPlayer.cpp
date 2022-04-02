@@ -9,8 +9,8 @@ TankPlayer::TankPlayer(const class Game& game, sf::IntRect rect,
       _keyUp(keyUp), _keyDown(keyDown), _keyFire(keyFire) {
     setType(GameObjectType::TANK_FIRST_PLAYER);
 
-	setHealth(PLAYER_HEALTH);
-	setMaxSpeed(PLAYER_SPEED);
+	setHealth(level::tank::player::HEALTH);
+	setMaxSpeed(level::tank::player::SPEED);
 
 	setSpeedup(12.0f);
 	setBrakingSpeed(6.5f);
