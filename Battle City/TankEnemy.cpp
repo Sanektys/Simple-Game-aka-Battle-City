@@ -44,7 +44,7 @@ void TankEnemy::update(float dt) {
 void TankEnemy::analize(float dt) {
 	float x = 0.0;
 	float y = 0.0;
-	calculateFrontCellPosition(&x, &y);
+	calculateFrontCellPosition(x, y);
 
 	float xDelta = 0.0;
 	float yDelta = 0.0;

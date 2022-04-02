@@ -42,7 +42,7 @@ class Tank : public GameObject
 		/// <param name="x">- координата по горизонтали</param>
 		/// <param name="y">- координата по вертикали</param>
 		/// <returns></returns>
-		void calculateFrontCellPosition(float* x, float* y);
+		void calculateFrontCellPosition(float& x, float& y);
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Сеттеры/Геттеры

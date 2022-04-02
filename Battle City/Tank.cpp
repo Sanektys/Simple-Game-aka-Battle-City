@@ -546,23 +546,29 @@ void Tank::fire() {
 	float bulletSpeedX = 0.0f;
 	float bulletSpeedY = 0.0f;
 
-	calculateFrontCellPosition(&bulletPositionX, &bulletPositionY);
+	calculateFrontCellPosition(bulletPositionX, bulletPositionY);
 
 	switch (getDirection()) {
 	    case Direction::LEFT :
 			bulletSpeedX = -BULLET_SPEED;
+            bulletPositionY -= (STANDART_BULLET_WIDTH / 2.0f);
+            bulletPositionX -= STANDART_BULLET_HEIGHT;
 		    break;
 
 		case Direction::RIGHT :
 			bulletSpeedX = BULLET_SPEED;
+            bulletPositionY -= (STANDART_BULLET_WIDTH / 2.0f);
 			break;
 
 		case Direction::UP :
 			bulletSpeedY = -BULLET_SPEED;
+            bulletPositionX -= (STANDART_BULLET_WIDTH / 2.0f);
+            bulletPositionY -= STANDART_BULLET_HEIGHT;
 			break;
 
 		case Direction::DOWN :
 			bulletSpeedY = BULLET_SPEED;
+            bulletPositionX -= (STANDART_BULLET_WIDTH / 2.0f);
 			break;
 	}
 	std::unique_ptr<GameObject>& object = 
@@ -581,41 +587,39 @@ void Tank::fire() {
 }
 
 
-void Tank::calculateFrontCellPosition(float* x, float* y) {
+void Tank::calculateFrontCellPosition(float& x, float& y) {
+    // ƒополнительна€ длина до дула танка
 	float distanceToGunpoint = 0.0f;
 
 	switch (getType()) {
 	    case GameObjectType::TANK_FIRST_PLAYER :
 		case GameObjectType::TANK_SECOND_PLAYER :
 		case GameObjectType::TANK_ENEMY :
-			distanceToGunpoint = 0.2f;
+			distanceToGunpoint = 0.3f;
 			break;
 	}
-
 	switch (getDirection()) {
 	    // –асчЄты стро€тс€ на том, что координатна€ точка танка
 		// находитс€ в верхнем левом углу относительно его габаритов
-		// “акже учитываютс€ габариты выпускаемого снар€да по длинной стороне
-	    case Direction::UP : {
-		    (*x) = getX() + (getWidth() / 2.0f);
-		    (*y) = getY() - STANDART_BULLET_HEIGHT - distanceToGunpoint;
+	    case Direction::UP :
+		    x = getX() + (getWidth() / 2.0f);
+		    y = getY() - distanceToGunpoint;
 		    break;
-	    }
-		case Direction::RIGHT : {
-			(*x) = getX() + getWidth() + distanceToGunpoint;
-			(*y) = getY() + (getHeight() / 2.0f);
+
+		case Direction::RIGHT :
+			x = getX() + getWidth() + distanceToGunpoint;
+			y = getY() + (getHeight() / 2.0f);
 			break;
-		}
-		case Direction::DOWN : {
-			(*x) = getX() + (getWidth() / 2.0f);
-			(*y) = getY() + getHeight() + distanceToGunpoint;
+		
+		case Direction::DOWN :
+			x = getX() + (getWidth() / 2.0f);
+			y = getY() + getHeight() + distanceToGunpoint;
 			break;
-		}
-	    case Direction::LEFT : {
-		    (*x) = getX() - STANDART_BULLET_HEIGHT - distanceToGunpoint;
-		    (*y) = getY() + (getHeight() / 2.0f);
+		
+	    case Direction::LEFT :
+		    x = getX() - distanceToGunpoint;
+		    y = getY() + (getHeight() / 2.0f);
 		    break;
-	    }	
 	}
 }
 

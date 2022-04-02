@@ -101,7 +101,10 @@ const sf::IntRect BASE_IMAGE = sf::IntRect(0, 0, PIXELS_PER_CELL * BASE_COLUMNS,
 /////////////////////////////////////
 // Информация о снарядах
 const float BULLET_SPEED = 20.0f;
-const float STANDART_BULLET_WIDTH  = 0.125f;
-const float STANDART_BULLET_HEIGHT = 0.25f;
+const int STANDART_BULLET_PIXELS_WIDTH  = 6;
+const int STANDART_BULLET_PIXELS_HEIGHT = 10;
+const float STANDART_BULLET_WIDTH  = float(STANDART_BULLET_PIXELS_WIDTH) / PIXELS_PER_CELL;
+const float STANDART_BULLET_HEIGHT = float(STANDART_BULLET_PIXELS_HEIGHT) / PIXELS_PER_CELL;
 
-const sf::IntRect BULLET_IMAGE = sf::IntRect(0, 264, 6, 10);
+const sf::IntRect BULLET_IMAGE = sf::IntRect(0, 264, STANDART_BULLET_PIXELS_WIDTH,
+                                                     STANDART_BULLET_PIXELS_HEIGHT);
