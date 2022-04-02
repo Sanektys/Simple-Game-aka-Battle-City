@@ -106,14 +106,27 @@ bool Game::loop() {
 		return false;
 	}
 
-	// Расчёт прошедшего времени за такт
-	using std::chrono::duration;
-	using std::chrono::duration_cast;
+    using std::chrono::duration;
+    using std::chrono::duration_cast;
+    steady_clock::time_point clockNow;
 
-	steady_clock::time_point clockNow = steady_clock::now();
-	float deltaTime = 
+    bool wasPause{false};
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Pause)) {
+        wasPause = true;
+        clockNow = steady_clock::now();
+        while (!sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) &&
+               !sf::Keyboard::isKeyPressed(sf::Keyboard::Space));        
+    }
+
+	// Расчёт прошедшего времени за такт
+    if (!wasPause)
+        clockNow = steady_clock::now();
+	float deltaTime =
 		duration_cast<duration<float>>(clockNow - _clockLastFrame).count();
-	_clockLastFrame = clockNow;
+    if (!wasPause)
+        _clockLastFrame = clockNow;
+    else
+        _clockLastFrame = steady_clock::now();
 
 	// Счётчик обновлений в секунду (тактов в секунду)
 	_oneSecond += deltaTime;
