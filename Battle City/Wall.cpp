@@ -1,36 +1,36 @@
 #include "Wall.h"
 #include "Utils.h"
+#include "Level.h"
 #include "GameObjectType.h"
 
 
-Wall::Wall() {
-	_type = GameObjectType::WALL;
-	_variation = getRandomInt(1, 3);
+Wall::Wall(const class Game& game, sf::IntRect rect, bool isInvulnerable)
+    : GameObject(game) {
+    setInvulnerable(isInvulnerable);
 
-	_spriteTerrain = new sf::Sprite();
-	_spriteTerrain->setTexture(*_atlasTerrain);
-	_spriteTerrain->setOrigin((getWidth() * (float)PIXELS_PER_CELL) / 2.0f,
-		                      (getHeight() * (float)PIXELS_PER_CELL) / 2.0f);
-}
+    setGroup(GameObjectGroup::TERRAIN);
+    if (isInvulnerable)
+        setType(GameObjectType::STEEL_WALL);
+    else
+        setType(GameObjectType::WALL);
 
-Wall::~Wall() {
-    if (_spriteTerrain) {
-        delete _spriteTerrain;
-        _spriteTerrain = nullptr;
-    }
-}
+    _variation = getRandomInt(1, 3);
 
-void Wall::setTextureRect(sf::IntRect rect) {
+    _spriteTerrain.reset(new sf::Sprite());
+    _spriteTerrain->setTexture(*ATLAS_TERRAIN);
+    _spriteTerrain->setOrigin((getWidth() * (float)PIXELS_PER_CELL) / 2.0f,
+                              (getHeight() * (float)PIXELS_PER_CELL) / 2.0f);
+
     // ¬ыбор варианта спрайта дл€ отображени€ в зависимости от случайного типа
     // ѕо умолчанию при создании всегда тип 1, поэтому его тут нет
-	switch (_variation) {
-	    case 2 :
-		    rect.left = PIXELS_PER_CELL;
-		    break;
+    switch (_variation) {
+        case 2:
+            rect.left = PIXELS_PER_CELL;
+            break;
 
-		case 3 :
-			rect.left = 2 * PIXELS_PER_CELL;
-			break;
-	}
-	_spriteTerrain->setTextureRect(rect);
+        case 3:
+            rect.left = 2 * PIXELS_PER_CELL;
+            break;
+    }
+    _spriteTerrain->setTextureRect(rect);
 }

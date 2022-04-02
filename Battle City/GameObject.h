@@ -16,7 +16,8 @@ class Game;
 class GameObject
 {
     public :
-        GameObject();
+        GameObject() = delete;
+        explicit GameObject(const class Game& game);
         virtual ~GameObject() {}
 
         /// <summary>
@@ -42,10 +43,6 @@ class GameObject
         /// <param name="object">- объект, с которым столкнулся
         /// исходный объект, вызвавший метод</param>
         virtual void intersect(class GameObject* object) {}
-        /// <summary>
-        /// Метод избежания застревания игрового объекта в другом объекте
-        /// </summary>
-        void escapeSticking();
 
         /// <summary>
         /// Метод принятия урона игровым объектом
@@ -54,14 +51,14 @@ class GameObject
         void doDamage(int damage);
 
         // Блок сеттеров/геттеров
-        /////////////////////////////////////////       
+        /////////////////////////////////////////
         /// <summary>
-        /// Метод извлекает требуемую текстуру из атласа
+        /// Метод возвращает группу игрового объекта
+        /// <para>(это объект игрового окружения,
+        /// или это объект игровой сущности)</para>
         /// </summary>
-        /// <param name="rect">- прямоугольник "вырезающий"
-        /// нужный спрайт из атласа</param>
-        virtual void setTextureRect(sf::IntRect rect) {}
-        
+        /// <returns>Возвращает группу, к которой относится игровой объект</returns>
+        enum class GameObjectGroup getGroup() const { return _group; }
         /// <summary>
         /// Метод возвращает тип объекта из его экземпляра
         /// </summary>
@@ -75,7 +72,7 @@ class GameObject
         /// </summary>
         /// <param name="game">- указатель на общий для всех
         /// объект игровой логики</param>
-        void setGame(class Game* game) { _game = game; }
+//      void setGame(const class Game& game) { _game = game; }
 
         /// <summary>
         /// Установка положения игрового объекта по горизонтали
@@ -126,21 +123,11 @@ class GameObject
         float getYSpeed() const { return _ySpeed; }
 
         /// <summary>
-        /// Установка ширины игрового объекта
-        /// </summary>
-        /// <param name="width">- ширина объекта</param>
-        void setWidth(float width) { _width = width; }
-        /// <summary>
         /// Получение ширины игрового объекта
         /// </summary>
         /// <returns>Возвращает ширину объекта</returns>
         float getWidth() const { return _width; }
 
-        /// <summary>
-        /// Установка высоты игрового объекта
-        /// </summary>
-        /// <param name="height">- высота объекта</param>
-        void setHeight(float height) { _height = height; }
         /// <summary>
         /// Получение высоты игрового объекта
         /// </summary>
@@ -148,24 +135,11 @@ class GameObject
         float getHeight() const { return _height; }
 
         /// <summary>
-        /// Установка очков прочности(здоровья) игрового объекта
-        /// </summary>
-        /// <param name="health">- очки прочности объекта</param>
-        void setHealth(int health) { _health = health; }
-        /// <summary>
         /// Получение очков прочности(здоровья) игрового объекта
         /// </summary>
         /// <returns>Возвращает очки прочности</returns>
         int getHealth() const { return _health; }
 
-        /// <summary>
-        /// Установка права удаления экземпляра игрового объекта
-        /// после падения его очков прочности до нуля
-        /// </summary>
-        /// <param name="destroyAfterDeath">- удалять ли объект
-        /// после уничтожения</param>
-        void setDestroyAfterDeath(bool destroyAfterDeath)
-            { _destroyAfterDeath = destroyAfterDeath; }
         /// <summary>
         /// Получение условной переменной, определяющей удаляется ли экземпляр
         /// игрового объекта при падении его очков прочности до нуля
@@ -175,11 +149,6 @@ class GameObject
         bool getDestroyAfterDeath() const { return _destroyAfterDeath; }
 
         /// <summary>
-        /// Установка состояния неуязвимости игрового объекта к урону
-        /// </summary>
-        /// <param name="invulnerable">- является ли объект неуязвимым</param>
-        void setInvulnerable(bool invulnerable) { _invulnerable = invulnerable; }
-        /// <summary>
         /// Получение условной переменной, определяющей
         /// является ли игровой объект неуязвимым
         /// </summary>
@@ -187,11 +156,6 @@ class GameObject
         /// false если уязвим к урону</returns>
         bool getInvulnerable() const { return _invulnerable; }
 
-        /// <summary>
-        /// Установка состояния невосприимчивости игрового объекта к коллизии
-        /// </summary>
-        /// <param name="physical">- есть ли у объекта коллизия</param>
-        void setPhysical(bool physical) { _physical = physical; }
         /// <summary>
         /// Получение условной переменной, определяющей
         /// является ли игровой объект невосприимчивым к коллизии
@@ -219,13 +183,6 @@ class GameObject
         bool getIsSticking() const { return _isSticking; }
 
         /// <summary>
-        /// Установка состояния игрового объекта,
-        /// когда он намеренно проходит сквозь другой объект
-        /// </summary>
-        /// <param name="inBypass">- проходит ли объект
-        /// намеренно сквозь другой объект</param>
-        void setInBypass(bool inBypass) { _inBypass = inBypass; }
-        /// <summary>
         /// Получение условной переменной, определяющей
         /// проходит ли игровой объект намеренно сквозь другой объект
         /// </summary>
@@ -234,22 +191,114 @@ class GameObject
         bool getInBypass() const { return _inBypass; }
 
     protected :
-        // Указатель на класс игровой логики для вызова его методов
-        class Game* _game{nullptr};
-        // Тип игрового объекта
-        enum class GameObjectType _type;
+        /// <summary>
+        /// Метод извлекает требуемую текстуру из атласа
+        /// </summary>
+        /// <param name="rect">- прямоугольник "вырезающий"
+        /// нужный спрайт из атласа</param>
+        virtual void setTextureRect(sf::IntRect rect) {}
 
+        /// <summary>
+        /// Установка группы, к которой относится игровой объект
+        /// </summary>
+        /// <param name="group">- к какой группе относится объект:
+        /// игровое окружение или игровая сущность</param>
+        void setGroup(enum class GameObjectGroup group) { _group = group; }
+        /// <summary>
+        /// Установка типа игрового объекта
+        /// </summary>
+        /// <param name="type">- тип игрового объекта</param>
+        void setType(enum class GameObjectType type) { _type = type; }
+
+        /// <summary>
+        /// Установка ширины игрового объекта
+        /// </summary>
+        /// <param name="width">- ширина объекта</param>
+        void setWidth(float width) { _width = width; }
+
+        /// <summary>
+        /// Установка высоты игрового объекта
+        /// </summary>
+        /// <param name="height">- высота объекта</param>
+        void setHeight(float height) { _height = height; }
+
+        /// <summary>
+        /// Установка очков прочности(здоровья) игрового объекта
+        /// </summary>
+        /// <param name="health">- очки прочности объекта</param>
+        void setHealth(int health) { _health = health; }
+
+        /// <summary>
+        /// Установка права удаления экземпляра игрового объекта
+        /// после падения его очков прочности до нуля
+        /// </summary>
+        /// <param name="destroyAfterDeath">- удалять ли объект
+        /// после уничтожения</param>
+        void setDestroyAfterDeath(bool destroyAfterDeath) {
+            _destroyAfterDeath = destroyAfterDeath;
+        }
+
+        /// <summary>
+        /// Установка состояния неуязвимости игрового объекта к урону
+        /// </summary>
+        /// <param name="invulnerable">- является ли объект неуязвимым</param>
+        void setInvulnerable(bool invulnerable) { _invulnerable = invulnerable; }
+
+        /// <summary>
+        /// Установка состояния невосприимчивости игрового объекта к коллизии
+        /// </summary>
+        /// <param name="physical">- есть ли у объекта коллизия</param>
+        void setPhysical(bool physical) { _physical = physical; }
+
+        /// <summary>
+        /// Установка состояния игрового объекта,
+        /// когда он намеренно проходит сквозь другой объект
+        /// </summary>
+        /// <param name="inBypass">- проходит ли объект
+        /// намеренно сквозь другой объект</param>
+        void setInBypass(bool inBypass) { _inBypass = inBypass; }
+
+        /// <summary>
+        /// Получение по ссылке объекта игры, с целью использования его методов
+        /// </summary>
+        /// <returns>Возвращает ссылку на константный объект игровой логики</returns>
+        const class Game& getGame() const { return _game; }
+
+        /// <summary>
+        /// Метод получения указателя на спрайт окружения
+        /// </summary>
+        /// <returns>Возвращает указатель на спрайт окружения</returns>
+        //std::unique_ptr<sf::Sprite>& getSpriteTerrain() { return _spriteTerrain; }
+        /// <summary>
+        /// Метод получения указателя на спрайт сущности
+        /// </summary>
+        /// <returns>Возвращает указатель на спрайт сущности</returns>
+        //std::unique_ptr<sf::Sprite>& getSpriteEntity() { return _spriteEntity; }
+
+    protected:
         // Каждый объект использует только один из двух представленных спрайтов
         // в зависимости от своего типа
         ////////////////
-        sf::Sprite* _spriteTerrain{nullptr}; // Указатель на спрайт окружения
-        sf::Sprite* _spriteEntity{nullptr}; // Указатель на спрайт сущности
+        std::unique_ptr<sf::Sprite> _spriteTerrain; // Указатель на спрайт окружения
+        std::unique_ptr<sf::Sprite> _spriteEntity; // Указатель на спрайт сущности
 
     private :
+        /// <summary>
+        /// Метод избежания застревания игрового объекта в другом объекте
+        /// </summary>
+        void escapeSticking();
+
         GameObject(const GameObject&) = delete;
         GameObject operator=(const GameObject&) = delete;
 
     private :
+        // Ссылка на класс игровой логики для вызова его методов
+        const class Game& _game;
+        // Класс игрового объекта
+        enum class GameObjectGroup _group;
+        // Тип игрового объекта
+        enum class GameObjectType _type;
+
         // Координаты игрового объекта
         ////////////////
         float _x{0.0f}; // Позиция по горизонтали

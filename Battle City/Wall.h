@@ -11,8 +11,9 @@
 class Wall : public GameObject
 {
     public :
-		Wall();
-		~Wall() override;
+        Wall(const class Game& game, sf::IntRect rect,
+             bool isInvulnerable = false);
+        ~Wall() override {}
 
 		/// <summary>
 		/// Метод выбора одного из трёх типов спрайтов стены из атласа,
@@ -20,7 +21,7 @@ class Wall : public GameObject
 		/// </summary>
 		/// <param name="rect">- прямоугольник "вырезающий" определённый
         /// спрайт из атласа</param>
-		virtual void setTextureRect(sf::IntRect rect) override;
+		//virtual void setTextureRect(sf::IntRect rect) override;
     
     private :
         Wall(const Wall&) = delete;

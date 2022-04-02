@@ -9,8 +9,8 @@
 class Base : public GameObject
 {
     public :
-	    Base();
-		~Base() override;
+	    Base(const class Game&, sf::IntRect);
+		~Base() override {}
 
 	    /// <summary>
 	    /// Метод отрисовки спрайта игровой базы
@@ -24,16 +24,16 @@ class Base : public GameObject
 		/// затраченного на предыдущий игровой такт</param>
 		virtual void update(float dt) override;
 
-		/// <summary>
-		/// Обновление спрайта базы в зависимости от оставшихся очков прочности
-		/// <para>Метод также обеспечивает анимацию огня при сильных
-		/// повреждениях игровой базы</para>
-		/// </summary>
-		/// <param name="rect">- прямоугольник "вырезающий" определённый спрайт
-		/// из всего атласа</param>
-		virtual void setTextureRect(sf::IntRect rect) override;
-
 	private :
+        /// <summary>
+        /// Обновление спрайта базы в зависимости от оставшихся очков прочности
+        /// <para>Метод также обеспечивает анимацию огня при сильных
+        /// повреждениях игровой базы</para>
+        /// </summary>
+        /// <param name="rect">- прямоугольник "вырезающий" определённый спрайт
+        /// из всего атласа</param>
+        virtual void setTextureRect(sf::IntRect rect) override;
+
 	    Base(const Base&) = delete;
 		Base operator=(const Base&) = delete;
 

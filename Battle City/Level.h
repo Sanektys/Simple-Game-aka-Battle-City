@@ -6,8 +6,8 @@
 #include "GameObjectType.h"
 
 
-extern sf::Texture* _atlasTerrain;
-extern sf::Texture* _atlasEntity;
+extern sf::Texture* ATLAS_TERRAIN;
+extern sf::Texture* ATLAS_ENTITY;
 
 const short SCREEN_ROWS     = 30;
 const short SCREEN_COLUMNS  = 60;

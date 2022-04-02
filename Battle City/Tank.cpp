@@ -1,13 +1,12 @@
 #include "Tank.h"
 #include "Bullet.h"
-#include "Level.h"
 #include "GameObjectType.h"
 #include "Game.h"
 #include "CoordPoint.h"
 
 
-Tank::Tank() {
-	_type = GameObjectType::TANK_ENEMY;
+Tank::Tank(const class Game& game) : GameObject(game) {
+    setGroup(GameObjectGroup::ENTITY);
 
 	setWidth(TANK_WIDTH);
 	setHeight(TANK_HEIGHT);
@@ -28,18 +27,11 @@ Tank::Tank() {
 	_oldDirection = Direction::UP;
 	_inertiaDirection = Direction::LEFT;
 
-	_spriteEntity = new sf::Sprite();
-	_spriteEntity->setTexture(*_atlasEntity);
+	_spriteEntity.reset(new sf::Sprite());
+	_spriteEntity->setTexture(*ATLAS_ENTITY);
 	_spriteEntity->setOrigin(32, 52);
 
 	_currentTrackShift = 0.0f;
-}
-
-Tank::~Tank() {
-	if (_spriteEntity) {
-		delete _spriteEntity;
-		_spriteEntity = nullptr;
-	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,8 +57,8 @@ void Tank::update(float dt) {
 				float newWidth = TANK_WIDTH;
 				float newHeight = TANK_HEIGHT;
 
-				bool topIntersects = _game->checkIntersects(newX, newY, newWidth, _offset, this);
-				bool bottomIntersects = _game->checkIntersects(newX, getY() + getHeight(), newWidth, _offset, this);
+				bool topIntersects = bool(getGame().checkIntersects(newX, newY, newWidth, _offset, this));
+				bool bottomIntersects = bool(getGame().checkIntersects(newX, getY() + getHeight(), newWidth, _offset, this));
 					
 				// Если танк зажат сверху и снизу, и его новые габариты не помещаются на текущем месте,
 				// то отменить смену направления и запуск вращения
@@ -96,8 +88,8 @@ void Tank::update(float dt) {
 				float newWidth = TANK_HEIGHT;
 				float newHeight = TANK_WIDTH;
 
-				bool rightIntersects = _game->checkIntersects(getX() + getWidth(),newY, _offset, newHeight, this);
-				bool leftIntersects = _game->checkIntersects(newX, newY, _offset, newHeight, this);
+				bool rightIntersects = bool(getGame().checkIntersects(getX() + getWidth(),newY, _offset, newHeight, this));
+				bool leftIntersects = bool(getGame().checkIntersects(newX, newY, _offset, newHeight, this));
 
 				if (rightIntersects && leftIntersects) {
 					setDirection(_oldDirection);
@@ -371,15 +363,15 @@ bool Tank::bypassObstruction() {
 	    }
 	}
 
-	bool firstPointIntersects = _game->checkIntersects(firstSidewardPoint.coordX, firstSidewardPoint.coordY,
+	bool firstPointIntersects = bool(getGame().checkIntersects(firstSidewardPoint.coordX, firstSidewardPoint.coordY,
 		                                               firstSidewardPoint.width, firstSidewardPoint.height,
-		                                               this);
-	bool secondPointIntersects = _game->checkIntersects(secondSidewardPoint.coordX, secondSidewardPoint.coordY,
+		                                               this));
+	bool secondPointIntersects = bool(getGame().checkIntersects(secondSidewardPoint.coordX, secondSidewardPoint.coordY,
 		                                                secondSidewardPoint.width, secondSidewardPoint.height,
-		                                                this);
-	bool middlePointIntersects = _game->checkIntersects(middlePoint.coordX, middlePoint.coordY,
+		                                                this));
+	bool middlePointIntersects = bool(getGame().checkIntersects(middlePoint.coordX, middlePoint.coordY,
 		                                                middlePoint.width, middlePoint.height,
-		                                                this);
+		                                                this));
 
 	if (!firstPointIntersects && !secondPointIntersects)
 		return false;
@@ -549,41 +541,43 @@ void Tank::fire() {
 
 	_fireCooldownTime = TANK_FIRE_COOLDOWN_TIME;
 
-	float x = 0.0;
-	float y = 0.0;
-	float xSpeed = 0.0;
-	float ySpeed = 0.0;
+	float bulletPositionX = 0.0f;
+	float bulletPositionY = 0.0f;
+	float bulletSpeedX = 0.0f;
+	float bulletSpeedY = 0.0f;
 
-	calculateFrontCellPosition(&x, &y);
+	calculateFrontCellPosition(&bulletPositionX, &bulletPositionY);
 
 	switch (getDirection()) {
 	    case Direction::LEFT :
-			xSpeed = -BULLET_SPEED;
+			bulletSpeedX = -BULLET_SPEED;
 		    break;
 
 		case Direction::RIGHT :
-			xSpeed = BULLET_SPEED;
+			bulletSpeedX = BULLET_SPEED;
 			break;
 
 		case Direction::UP :
-			ySpeed = -BULLET_SPEED;
+			bulletSpeedY = -BULLET_SPEED;
 			break;
 
 		case Direction::DOWN :
-			ySpeed = BULLET_SPEED;
+			bulletSpeedY = BULLET_SPEED;
 			break;
 	}
-
-	class Bullet* bullet = (class Bullet*)_game->createObject(GameObjectType::BULLET, x, y);
+	std::unique_ptr<GameObject>& object = 
+        getGame().createObject(GameObjectType::BULLET,
+                               bulletPositionX, bulletPositionY);
+    if (object) {
+        Bullet& bullet = dynamic_cast<Bullet&>(*object);
+        bullet.setOwnerType(this->getType());
+        bullet.setXSpeed(bulletSpeedX);
+        bullet.setYSpeed(bulletSpeedY);
+        bullet.setDirection(this->getDirection());
+        bullet.setTextureRect(BULLET_IMAGE);
+    }
 	//Отдача от выстрела
 	_currentSpeed -= _speedup / 6.0f;
-	if (bullet) {
-		bullet->setDirection(getDirection());
-		bullet->setTextureRect(BULLET_IMAGE);
-		bullet->setOwnerType(_type);
-		bullet->setXSpeed(xSpeed);
-		bullet->setYSpeed(ySpeed);
-	}
 }
 
 
@@ -594,7 +588,7 @@ void Tank::calculateFrontCellPosition(float* x, float* y) {
 	    case GameObjectType::TANK_FIRST_PLAYER :
 		case GameObjectType::TANK_SECOND_PLAYER :
 		case GameObjectType::TANK_ENEMY :
-			distanceToGunpoint = 0.4f;
+			distanceToGunpoint = 0.2f;
 			break;
 	}
 

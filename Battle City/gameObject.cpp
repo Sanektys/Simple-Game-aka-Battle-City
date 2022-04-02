@@ -4,9 +4,9 @@
 #include "Utils.h"
 
 
-GameObject::GameObject() {
-	_type = GameObjectType::NONE;
-
+GameObject::GameObject(const class Game& game) : _game(game) {
+    _group = GameObjectGroup::NONE;
+    _type = GameObjectType::NONE;
 	_direction = Direction::UP;
 }
 
@@ -23,7 +23,7 @@ void GameObject::render(sf::RenderWindow* rw) {
 			rw->draw(*_spriteTerrain);
 		}
 		else if (_spriteEntity) {
-			_spriteEntity->setPosition(getX() * PIXELS_PER_CELL
+		    _spriteEntity->setPosition(getX() * PIXELS_PER_CELL
                                        + (getWidth() * PIXELS_PER_CELL) / 2.0f,
 				                       getY() * PIXELS_PER_CELL
                                        + (getHeight() * PIXELS_PER_CELL) / 2.0f);
@@ -40,8 +40,8 @@ void GameObject::update(float dt) {
             // Если в данный момент объект не проходит намеренно сквозь другой объект
 			if (!getInBypass())
                 // То произвести проверку на коллизию
-			    _isSticking = _game->checkIntersects(getX(), getY(),
-                                                     getWidth(), getHeight(), this);
+			    _isSticking = bool(getGame().checkIntersects(getX(), getY(),
+                                                             getWidth(), getHeight(), this));
             // Если объект застрял в другом объекте
 			if (getIsSticking())
 				escapeSticking();
@@ -59,7 +59,7 @@ void GameObject::update(float dt) {
             // Если одна из двух координат не совпадает с предыдущей,
             // то объект перемещается
             if ((oldX != newX || oldY != newY) && !_isSticking && !_inBypass) {
-                _game->moveObjectTo(this, newX, newY);
+                getGame().moveObjectTo(this, newX, newY);
             } else {
                 setX(newX);
                 setY(newY);
@@ -83,21 +83,21 @@ void GameObject::escapeSticking() {
 		
     // Проверка на коллизию с другим объектом каждой четверти текущего объекта
     /////////////////////////
-    bool topLeftIntersect = _game->checkIntersects(
+    bool topLeftIntersect = bool(getGame().checkIntersects(
         topLeftPoint.coordX, topLeftPoint.coordY,
-        topLeftPoint.width, topLeftPoint.height, this);
+        topLeftPoint.width, topLeftPoint.height, this));
 
-    bool topRightIntersect = _game->checkIntersects(
+    bool topRightIntersect = bool(getGame().checkIntersects(
         topRightPoint.coordX, topRightPoint.coordY,
-        topRightPoint.width, topRightPoint.height, this);
+        topRightPoint.width, topRightPoint.height, this));
 
-    bool bottomRightIntersect = _game->checkIntersects(
+    bool bottomRightIntersect = bool(getGame().checkIntersects(
         bottomRightPoint.coordX, bottomRightPoint.coordY,
-        bottomRightPoint.width, bottomRightPoint.height, this);
+        bottomRightPoint.width, bottomRightPoint.height, this));
 
-    bool bottomLeftIntersect = _game->checkIntersects(
+    bool bottomLeftIntersect = bool(getGame().checkIntersects(
         bottomLeftPoint.coordX, bottomLeftPoint.coordY,
-        bottomLeftPoint.width, bottomLeftPoint.height, this);
+        bottomLeftPoint.width, bottomLeftPoint.height, this));
 
     // Две соседние четверти одновременно имеют коллизию
     bool primarySet{false};

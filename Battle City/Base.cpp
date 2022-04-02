@@ -3,8 +3,9 @@
 #include "Level.h"
 
 
-Base::Base() {
-	_type = GameObjectType::BASE;
+Base::Base(const class Game& game, sf::IntRect rect) : GameObject(game) {
+    setGroup(GameObjectGroup::TERRAIN);
+	setType(GameObjectType::BASE);
 
 	setWidth(BASE_COLUMNS);
 	setHeight(BASE_ROWS);
@@ -12,21 +13,17 @@ Base::Base() {
 	setHealth(BASE_HEALTH);
 	setDestroyAfterDeath(false);
 
-	_spriteTerrain = new sf::Sprite();
-	_spriteTerrain->setTexture(*_atlasTerrain);
+	_spriteTerrain.reset(new sf::Sprite());
+	_spriteTerrain->setTexture(*ATLAS_TERRAIN);
 	_spriteTerrain->setOrigin(getWidth()  * PIXELS_PER_CELL / 2.0f,
 							  getHeight() * PIXELS_PER_CELL / 2.0f);
-}
 
-Base::~Base() {
-	if (_spriteTerrain) {
-		delete _spriteTerrain;
-		_spriteTerrain = nullptr;
-	}
+    setTextureRect(rect);
 }
 
 void Base::render(sf::RenderWindow* rw) {
 	setTextureRect(_spriteTerrain->getTextureRect());
+
 	GameObject::render(rw);
 }
 

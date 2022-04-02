@@ -10,8 +10,8 @@
 class Tank : public GameObject
 {
     public :
-		Tank();
-		~Tank();
+		Tank(const class Game& game);
+        ~Tank() override {}
 
 		/// <summary>
 		/// Обновление базовых параметров танка
@@ -101,7 +101,7 @@ class Tank : public GameObject
 
 	    ///////////////////////////////////////////////////////////////////////////////////////////
 	    // Методы для торможения танка по инерции
-	    //
+
 	    /// <summary>
 	    /// Торможение по горизонтальной плоскости
 	    /// </summary>

@@ -8,6 +8,7 @@
 enum class Direction
 {
 	NONE,
+
 	RIGHT,
 	DOWN,
 	LEFT,

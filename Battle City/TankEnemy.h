@@ -6,10 +6,10 @@
 class TankEnemy : public Tank
 {
     public :
-	    TankEnemy();
-		~TankEnemy();
+	    TankEnemy(const class Game& game, sf::IntRect rect);
+		~TankEnemy() override;
 
-		virtual void setTextureRect(sf::IntRect rect) override;
+		//virtual void setTextureRect(sf::IntRect rect) override;
 
 		void update(float dt) override;
 

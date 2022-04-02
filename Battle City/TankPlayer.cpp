@@ -1,16 +1,24 @@
 #include "TankPlayer.h"
 
 
-TankPlayer::TankPlayer() {
-	_type = GameObjectType::TANK_FIRST_PLAYER;
+TankPlayer::TankPlayer(const class Game& game, sf::IntRect rect,
+                       sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
+                       sf::Keyboard::Key keyUp,   sf::Keyboard::Key keyDown,
+                       sf::Keyboard::Key keyFire)
+    : Tank(game), _keyLeft(keyLeft), _keyRight(keyRight),
+      _keyUp(keyUp), _keyDown(keyDown), _keyFire(keyFire) {
+    setType(GameObjectType::TANK_FIRST_PLAYER);
 
 	setHealth(PLAYER_HEALTH);
 	setMaxSpeed(PLAYER_SPEED);
+
 	setSpeedup(12.0f);
 	setBrakingSpeed(6.5f);
 	setRotationTime(0.76f);
 
 	setDestroyAfterDeath(false);
+
+    _spriteEntity->setTextureRect(rect);
 }
 
 void TankPlayer::update(float dt) {
@@ -33,10 +41,6 @@ void TankPlayer::update(float dt) {
 		move(Direction::NONE, dt);
 
 	Tank::update(dt);
-}
-
-void TankPlayer::setTextureRect(sf::IntRect rect) {
-	_spriteEntity->setTextureRect(rect);
 }
 
 void  TankPlayer::setKeys(sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,

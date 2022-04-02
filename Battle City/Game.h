@@ -1,15 +1,16 @@
 #pragma once
 
 #include <chrono>
+#include <array>
 
 #include "Level.h"
+#include "GameObject.h"
 
 
-const int OBJECTS_COUNT_MAX = 1024;
+const size_t TERRAIN_OBJECTS_COUNT_MAX{1024};
+const size_t ENTITY_OBJECTS_COUNT_MAX{128};
 
 using std::chrono::steady_clock;
-
-class GameObject;
 
 
 /// <summary>
@@ -18,8 +19,8 @@ class GameObject;
 class Game
 {
     public :
-	    Game() {};
-		~Game();
+        Game() {}
+        ~Game();
 
 		/// <summary>
 		/// Установка зерна рандома, окна игры, загрузка атласов и шрифтов
@@ -52,24 +53,16 @@ class Game
 		/// <param name="x">целевая координата размещения по горизонтали</param>
 		/// <param name="y">целевая координата размещения по вертикали</param>
 		/// <returns>Возвращает указатель на базовый класс созданного объекта,
-		/// либо nullptr если нельзя его разместить в памяти или в игровом поле</returns>
-		class GameObject* createObject(enum GameObjectType type, float x, float y);
-		/// <summary>
-		/// Удаление определённого объекта из массива по индексу
-		/// </summary>
-		/// <param name="i">индекс целевого объекта,
-		/// который нужно удалить</param>
-		void destroyObject(int i) { 
-			delete _objects[i]; 
-			_objects[i] = nullptr;
-		}
+		/// либо пустой указатель если его нельзя разместить в памяти или в игровом поле</returns>
+		class std::unique_ptr<GameObject>& createObject(enum GameObjectType type,
+                                                        float x, float y) const;
 		/// <summary>
 		/// Прохождение массива объектов для нахождения
 		/// и удаления определенного объекта
 		/// </summary>
 		/// <param name="object">указатель на целевой объект,
 		/// который нужно удалить</param>
-		void destroyObject(const GameObject* object);
+		void destroyObject(const class GameObject* object);
 
 		/// <summary>
 		/// Проверка на пересечение одного объекта другим
@@ -80,9 +73,10 @@ class Game
 		/// <param name="height">высота исходного объекта</param>
 		/// <param name="exceptObject">указатель на сам исходный объект</param>
 		/// <returns>Возвращает указатель на объект-помеху,
-		/// или nullptr при отсутствии какой-либо помехи</returns>
-		class GameObject* checkIntersects(float x, float y, float width, float height,
-			                              class GameObject* exceptObject) const;
+		/// или пустой указатель при отсутствии какой-либо помехи</returns>
+		class std::unique_ptr<GameObject>& checkIntersects(float x, float y,
+                                                           float width, float height,
+			                                               GameObject* exceptObject) const;
 		/// <summary>
 		/// Перемещение объекта на позицию x,y
 		/// <para>Если перемещение невозможно (есть преграда),
@@ -93,7 +87,8 @@ class Game
 		/// <param name="y">новая координата по вертикали</param>
 		/// <returns>Возвращает false если есть помеха,
 		/// и true если перемещение прошло успешно</returns>
-		bool moveObjectTo(class GameObject* object, float x, float y) const;
+		bool moveObjectTo(GameObject* object, float x, float y) const;
+
 		/// <summary>
 		/// Подсчёт количества объектов определённого типа
 		/// </summary>
@@ -108,7 +103,7 @@ class Game
 		/// <summary>
 		/// Увеличение количества уничтоженных противников на единицу
 		/// </summary>
-		void increaseDiedEnemiesCount() { ++_diedEnemiesCount; }
+		void increaseDiedEnemiesCount() const { ++_diedEnemiesCount; }
 
     private :
 		/// <summary>
@@ -134,27 +129,35 @@ class Game
 		Game& operator=(const Game&) = delete;
 
     private :
-	    // Массив указателей на все игровые объекты
-		class GameObject* _objects[OBJECTS_COUNT_MAX]{};
-		class GameObject* _base{nullptr};
-		class GameObject* _playerOne{nullptr};
-		class GameObject* _playerTwo{nullptr};
+	    // Массив указателей на все объекты игрового окружения
+        mutable std::array<std::unique_ptr<GameObject>, TERRAIN_OBJECTS_COUNT_MAX>
+            _objectsTerrain;
+        // Массив указателей на все объекты игровых сущностей
+        mutable std::array<std::unique_ptr<GameObject>, ENTITY_OBJECTS_COUNT_MAX>
+            _objectsEntity;
+        
+        // Указатели на ключевые игровые объекты
+        ///////////////////////
+        std::unique_ptr<GameObject>* _base{nullptr};
+        std::unique_ptr<GameObject>* _playerOne{nullptr};
+        std::unique_ptr<GameObject>* _playerTwo{nullptr};
 
 		// Игровое окно
-		sf::RenderWindow* _renderWindow{nullptr};
+		std::unique_ptr<sf::RenderWindow> _renderWindow;
 		// Камера игрока
-		sf::View* _playerCamera{nullptr};
+		std::unique_ptr<sf::View> _playerCamera;
 		// Шрифт отладочной информации
-		sf::Font* _debugFont{nullptr};
+		std::unique_ptr<sf::Font> _debugFont;
 
 		// Время начала предыдущего кадра
 		steady_clock::time_point _clockLastFrame;
 		float _oneSecond{0.0f};
-		int _diedEnemiesCount{0};
 		// Количество промежуточных тактов в течение секунды
 		int _updatesCount{0};
 		// Количество тактов в секунду
 		int _ups{0};
+
+        mutable int _diedEnemiesCount{0};
 
 		bool _isGameActive{true};
 };

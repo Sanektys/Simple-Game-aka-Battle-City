@@ -3,20 +3,13 @@
 
 ///////////////////////
 // Точка входа
-int main()
-{
-	Game* game = new Game();
+int main() {
+	std::unique_ptr<Game> game(new Game());
 
-	//do {
-		game->setupSystem();
-		game->initialize();
+	game->setupSystem();
+	game->initialize();
 
-		while (game->loop());
-
-	//} while (!game->shutdown());
-
-	delete game;
-	game = nullptr;
+	while (game->loop());
 
 	return 0;
 }

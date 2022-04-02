@@ -2,13 +2,17 @@
 
 #include "Tank.h"
 
+
 /// <summary>
 /// Класс управляемого игроком танка
 /// </summary>
 class TankPlayer : public Tank
 {
     public :
-		TankPlayer();
+		TankPlayer(const class Game& game, sf::IntRect rect,
+                   sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
+                   sf::Keyboard::Key keyUp,   sf::Keyboard::Key keyDown,
+                   sf::Keyboard::Key keyFire);
 		~TankPlayer() override {}
 
 		/// <summary>
@@ -25,7 +29,7 @@ class TankPlayer : public Tank
 		/// </summary>
 		/// <param name="rect">- прямоугольник "вырезающий"
 		/// определённый спрайт из атласа</param>
-		virtual void setTextureRect(sf::IntRect rect) override;
+		//virtual void setTextureRect(sf::IntRect rect) override;
 
 		/// <summary>
 		/// Метод назначения определённых клавиш для управления танком
@@ -36,7 +40,7 @@ class TankPlayer : public Tank
 		/// <param name="keyDown">- клавиша для движения вниз</param>
 		/// <param name="keyFire">- клавиша для выстрела</param>
 		void setKeys(sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
-					 sf::Keyboard::Key keyUp, sf::Keyboard::Key keyDown,
+					 sf::Keyboard::Key keyUp,   sf::Keyboard::Key keyDown,
 					 sf::Keyboard::Key keyFire);
 
     private :

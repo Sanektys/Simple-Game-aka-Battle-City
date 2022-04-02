@@ -5,8 +5,9 @@
 #include "Game.h"
 
 
-EnemySpawner::EnemySpawner() {
-	_type = GameObjectType::ENEMY_SPAWNER;
+EnemySpawner::EnemySpawner(const class Game& game) : GameObject(game) {
+    setGroup(GameObjectGroup::ENTITY);
+	setType(GameObjectType::ENEMY_SPAWNER);
 
 	_spawnTime = getRandomFloat(5.0f, ENEMY_SPAWNER_SPAWN_TIME);
 
@@ -21,18 +22,14 @@ void EnemySpawner::update(float dt) {
 		_spawnTimer = 0.0f;
 
         // Текущее количество противников на уровне
-		int enemiesOnLevel = _game->getObjectsCount(GameObjectType::TANK_ENEMY);
+		int enemiesOnLevel = getGame().getObjectsCount(GameObjectType::TANK_ENEMY);
         // Оставшееся общее возможное количество противников на уровне
 		int enemiesStorageLeft = ENEMIES_PER_LEVEL - enemiesOnLevel
-                                 - _game->getDiedEnemiesCount();
+                                 - getGame().getDiedEnemiesCount();
 
 		if (enemiesStorageLeft > 0
-            && enemiesOnLevel < ENEMIES_PER_LEVEL_IN_ONE_MOMENT) {
+            && enemiesOnLevel < ENEMIES_PER_LEVEL_IN_ONE_MOMENT)
             // Создание объекта танка противника
-			GameObject* tankEnemy = _game->createObject(
-                GameObjectType::TANK_ENEMY, getX(), getY());
-			if (tankEnemy)
-			    tankEnemy->setTextureRect(BASIC_ENEMY_TANK_IMAGE);
-		}
+			getGame().createObject(GameObjectType::TANK_ENEMY, getX(), getY());
 	}
 }

@@ -13,60 +13,43 @@
 
 ///////////////////////////////////////////////////////////
 // Глобальные переменные
-sf::Texture* _atlasTerrain;
-sf::Texture* _atlasEntity;
-std::mt19937 random;
+sf::Texture* ATLAS_TERRAIN;
+sf::Texture* ATLAS_ENTITY;
+std::mt19937* RANDOM;
 
 
 Game::~Game() {
-	if (_debugFont) {
-		delete _debugFont;
-		_debugFont = nullptr;
-	}
-
-	if (_atlasEntity) {
-		delete _atlasEntity;
-		_atlasEntity = nullptr;
-	}
-
-	if (_atlasTerrain) {
-		delete _atlasTerrain;
-		_atlasTerrain = nullptr;
-	}
-
-	if (_renderWindow) {
-		delete _renderWindow;
-		_renderWindow = nullptr;
-	}
-
-	if (_playerCamera) {
-		delete _playerCamera;
-		_playerCamera = nullptr;
-	}
+    if (ATLAS_TERRAIN)
+        delete ATLAS_TERRAIN;
+    if (ATLAS_ENTITY)
+        delete ATLAS_ENTITY;
+    if (RANDOM)
+        delete RANDOM;
 }
 
 void Game::setupSystem() {
 	// Установка зерна рандома
-	random.seed(unsigned(steady_clock::now().time_since_epoch().count()));
+    RANDOM = new std::mt19937;
+	RANDOM->seed(unsigned(steady_clock::now().time_since_epoch().count()));
 
 	// Создание игрового окна
-	_renderWindow = new sf::RenderWindow(sf::VideoMode::getDesktopMode(),
-		                                 "Battle City", sf::Style::Fullscreen);
+	_renderWindow.reset(new sf::RenderWindow(sf::VideoMode::getDesktopMode(),
+                                             "Battle City", sf::Style::Fullscreen));
 	_renderWindow->setMouseCursorVisible(false);
 
 	// Иницализация камеры игрока
-	_playerCamera = new sf::View(
+	_playerCamera.reset(new sf::View(
 		sf::FloatRect(0.0f, 0.0f,
-					  PLAYER_CAMERA_WIDTH, PLAYER_CAMERA_HEIGHT));
+					  PLAYER_CAMERA_WIDTH, PLAYER_CAMERA_HEIGHT)));
 
 	// Загрузка текстур из атласов
-	_atlasTerrain = new sf::Texture();
-	_atlasTerrain->loadFromFile("atlas_terrain.png");
-	_atlasEntity = new sf::Texture();
-	_atlasEntity->loadFromFile("atlas_entity.png");
+	ATLAS_TERRAIN = new sf::Texture();
+	ATLAS_TERRAIN->loadFromFile("atlas_terrain.png");
+	ATLAS_ENTITY = new sf::Texture();
+	ATLAS_ENTITY->loadFromFile("atlas_entity.png");
 
 	// Загрузка шрифтов
-	_debugFont = new sf::Font;
+	_debugFont.reset(new sf::Font);
 	_debugFont->loadFromFile("progresspixel-bold.ttf");
 }
 
@@ -81,63 +64,32 @@ void Game::initialize() {
 			unsigned char cellSymbol = FIRST_LEVEL_DATA[r][c];
 
 			switch (cellSymbol) {
-			    case CELL_SYMBOL_BRICK_WALL : {
-				    class Wall* wall = dynamic_cast<Wall*>(createObject(
-						GameObjectType::WALL, (float)c, (float)r));
-					if (wall) {
-						wall->setTextureRect(BRICK_WALL_IMAGE);
-					}
+			    case CELL_SYMBOL_BRICK_WALL :
+				    createObject(GameObjectType::WALL, (float)c, (float)r);
 					break;
-			    }
-				case CELL_SYMBOL_SOLID_WALL : {
-					class SolidWall* solidWall = dynamic_cast<SolidWall*>(createObject(
-						GameObjectType::SOLID_WALL, (float)c, (float)r));
-					if (solidWall) {
-					    solidWall->Wall::setTextureRect(SOLID_BRICK_WALL_IMAGE);
-					}
+
+                case CELL_SYMBOL_SOLID_WALL :
+					createObject(GameObjectType::SOLID_WALL, (float)c, (float)r);
 					break;
-				}				
-			    case CELL_SYMBOL_STEEL_WALL : {
-				    class Wall* wall = dynamic_cast<Wall*>(createObject(
-						GameObjectType::WALL, (float)c, (float)r));
-					if (wall) {
-						wall->setTextureRect(STEEL_WALL_IMAGE);
-						wall->setInvulnerable(true);
-					}
+                    
+			    case CELL_SYMBOL_STEEL_WALL :
+				    createObject(GameObjectType::STEEL_WALL, (float)c, (float)r);
 				    break;
-			    }
-				case CELL_SYMBOL_BASE : {
-					_base = createObject(
-						GameObjectType::BASE, (float)c, (float)r);
-					if (_base) {
-						_base->setTextureRect(BASE_IMAGE);
-					}
+			    
+				case CELL_SYMBOL_BASE :
+					_base = &createObject(GameObjectType::BASE, (float)c, (float)r);
 					break;
-				}
-				case CELL_SYMBOL_PLAYER_1 : {
-					_playerOne = dynamic_cast<TankPlayer*>(createObject(
-						GameObjectType::TANK_FIRST_PLAYER, (float)c, (float)r));
-					if (_playerOne) {
-						_playerOne->setTextureRect(FIRST_PLAYER_TANK_IMAGE);
-						dynamic_cast<TankPlayer*>(_playerOne)
-							->setKeys(sf::Keyboard::Left, sf::Keyboard::Right,
-									  sf::Keyboard::Up,   sf::Keyboard::Down,
-									  sf::Keyboard::Space);
-					}
+				
+				case CELL_SYMBOL_PLAYER_1 :
+					_playerOne = &createObject(
+						GameObjectType::TANK_FIRST_PLAYER, (float)c, (float)r);
 					break;
-				}
-				case CELL_SYMBOL_PLAYER_2 : {
-					_playerTwo = dynamic_cast<TankPlayer*>(createObject(
-						GameObjectType::TANK_SECOND_PLAYER, (float)c, (float)r));
-					if (_playerTwo) {
-						_playerTwo->setTextureRect(SECOND_PLAYER_TANK_IMAGE);
-						dynamic_cast<TankPlayer*>(_playerTwo)
-							->setKeys(sf::Keyboard::A, sf::Keyboard::D,
-									  sf::Keyboard::W, sf::Keyboard::S,
-									  sf::Keyboard::E);
-					}
+				
+				case CELL_SYMBOL_PLAYER_2 :
+                    _playerTwo = &createObject(
+                        GameObjectType::TANK_SECOND_PLAYER, (float)c, (float)r);
 					break;
-				}
+				
 				case CELL_SYMBOL_ENEMY_SPAWNER :
 					//createObject(GameObjectType::ENEMY_SPAWNER, (float)c, (float)r);
 					break;
@@ -185,40 +137,47 @@ bool Game::loop() {
 }
 
 void Game::shutdown() {
-	for (int i = 0; i < OBJECTS_COUNT_MAX; i++)
-		if (_objects[i] != 0) {
-			delete _objects[i];
-			_objects[i] = nullptr;
-		}
+    for (auto& pointer : _objectsTerrain)
+        if (pointer)
+            pointer.reset();
+
+    for (auto& pointer : _objectsEntity)
+        if (pointer)
+            pointer.reset();
 }
 
 void Game::render() {
-	std::string string;
-	sf::Text text;
-	sf::RectangleShape rectangle;
-	text.setFont(*_debugFont);
-	text.setCharacterSize(24);
-	text.setLetterSpacing(1.6f);
-	
-	// Начало кадра
-	_renderWindow->clear(sf::Color(20, 20, 20));
+    std::string string;
+    sf::Text text;
+    sf::RectangleShape rectangle;
+    text.setFont(*_debugFont);
+    text.setCharacterSize(24);
+    text.setLetterSpacing(1.6f);
 
-	// Обновление положения камеры вслед за танком игрока
-	// Смена вида делается перед отрисовкой игровых объектов,
-	// чтобы они были увеличены и корректно отображались относительно танка
-	_playerCamera->setCenter((_playerTwo->getX()
-							 + _playerTwo->getWidth() / 2.0f) * PIXELS_PER_CELL,
-							 (_playerTwo->getY()
-							 + _playerTwo->getHeight() / 2.0f) * PIXELS_PER_CELL);
-	_renderWindow->setView(*_playerCamera);
+    // Начало кадра
+    _renderWindow->clear(sf::Color(20, 20, 20));
 
-	// Отрисовка всех игровых объектов
-	int objectsCount = 0;
-	for (int i = 0; i < OBJECTS_COUNT_MAX; i++)
-		if (_objects[i] != 0) {
-			_objects[i]->render(_renderWindow);
-			objectsCount++;
-		}
+    // Обновление положения камеры вслед за танком игрока
+    // Смена вида делается перед отрисовкой игровых объектов,
+    // чтобы они были увеличены и корректно отображались относительно танка
+    _playerCamera->setCenter(((*_playerTwo)->getX()
+                             + (*_playerTwo)->getWidth() / 2.0f) * PIXELS_PER_CELL,
+                             ((*_playerTwo)->getY()
+                             + (*_playerTwo)->getHeight() / 2.0f) * PIXELS_PER_CELL);
+    _renderWindow->setView(*_playerCamera);
+
+    int objectsCount = 0;
+    // Отрисовка всех игровых объектов
+    for (auto& pointer : _objectsTerrain)
+        if (pointer) {
+            pointer->render(&*_renderWindow);
+            objectsCount++;
+        }
+    for (auto& pointer : _objectsEntity)
+        if (pointer) {
+            pointer->render(&*_renderWindow);
+            objectsCount++;
+        }
 	
 	// Сброс вида до разрешения монитора
 	// Всё, что идёт дальше, отрисовывается относительно главного экрана
@@ -271,37 +230,45 @@ void Game::render() {
 }
 
 void Game::update(float dt) {
-	// При уничтожении базы
-	if (_base && _base->getHealth() <= 0)
-		initialize();
-	
-	for (int i = 0; i < OBJECTS_COUNT_MAX; i++)
-		if (_objects[i] != 0) {
-			_objects[i]->update(dt);
+    // Обновление логики всех существующих объектов
+    for (auto& pointer : _objectsTerrain)
+        if (pointer) {
+            pointer->update(dt);
 
-			if (_objects[i]->getHealth() <= 0
-				&& _objects[i]->getDestroyAfterDeath()) 
-				destroyObject(i);
-		}
+            if (pointer->getHealth() <= 0
+                && pointer->getDestroyAfterDeath())
+                pointer.reset();
+        }
+    for (auto& pointer : _objectsEntity)
+        if (pointer) {
+            pointer->update(dt);
+
+            if (pointer->getHealth() <= 0
+                && pointer->getDestroyAfterDeath())
+                pointer.reset();
+        }
+
+    // При уничтожении базы
+    if (*_base && (*_base)->getHealth() <= 0)
+        initialize();
 
 	// Уничтожение игроков
-	if (_playerOne && _playerOne->getHealth() <= 0) {
-		destroyObject(_playerOne);
-		_playerOne = nullptr;
-	}
+	if (*_playerOne && (*_playerOne)->getHealth() <= 0)
+		_playerOne->reset();
 
-	if (_playerTwo && _playerTwo->getHealth() <= 0) {
-		destroyObject(_playerTwo);
-		_playerTwo = nullptr;
-	}
+	if (*_playerTwo && (*_playerTwo)->getHealth() <= 0)
+		initialize();
 
 	// Все противники уничтожены
 	if (_diedEnemiesCount == ENEMIES_PER_LEVEL)
 		initialize();
 }
 
-GameObject* Game::checkIntersects(float x, float y, float width, float height,
-	                              class GameObject* exceptObject) const {
+std::unique_ptr<GameObject>& Game::checkIntersects(float x, float y,
+                                                   float width, float height,
+	                                               class GameObject* exceptObject) const {
+    static std::unique_ptr<GameObject> returnObject;
+
 	// Левый верхний угол входного объекта
 	float primaryCoordY = y;
 	float primaryCoordX = x;
@@ -309,16 +276,12 @@ GameObject* Game::checkIntersects(float x, float y, float width, float height,
 	float overallCoordY = primaryCoordY + height - 0.00001f;
 	float overallCoordX = primaryCoordX + width - 0.00001f;
 	
-	for (int i = 0; i < OBJECTS_COUNT_MAX; i++) {
-		
-		bool conditionOne = _objects[i] != 0;
-		bool conditionTwo = _objects[i] != exceptObject;
-		
-		if (conditionOne && conditionTwo && _objects[i]->getPhysical()) {
-			float pcY = _objects[i]->getY();
-			float pcX = _objects[i]->getX();
-			float ocY = pcY + _objects[i]->getHeight() - 0.00001f;
-			float ocX = pcX + _objects[i]->getWidth() - 0.00001f;
+	for (auto& pointer : _objectsTerrain)
+		if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
+			float pcY = pointer->getY();
+			float pcX = pointer->getX();
+			float ocY = pcY + pointer->getHeight() - 0.00001f;
+			float ocX = pcX + pointer->getWidth() - 0.00001f;
 			
 			bool conditionOne   = primaryCoordY <= ocY;
 			bool conditionTwo   = overallCoordY >= pcY;
@@ -326,11 +289,25 @@ GameObject* Game::checkIntersects(float x, float y, float width, float height,
 			bool conditionFour  = overallCoordX >= pcX;
 			
 			if (conditionOne && conditionTwo && conditionThree && conditionFour)
-				return _objects[i];    // При пересечении вернуть указатель объект-помеху
+				return pointer;    // При пересечении вернуть указатель объект-помеху
 		}
-	}
+    for (auto& pointer : _objectsEntity)
+        if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
+            float pcY = pointer->getY();
+            float pcX = pointer->getX();
+            float ocY = pcY + pointer->getHeight() - 0.00001f;
+            float ocX = pcX + pointer->getWidth() - 0.00001f;
 
-	return nullptr;
+            bool conditionOne   = primaryCoordY <= ocY;
+            bool conditionTwo   = overallCoordY >= pcY;
+            bool conditionThree = primaryCoordX <= ocX;
+            bool conditionFour  = overallCoordX >= pcX;
+
+            if (conditionOne && conditionTwo && conditionThree && conditionFour)
+                return pointer;    // При пересечении вернуть указатель объект-помеху
+        }
+
+	return returnObject;
 }
 
 bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
@@ -352,13 +329,13 @@ bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
 
 	// Проверка на пересечение с другим объектом будто
 	// искомый объект уже на новой позиции
-	class GameObject* otherObject = checkIntersects(x, y, object->getWidth(),
-													object->getHeight(), object);
+    std::unique_ptr<GameObject>& otherObject{checkIntersects(x, y, object->getWidth(),
+                                                             object->getHeight(), object)};
 
 	// Если указатель ненулевой(есть пересечение с другим объектом),
 	// то выполнить поведение при столкновении
 	if (otherObject) {
-		object->intersect(otherObject);
+		object->intersect(&*otherObject);
 		object->setYSpeed(0.0f);
 		object->setXSpeed(0.0f);
 		return false;
@@ -371,77 +348,118 @@ bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
 
 int Game::getObjectsCount(enum GameObjectType type) const {
 	int totalCount = 0;
-
-	for (int i = 0; i < OBJECTS_COUNT_MAX; i++)
-		if (_objects[i] != 0 && _objects[i]->getType() == type)
-			totalCount++;
+    
+    if (int(type) >= 10 && int(type) < 100) {
+        for (auto& pointer : _objectsTerrain)
+            if (pointer && pointer->getType() == type)
+                totalCount++;
+    }
+    else if (int(type) >= 100 && int(type) < 1000) {
+        for (auto& pointer : _objectsEntity)
+            if (pointer && pointer->getType() == type)
+                totalCount++;
+    }
 
 	return totalCount;
 }
 
-GameObject* Game::createObject(enum GameObjectType type, float x, float y) {
-	// Нахождение свободного указателя и присвоение нового экземпляра игровой сущности
-	for (int i = 0; i < OBJECTS_COUNT_MAX; i++) {
-		if (_objects[i] == 0) {
-			class GameObject* object = nullptr;
+std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
+                                                float x, float y) const {
+    static std::unique_ptr<GameObject> object;
 
-			switch (type) {
-			    case GameObjectType::WALL :
-				    object = new Wall();
-				    break;
+	switch (type) {
+        case GameObjectType::WALL :
+            object.reset(new Wall(*this, BRICK_WALL_IMAGE));
+            break;
 
-				case GameObjectType::SOLID_WALL :
-					object = new SolidWall();
-					break;
+        case GameObjectType::STEEL_WALL :
+            object.reset(new Wall(*this, STEEL_WALL_IMAGE, true));
+            break;
+
+        case GameObjectType::SOLID_WALL :
+            object.reset(new SolidWall(*this, SOLID_BRICK_WALL_IMAGE));
+            break;
 				
-				case GameObjectType::BASE :
-					object = new Base();
-					break;
+        case GameObjectType::BASE :
+            object.reset(new Base(*this, BASE_IMAGE));
+            break;
 				
-				case GameObjectType::TANK_FIRST_PLAYER :
-				case GameObjectType::TANK_SECOND_PLAYER :
-					object = new TankPlayer();
-					break;
+        case GameObjectType::TANK_FIRST_PLAYER :
+            object.reset(new TankPlayer(*this, FIRST_PLAYER_TANK_IMAGE,
+                                        sf::Keyboard::Left, sf::Keyboard::Right,
+                                        sf::Keyboard::Up,   sf::Keyboard::Down,
+                                        sf::Keyboard::Space));
+            break;
+
+        case GameObjectType::TANK_SECOND_PLAYER :
+            object.reset(new TankPlayer(*this, SECOND_PLAYER_TANK_IMAGE,
+                                        sf::Keyboard::A, sf::Keyboard::D,
+                                        sf::Keyboard::W, sf::Keyboard::S,
+                                        sf::Keyboard::E));
+            break;
 				
-				case GameObjectType::TANK_ENEMY :
-					object = new TankEnemy();
-					break;
+        case GameObjectType::TANK_ENEMY :
+            object.reset(new TankEnemy(*this, BASIC_ENEMY_TANK_IMAGE));
+            break;
 				
-				case GameObjectType::BULLET :
-					object = new Bullet();
-					break;
+        case GameObjectType::BULLET :
+            object.reset(new Bullet(*this, BULLET_IMAGE));
+            break;
 				
-				case GameObjectType::ENEMY_SPAWNER :
-					object = new EnemySpawner();
-					break;
-			}
+        case GameObjectType::ENEMY_SPAWNER :
+            object.reset(new EnemySpawner(*this));
+            break;
+    }
 
-			if (object == nullptr)
-				return nullptr;
+    if (!object)
+        return object;
 
-			if (moveObjectTo(object, x, y) == false) {
-				delete object;
-				object = nullptr;
-				return nullptr;
-			}
+    if (moveObjectTo(&*object, x, y) == false) {
+        object.reset();
+        return object;
+    }
 
-			object->setGame(this);
-			_objects[i] = object;
+    // Нахождение свободного указателя и присвоение нового экземпляра игровой сущности
+    switch (object->getGroup()) {
+        case GameObjectGroup::TERRAIN :
+            for (auto& objectTerrain : _objectsTerrain) {
+                if (!objectTerrain) {
+                    objectTerrain.reset(object.release());
+                    return objectTerrain;
+                }
+            }
+            object.reset();
+            break;
 
-			return object;
-		}
-	}
-
-	return nullptr;
+        case GameObjectGroup::ENTITY :
+            for (auto& objectEntity : _objectsEntity) {
+                if (!objectEntity) {
+                    objectEntity.reset(object.release());
+                    return objectEntity;
+                }
+            }
+            object.reset();
+            break;
+    }
+    return object;
 }
 
 void Game::destroyObject(const class GameObject* object) {
-	for (int i = 0; i < OBJECTS_COUNT_MAX; i++) {
-		if (_objects[i] == object) {
-			delete _objects[i];
-			_objects[i] = nullptr;
+    switch (object->getGroup()) {
+        case GameObjectGroup::TERRAIN:
+            for (auto& pointer : _objectsTerrain)
+                if (&*pointer == object) {
+                    pointer.reset();
+                    return;
+                }
+            break;
 
-			return;
-		}
-	}
+        case GameObjectGroup::ENTITY:
+            for (auto& pointer : _objectsEntity)
+                if (&*pointer == object) {
+                    pointer.reset();
+                    return;
+                }
+            break;
+    }
 }

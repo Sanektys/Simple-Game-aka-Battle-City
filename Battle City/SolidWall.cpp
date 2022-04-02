@@ -3,8 +3,8 @@
 #include "Utils.h"
 
 
-SolidWall::SolidWall() {
-	_type = GameObjectType::SOLID_WALL;
+SolidWall::SolidWall(const class Game& game, sf::IntRect rect) : Wall(game, rect) {
+	setType(GameObjectType::SOLID_WALL);
 	_variation = getRandomInt(1, 3);
 
 	setHealth(3);

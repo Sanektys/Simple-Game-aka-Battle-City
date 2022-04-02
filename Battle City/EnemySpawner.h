@@ -6,7 +6,7 @@
 class EnemySpawner : public GameObject
 {
     public :
-        EnemySpawner();
+        EnemySpawner(const class Game& game);
         ~EnemySpawner() override {}
 
         /// <summary>

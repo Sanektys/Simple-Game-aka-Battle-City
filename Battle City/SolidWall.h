@@ -10,7 +10,7 @@
 class SolidWall : public Wall
 {
     public :
-        SolidWall();
+        SolidWall(const class Game& game, sf::IntRect rect);
         ~SolidWall() override {}
 
         /// <summary>
@@ -18,6 +18,8 @@ class SolidWall : public Wall
         /// </summary>
         /// <param name="rw">- указатель на объект окна игры</param>
         virtual void render(sf::RenderWindow* rw) override;
+
+    private :
         /// <summary>
         /// Метод выбора актуального, по очкам прочности стены, спрайта
         /// </summary>
@@ -25,7 +27,6 @@ class SolidWall : public Wall
         /// спрайт из атласа</param>
         virtual void setTextureRect(sf::IntRect rect) override;
 
-    private :
         SolidWall(const SolidWall&) = delete;
         SolidWall operator=(const SolidWall&) = delete;
 };
