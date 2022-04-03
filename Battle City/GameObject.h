@@ -168,7 +168,7 @@ class GameObject
         /// Установка направления движения игрового объекта
         /// </summary>
         /// <param name="direction">- направление ориентации/движения объекта</param>
-        void setDirection(enum class Direction direction) { _direction = direction; }
+        virtual void setDirection(enum class Direction direction) { _direction = direction; }
         /// <summary>
         /// Получение направления движения игрового объекта
         /// </summary>

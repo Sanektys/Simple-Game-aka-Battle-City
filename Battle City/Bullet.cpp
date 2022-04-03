@@ -19,45 +19,47 @@ Bullet::Bullet(const class Game& game, sf::IntRect rect,
 
 	_spriteEntity.reset(new sf::Sprite());
 	_spriteEntity->setTexture(*level::ATLAS_ENTITY);
-	_spriteEntity->setOrigin((getWidth() * level::PIXELS_PER_CELL) / 2.0f,
-		                     (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
+	_spriteEntity->setOrigin(level::bullet::basic::PIXELS_WIDTH / 2.0f,
+		                     level::bullet::basic::PIXELS_HEIGHT / 2.0f);
     setTextureRect(rect);
 }
 
-void Bullet::render(sf::RenderWindow* rw) {	
-	GameObject::render(rw);
+void Bullet::intersect(class GameObject* object) {
+    // Самоуничтожение
+    setHealth(0);
+
+    // Нанести урон по цели
+    object->doDamage(1);
 }
 
-void Bullet::setTextureRect(sf::IntRect rect) {	
-	switch (_ownerType) {
+void Bullet::setTextureRect(sf::IntRect rect) {
+    // Установка спрайта на уникальную, для каждого типа танка,
+    // текстуру из атласа
+    // Кейс на танк первого игрока отсутствует,
+    // т.к. он установлен по умолчанию
+	switch (getOwnerType()) {
 	    case GameObjectType::TANK_SECOND_PLAYER :
-			rect.left = 6;
-			break;
+			rect.left = level::bullet::basic::PIXELS_WIDTH;
+			break;  // Смещение спрайта по атласу налево
  
 		case GameObjectType::TANK_ENEMY :
-			rect.left = 12;
+			rect.left = level::bullet::basic::PIXELS_WIDTH * 2;
 			break;
-	}
-	switch (getDirection()) {
-	    case Direction::LEFT :
-	    case Direction::RIGHT :
-			setWidth(level::bullet::basic::HEIGHT);
-			setHeight(level::bullet::basic::WIDTH);
-		    break;
-
-        default :
-			setWidth(level::bullet::basic::WIDTH);
-			setHeight(level::bullet::basic::HEIGHT);
-		    break;
-	}
+	}    
+    // Поворот спрайта на основе направления движения
+    // Функция поворачивает по часовой стрелке(а не как в тригонометрии)
 	_spriteEntity->setRotation(90.0f * (int)getDirection());
 	_spriteEntity->setTextureRect(rect);
 }
 
-void Bullet::intersect(class GameObject* object) {
-	// Самоуничтожение
-	setHealth(0);
-
-	// Нанести урон по цели
-	object->doDamage(1);
+void Bullet::setDirection(enum class Direction direction) {
+    // Инверсия дефолтных размеров снаряда если он летит по горизонтальной оси
+    switch (getDirection()) {
+        case Direction::LEFT:
+        case Direction::RIGHT:
+            setWidth(level::bullet::basic::HEIGHT);
+            setHeight(level::bullet::basic::WIDTH);
+            break;
+    }
+    GameObject::setDirection(direction);
 }
