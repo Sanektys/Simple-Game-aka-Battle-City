@@ -213,12 +213,12 @@ void Game::render() {
 	string = "UPS: " + std::to_string(_ups);
 	text.setString(string);
 	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 2.0f);
-	text.setFillColor(sf::Color::Color(165, 92, 126, 255));
+	text.setFillColor(sf::Color(165, 92, 126, 255));
 	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
 					               text.getGlobalBounds().height + 8.0f));
 	rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
 						               text.getGlobalBounds().top - 4.0f));
-	rectangle.setFillColor(sf::Color::Color(20, 20, 20, 220));
+	rectangle.setFillColor(sf::Color(20, 20, 20, 220));
 	_renderWindow->draw(rectangle);
 	_renderWindow->draw(text);
 	
@@ -227,12 +227,12 @@ void Game::render() {
 	string = "Objects: " + std::to_string(objectsCount);
 	text.setString(string);
 	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 34.0f);
-	text.setFillColor(sf::Color::Color(125, 155, 185, 200));
+	text.setFillColor(sf::Color(125, 155, 185, 200));
 	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
 					               text.getGlobalBounds().height + 8.0f));
 	rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
 						               text.getGlobalBounds().top - 4.0f));
-	rectangle.setFillColor(sf::Color::Color(20, 20, 20, 220));
+	rectangle.setFillColor(sf::Color(20, 20, 20, 220));
 	_renderWindow->draw(rectangle);
 	_renderWindow->draw(text);
 
@@ -241,12 +241,12 @@ void Game::render() {
 		     + std::to_string(sf::VideoMode::getDesktopMode().height);
 	text.setString(string);
 	text.setPosition(0.0f, 0.0f);
-	text.setFillColor(sf::Color::Color(125, 155, 185, 200));
+	text.setFillColor(sf::Color(125, 155, 185, 200));
 	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
 					               text.getGlobalBounds().height + 8.0f));
 	rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
 						               text.getGlobalBounds().top - 4.0f));
-	rectangle.setFillColor(sf::Color::Color(20, 20, 20, 220));
+	rectangle.setFillColor(sf::Color(20, 20, 20, 220));
 	_renderWindow->draw(rectangle);
 	_renderWindow->draw(text);
     #endif
