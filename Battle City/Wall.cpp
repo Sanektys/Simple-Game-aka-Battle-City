@@ -31,6 +31,9 @@ Wall::Wall(const class Game& game, sf::IntRect rect, bool isInvulnerable)
         case 3:
             rect.left = 2 * level::PIXELS_PER_CELL;
             break;
+
+        default :
+            break;
     }
     _spriteTerrain->setTextureRect(rect);
 }

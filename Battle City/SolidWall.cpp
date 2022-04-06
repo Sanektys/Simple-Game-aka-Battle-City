@@ -30,6 +30,9 @@ void SolidWall::setTextureRect(sf::IntRect rect) {
 	    case 1 :
 		    rect.top = 15 * level::PIXELS_PER_CELL;
 		    break;
+
+        default :
+            break;
 	}
 	_spriteTerrain->setTextureRect(rect);
 }

@@ -10,9 +10,9 @@ class Bullet : public GameObject
         friend class Tank;
 
         Bullet(const class Game& game, sf::IntRect rect,
-               enum class Direction direction = Direction(0),
+               enum Direction direction = Direction(0),
                float speedX = 0.0f, float speedY = 0.0f,
-               enum class GameObjectType onwer = GameObjectType(0));
+               enum GameObjectType onwer = GameObjectType(0));
         ~Bullet() override {}
 
 		/// <summary>
@@ -28,7 +28,10 @@ class Bullet : public GameObject
 		/// </summary>
 		/// <returns>¬озвращает тип объект-хозаина
         ///  данного экземпл€ра снар€да</returns>
-		enum class GameObjectType getOwnerType() const { return _ownerType; }
+		enum GameObjectType getOwnerType() const { return _ownerType; }
+
+        Bullet(const Bullet&) = delete;
+        Bullet operator=(const Bullet&) = delete;
 
     private :
         /// <summary>
@@ -44,16 +47,16 @@ class Bullet : public GameObject
         /// и инверси€ его изначальных габаритов если он летит по горизонтали
         /// </summary>
         /// <param name="direction">- направление полЄта снар€да</param>
-        void setDirection(enum class Direction direction) override;
+        void setDirection(enum Direction direction) override;
 
         /// <summary>
         /// ”становка типа объекта, который выпустил данный снар€д
         /// </summary>
         /// <param name="owner">- тип объекта-хоз€ина данного
         /// экземпл€ра снар€да</param>
-        void setOwnerType(enum class GameObjectType owner) { _ownerType = owner; }
+        void setOwnerType(enum GameObjectType owner) { _ownerType = owner; }
 
     private :
        // “ип объекта, что выпустил данный снар€д
-		enum class GameObjectType _ownerType;
+		enum GameObjectType _ownerType;
 };

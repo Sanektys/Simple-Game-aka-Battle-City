@@ -105,6 +105,9 @@ void Tank::update(float dt) {
 				}
 				break;
 			}
+
+            default :
+                break;
 		}		
 	}
 
@@ -189,6 +192,8 @@ void Tank::move(enum Direction direction, float dt) {
 						_inertiaDirection = _oldDirection;
 					break;
 			    }
+                default :
+                    break;
 			}
 			return;
 		}
@@ -261,9 +266,13 @@ void Tank::move(enum Direction direction, float dt) {
 					setXSpeed(_currentSpeed);
 					break;
 				}
+                default :
+                    break;
 			}
 			break;
 		}
+        default :
+            break;
 	}
 
 	if (!_rotation)
@@ -277,6 +286,9 @@ void Tank::move(enum Direction direction, float dt) {
 		    case Direction::RIGHT :
 				setXSpeed(setBrakingSpeedX(getXSpeed(), dt));
 			    break;
+
+            default :
+                break;
 		}
 
 	// Приведение текущей скорости танка к нулю
@@ -359,6 +371,8 @@ bool Tank::bypassObstruction() {
 			middlePoint.coordY = getY() + middlePoint.height;
 			break;
 	    }
+        default :
+            break;
 	}
 
 	bool firstPointIntersects = bool(getGame().checkIntersects(firstSidewardPoint.coordX, firstSidewardPoint.coordY,
@@ -408,6 +422,8 @@ bool Tank::bypassObstruction() {
 					setYSpeed(shiftSpeed);
 				break;
 			}
+            default :
+                break;
 		}
 		return true;
 	}
@@ -434,6 +450,8 @@ bool Tank::bypassObstruction() {
 			    	setYSpeed(-shiftSpeed);
 			    break;
 		    }
+            default :
+                break;
 		}
 		return true;
 	}
@@ -446,7 +464,7 @@ bool Tank::bypassObstruction() {
 // Вращение спрайта танка
 
 bool Tank::rotation(float dt) {
-	short targetRotation = 90 * (int)getDirection();
+	short targetRotation = short(90 * (int)getDirection());
 	if (_rotationAngle == targetRotation)
 		return false;
 
@@ -466,6 +484,9 @@ bool Tank::rotation(float dt) {
 				case Direction::RIGHT :
 					_rotationAngle += anglePerSecond * dt;
 					break;
+
+                default :
+                    break;
 			}
 			_spriteEntity->setRotation(_rotationAngle);
 			break;
@@ -482,6 +503,9 @@ bool Tank::rotation(float dt) {
 				case Direction::DOWN :
 					_rotationAngle += anglePerSecond * dt;
 					break;
+
+                default :
+                    break;
 			}
 			_spriteEntity->setRotation(_rotationAngle);
 			break;
@@ -498,6 +522,9 @@ bool Tank::rotation(float dt) {
 				case Direction::LEFT :
 					_rotationAngle += anglePerSecond * dt;
 					break;
+
+                default :
+                    break;
 			}
 			_spriteEntity->setRotation(_rotationAngle);
 			break;
@@ -514,10 +541,15 @@ bool Tank::rotation(float dt) {
 				case Direction::UP :
 					_rotationAngle += anglePerSecond * dt;
 					break;
+
+                default :
+                    break;
 			}
 			_spriteEntity->setRotation(_rotationAngle);
 			break;
 		}
+        default :
+            break;
 	}
 
 	if (_currentRotationTime >= _rotationTime * coefficientTime) {
@@ -545,6 +577,9 @@ void Tank::fire() {
         case GameObjectType::TANK_FIRST_PLAYER :
         case GameObjectType::TANK_SECOND_PLAYER :
             _fireCooldownTime = level::tank::player::FIRE_COOLDOWN_TIME;
+            break;
+
+        default :
             break;
     }
 
@@ -580,6 +615,9 @@ void Tank::fire() {
 			bulletSpeedY = level::bullet::basic::SPEED;
             bulletPositionX -= (level::bullet::basic::WIDTH / 2.0f);
 			break;
+
+        default :
+            break;
 	}
 	std::unique_ptr<GameObject>& object = 
         getGame().createObject(GameObjectType::BULLET,
@@ -608,6 +646,8 @@ void Tank::calculateFrontCellPosition(float& x, float& y) {
 		case GameObjectType::TANK_ENEMY :
 			distanceToGunpoint = 0.3f;
 			break;
+        default :
+            break;
 	}
 	switch (getDirection()) {
 	    // Расчёты строятся на том, что координатная точка танка
@@ -631,6 +671,9 @@ void Tank::calculateFrontCellPosition(float& x, float& y) {
 		    x = getX() - distanceToGunpoint;
 		    y = getY() + (getHeight() / 2.0f);
 		    break;
+
+        default :
+            break;
 	}
 }
 

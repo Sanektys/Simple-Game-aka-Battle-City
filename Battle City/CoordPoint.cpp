@@ -3,7 +3,7 @@
 
 
 void CoordPoint::setCoordPoint(class GameObject* modifyObject,
-	                           enum class typeCoordPoint typePoint) {
+	                           enum typeCoordPoint typePoint) {
 	width  = modifyObject->getWidth() / 2.0f - 0.1f;
 	height = modifyObject->getHeight() / 2.0f - 0.1f;
 	

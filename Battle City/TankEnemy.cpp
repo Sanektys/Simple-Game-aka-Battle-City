@@ -66,6 +66,8 @@ void TankEnemy::analize(float dt) {
 			yDelta = 1.0f;
 			break;
 		}
+        default :
+            break;
 	}
 
 	// Поиск ближайших объектов с дистанцией до них
@@ -111,6 +113,8 @@ void TankEnemy::analize(float dt) {
 		    }
 		    break;
 	    }
+        default :
+            break;
 	}
 
 	

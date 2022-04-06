@@ -66,6 +66,9 @@ void GameObject::update(float dt) {
             }
         }
         break;
+
+        default :
+            break;
 	}
 }
 
@@ -156,6 +159,8 @@ void GameObject::escapeSticking() {
                     setYSpeed(getYSpeed());
                 break;
             }
+            default :
+                break;
         }
     else if (topRightIntersect)
         switch (getDirection()) {
@@ -175,6 +180,8 @@ void GameObject::escapeSticking() {
                     setYSpeed(getYSpeed());
                 break;
             }
+            default :
+                break;
         }
     else if (bottomRightIntersect)
         switch (getDirection()) {
@@ -194,6 +201,8 @@ void GameObject::escapeSticking() {
                     setYSpeed(getYSpeed());
                 break;
             }
+            default :
+                break;
         }
     else if (bottomLeftIntersect)
         switch (getDirection()) {
@@ -213,6 +222,8 @@ void GameObject::escapeSticking() {
                     setYSpeed(getYSpeed());
                 break;
             }
+            default :
+                break;
         }
 }
 

@@ -12,12 +12,12 @@ extern std::mt19937* RANDOM;
 	return ((keyState & 0x8000) > 0);
 }*/
 
-int getRandomInt(int min, int max)
+unsigned getRandomInt(int min, int max)
 {
 	return min + (*RANDOM)() % (max - min + 1);
 }
 
 float getRandomFloat(float min, float max)
 {
-	return (min + ((float)max - min) * ((*RANDOM)() % 101 / 100.0f));
+	return (min + ((float)max - min) * (float((*RANDOM)() % 101) / 100.0f));
 }

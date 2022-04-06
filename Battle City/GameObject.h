@@ -58,21 +58,12 @@ class GameObject
         /// или это объект игровой сущности)</para>
         /// </summary>
         /// <returns>Возвращает группу, к которой относится игровой объект</returns>
-        enum class GameObjectGroup getGroup() const { return _group; }
+        enum GameObjectGroup getGroup() const { return _group; }
         /// <summary>
         /// Метод возвращает тип объекта из его экземпляра
         /// </summary>
         /// <returns>Возвращает тип игрового объекта</returns>
-        enum class GameObjectType getType() const { return _type; }
-
-        /// <summary>
-        /// Связывает игровой объект с общим объектом игровой логики,
-        /// путём сохранения указателя на последний, с целью дальнейшего
-        /// использования его методов
-        /// </summary>
-        /// <param name="game">- указатель на общий для всех
-        /// объект игровой логики</param>
-//      void setGame(const class Game& game) { _game = game; }
+        enum GameObjectType getType() const { return _type; }
 
         /// <summary>
         /// Установка положения игрового объекта по горизонтали
@@ -168,12 +159,12 @@ class GameObject
         /// Установка направления движения игрового объекта
         /// </summary>
         /// <param name="direction">- направление ориентации/движения объекта</param>
-        virtual void setDirection(enum class Direction direction) { _direction = direction; }
+        virtual void setDirection(enum Direction direction) { _direction = direction; }
         /// <summary>
         /// Получение направления движения игрового объекта
         /// </summary>
         /// <returns>Возвращает текущее направление движения/ориентации объекта</returns>
-        enum class Direction getDirection() const { return _direction; }
+        enum Direction getDirection() const { return _direction; }
 
         /// <summary>
         /// Получение условной переменной,
@@ -203,12 +194,12 @@ class GameObject
         /// </summary>
         /// <param name="group">- к какой группе относится объект:
         /// игровое окружение или игровая сущность</param>
-        void setGroup(enum class GameObjectGroup group) { _group = group; }
+        void setGroup(enum GameObjectGroup group) { _group = group; }
         /// <summary>
         /// Установка типа игрового объекта
         /// </summary>
         /// <param name="type">- тип игрового объекта</param>
-        void setType(enum class GameObjectType type) { _type = type; }
+        void setType(enum GameObjectType type) { _type = type; }
 
         /// <summary>
         /// Установка ширины игрового объекта
@@ -264,16 +255,8 @@ class GameObject
         /// <returns>Возвращает ссылку на константный объект игровой логики</returns>
         const class Game& getGame() const { return _game; }
 
-        /// <summary>
-        /// Метод получения указателя на спрайт окружения
-        /// </summary>
-        /// <returns>Возвращает указатель на спрайт окружения</returns>
-        //std::unique_ptr<sf::Sprite>& getSpriteTerrain() { return _spriteTerrain; }
-        /// <summary>
-        /// Метод получения указателя на спрайт сущности
-        /// </summary>
-        /// <returns>Возвращает указатель на спрайт сущности</returns>
-        //std::unique_ptr<sf::Sprite>& getSpriteEntity() { return _spriteEntity; }
+        GameObject(const GameObject&) = delete;
+        GameObject operator=(const GameObject&) = delete;
 
     protected:
         // Каждый объект использует только один из двух представленных спрайтов
@@ -288,16 +271,13 @@ class GameObject
         /// </summary>
         void escapeSticking();
 
-        GameObject(const GameObject&) = delete;
-        GameObject operator=(const GameObject&) = delete;
-
     private :
         // Ссылка на класс игровой логики для вызова его методов
         const class Game& _game;
         // Класс игрового объекта
-        enum class GameObjectGroup _group;
+        enum GameObjectGroup _group;
         // Тип игрового объекта
-        enum class GameObjectType _type;
+        enum GameObjectType _type;
 
         // Координаты игрового объекта
         ////////////////
@@ -314,7 +294,7 @@ class GameObject
         float _height{1.0f}; // Высота объекта
 
         // Текущее направление игрового объекта
-        enum class Direction _direction;
+        enum Direction _direction;
 
         // Очки прочности объекта или неуязвимость
         ////////////////

@@ -30,34 +30,36 @@ Game::~Game() {
 }
 
 void Game::setupSystem() {
-	// Установка зерна рандома
+    // Установка зерна рандома
     RANDOM = new std::mt19937;
-	RANDOM->seed(unsigned(steady_clock::now().time_since_epoch().count()));
+    RANDOM->seed(unsigned(steady_clock::now().time_since_epoch().count()));
 
-	// Создание игрового окна
-	_renderWindow.reset(new sf::RenderWindow(sf::VideoMode::getDesktopMode(),
+    // Создание игрового окна
+    _renderWindow.reset(new sf::RenderWindow(sf::VideoMode::getDesktopMode(),
                                              "Battle City", sf::Style::Fullscreen));
-	_renderWindow->setMouseCursorVisible(false);
+    _renderWindow->setMouseCursorVisible(false);
 
-	// Иницализация камеры игрока
-	_playerCamera.reset(new sf::View(
-		sf::FloatRect(0.0f, 0.0f,
-					  level::CAMERA_WIDTH, level::CAMERA_HEIGHT)));
+    // Иницализация камеры игрока
+    _playerCamera.reset(new sf::View(
+        sf::FloatRect(0.0f, 0.0f,
+                      level::CAMERA_WIDTH, level::CAMERA_HEIGHT)));
 
-	// Загрузка текстур из атласов
-	level::ATLAS_TERRAIN = new sf::Texture();
+    // Загрузка текстур из атласов
+    level::ATLAS_TERRAIN = new sf::Texture();
     if (!level::ATLAS_TERRAIN->loadFromFile("./Build/atlas_terrain.png"))
         if (!level::ATLAS_TERRAIN->loadFromFile("./build/atlas_terrain.png"))
             if (!level::ATLAS_TERRAIN->loadFromFile("atlas_terrain.png"))
                 std::exit(1);
-   	level::ATLAS_ENTITY = new sf::Texture();
+
+    level::ATLAS_ENTITY = new sf::Texture();
     if (!level::ATLAS_ENTITY->loadFromFile("./Build/atlas_entity.png"))
         if (!level::ATLAS_ENTITY->loadFromFile("./build/atlas_entity.png"))
             if (!level::ATLAS_ENTITY->loadFromFile("atlas_entity.png"))
                 std::exit(1);
 
-	// Загрузка шрифтов
-	_debugFont.reset(new sf::Font);
+    // Загрузка шрифтов
+    _debugFont.reset(new sf::Font);
+
     if (!_debugFont->loadFromFile("./Build/progresspixel-bold.ttf"))
         if (!_debugFont->loadFromFile("./build/progresspixel-bold.ttf"))
             if (!_debugFont->loadFromFile("progresspixel-bold.ttf"))
@@ -65,45 +67,45 @@ void Game::setupSystem() {
 }
 
 void Game::initialize() {
-	shutdown();
+    shutdown();
 
-	_diedEnemiesCount = 0;
+    _diedEnemiesCount = 0;
 
-	// Загрузка уровня
-	for (int r = 0; r < level::ROWS; r++) {
-		for (int c = 0; c < level::COLUMNS; c++) {
-			unsigned char cellSymbol = level::FIRST_MAP[r][c];
+    // Загрузка уровня
+    for (int r = 0; r < level::ROWS; r++) {
+        for (int c = 0; c < level::COLUMNS; c++) {
+            unsigned char cellSymbol = level::FIRST_MAP[r][c];
 
-			switch (cellSymbol) {
+            switch (cellSymbol) {
                 case level::SYMBOL_BRICK_WALL :
-				    createObject(GameObjectType::WALL, (float)c, (float)r);
-					break;
+                    createObject(GameObjectType::WALL, (float)c, (float)r);
+                    break;
 
                 case level::SYMBOL_SOLID_WALL :
-					createObject(GameObjectType::SOLID_WALL, (float)c, (float)r);
-					break;
+	            createObject(GameObjectType::SOLID_WALL, (float)c, (float)r);
+                    break;
                     
                 case level::SYMBOL_STEEL_WALL :
-				    createObject(GameObjectType::STEEL_WALL, (float)c, (float)r);
-				    break;
+                    createObject(GameObjectType::STEEL_WALL, (float)c, (float)r);
+                    break;
 			    
                 case level::SYMBOL_BASE :
-					_base = &createObject(GameObjectType::BASE, (float)c, (float)r);
-					break;
+                    _base = &createObject(GameObjectType::BASE, (float)c, (float)r);
+                    break;
 				
                 case level::SYMBOL_PLAYER_1 :
-					_playerOne = &createObject(
-						GameObjectType::TANK_FIRST_PLAYER, (float)c, (float)r);
-					break;
+                    _playerOne = &createObject(
+                        GameObjectType::TANK_FIRST_PLAYER, (float)c, (float)r);
+                    break;
 				
                 case level::SYMBOL_PLAYER_2 :
                     _playerTwo = &createObject(
                         GameObjectType::TANK_SECOND_PLAYER, (float)c, (float)r);
-					break;
+                    break;
 				
                 case level::SYMBOL_ENEMY_SPAWNER :
-					//createObject(GameObjectType::ENEMY_SPAWNER, (float)c, (float)r);
-					break;
+                    //createObject(GameObjectType::ENEMY_SPAWNER, (float)c, (float)r);
+                    break;
 			}
 		}
 	}
@@ -111,12 +113,12 @@ void Game::initialize() {
 
 bool Game::loop() {
     // Обработка закрытия игрового окна
-	if (!_renderWindow->isOpen())
-		return false;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
-		_renderWindow->close();
-		return false;
-	}
+    if (!_renderWindow->isOpen())
+	return false;
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+	_renderWindow->close();
+	return false;
+    }
 
     using std::chrono::duration;
     using std::chrono::duration_cast;
@@ -134,32 +136,34 @@ bool Game::loop() {
 	// Расчёт прошедшего времени за такт
     if (!wasPause)
         clockNow = steady_clock::now();
-	float deltaTime =
-		duration_cast<duration<float>>(clockNow - _clockLastFrame).count();
+
+    float deltaTime =
+        duration_cast<duration<float>>(clockNow - _clockLastFrame).count();
+
     if (!wasPause)
         _clockLastFrame = clockNow;
     else
         _clockLastFrame = steady_clock::now();
 
-	// Счётчик обновлений в секунду (тактов в секунду)
-	_oneSecond += deltaTime;
-	_updatesCount++;
-	if (_oneSecond >= 1.0f) {
-		_oneSecond = 0.0f;
-		_ups = _updatesCount;
-		_updatesCount = 0;
-	}
+    // Счётчик обновлений в секунду (тактов в секунду)
+    _oneSecond += deltaTime;
+    _updatesCount++;
+    if (_oneSecond >= 1.0f) {
+	_oneSecond = 0.0f;
+	_ups = _updatesCount;
+	_updatesCount = 0;
+    }
 
-	// Отслеживание закрытия окна
-	sf::Event event;
-	while (_renderWindow->pollEvent(event))
-		if (event.type == sf::Event::Closed)
-			_renderWindow->close();
+    // Отслеживание закрытия окна
+    sf::Event event;
+    while (_renderWindow->pollEvent(event))
+	if (event.type == sf::Event::Closed)
+            _renderWindow->close();
 
-	update(deltaTime);
-	render();
+    update(deltaTime);
+    render();
 
-	return _isGameActive;
+    return _isGameActive;
 }
 
 void Game::shutdown() {
@@ -205,28 +209,28 @@ void Game::render() {
             objectsCount++;
         }
 	
-	// Сброс вида до разрешения монитора
-	// Всё, что идёт дальше, отрисовывается относительно главного экрана
-	_renderWindow->setView(_renderWindow->getDefaultView());
+    // Сброс вида до разрешения монитора
+    // Всё, что идёт дальше, отрисовывается относительно главного экрана
+    _renderWindow->setView(_renderWindow->getDefaultView());
 
-	// Счётчик обновлений в секунду
-	string = "UPS: " + std::to_string(_ups);
-	text.setString(string);
-	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 2.0f);
-	text.setFillColor(sf::Color(165, 92, 126, 255));
-	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
-					               text.getGlobalBounds().height + 8.0f));
-	rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
-						               text.getGlobalBounds().top - 4.0f));
-	rectangle.setFillColor(sf::Color(20, 20, 20, 220));
-	_renderWindow->draw(rectangle);
-	_renderWindow->draw(text);
+    // Счётчик обновлений в секунду
+    string = "UPS: " + std::to_string(_ups);
+    text.setString(string);
+    text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 2.0f);
+    text.setFillColor(sf::Color(165, 92, 126, 255));
+    rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
+                                   text.getGlobalBounds().height + 8.0f));
+    rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
+                                      text.getGlobalBounds().top - 4.0f));
+    rectangle.setFillColor(sf::Color(20, 20, 20, 220));
+    _renderWindow->draw(rectangle);
+    _renderWindow->draw(text);
 	
-	// Счётчик объектов в игре
+    // Счётчик объектов в игре
     #ifdef _DEBUG
 	string = "Objects: " + std::to_string(objectsCount);
 	text.setString(string);
-	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 34.0f);
+	text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 34.0f);
 	text.setFillColor(sf::Color(125, 155, 185, 200));
 	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
 					               text.getGlobalBounds().height + 8.0f));
@@ -251,8 +255,8 @@ void Game::render() {
 	_renderWindow->draw(text);
     #endif
 
-	// Конец кадра
-	_renderWindow->display();
+    // Конец кадра
+    _renderWindow->display();
 }
 
 void Game::update(float dt) {
@@ -278,45 +282,45 @@ void Game::update(float dt) {
     if (*_base && (*_base)->getHealth() <= 0)
         initialize();
 
-	// Уничтожение игроков
-	if (*_playerOne && (*_playerOne)->getHealth() <= 0)
-		_playerOne->reset();
+    // Уничтожение игроков
+    if (*_playerOne && (*_playerOne)->getHealth() <= 0)
+	_playerOne->reset();
 
-	if (*_playerTwo && (*_playerTwo)->getHealth() <= 0)
-		initialize();
+    if (*_playerTwo && (*_playerTwo)->getHealth() <= 0)
+	initialize();
 
-	// Все противники уничтожены
-	if (_diedEnemiesCount == level::tank::enemy::PER_LEVEL)
-		initialize();
+    // Все противники уничтожены
+    if (_diedEnemiesCount == level::tank::enemy::PER_LEVEL)
+        initialize();
 }
 
 std::unique_ptr<GameObject>& Game::checkIntersects(float x, float y,
                                                    float width, float height,
-	                                               class GameObject* exceptObject) const {
+                                                   class GameObject* exceptObject) const {
     static std::unique_ptr<GameObject> returnObject;
 
-	// Левый верхний угол входного объекта
-	float primaryCoordY = y;
-	float primaryCoordX = x;
-	// Правый нижний угол входного объекта
-	float overallCoordY = primaryCoordY + height - 0.00001f;
-	float overallCoordX = primaryCoordX + width - 0.00001f;
+    // Левый верхний угол входного объекта
+    float primaryCoordY = y;
+    float primaryCoordX = x;
+    // Правый нижний угол входного объекта
+    float overallCoordY = primaryCoordY + height - 0.00001f;
+    float overallCoordX = primaryCoordX + width - 0.00001f;
 	
-	for (auto& pointer : _objectsTerrain)
-		if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
-			float pcY = pointer->getY();
-			float pcX = pointer->getX();
-			float ocY = pcY + pointer->getHeight() - 0.00001f;
-			float ocX = pcX + pointer->getWidth() - 0.00001f;
+    for (auto& pointer : _objectsTerrain)
+        if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
+            float pcY = pointer->getY();
+            float pcX = pointer->getX();
+            float ocY = pcY + pointer->getHeight() - 0.00001f;
+            float ocX = pcX + pointer->getWidth() - 0.00001f;
 			
-			bool conditionOne   = primaryCoordY <= ocY;
-			bool conditionTwo   = overallCoordY >= pcY;
-			bool conditionThree = primaryCoordX <= ocX;
-			bool conditionFour  = overallCoordX >= pcX;
+            bool conditionOne   = primaryCoordY <= ocY;
+            bool conditionTwo   = overallCoordY >= pcY;
+            bool conditionThree = primaryCoordX <= ocX;
+            bool conditionFour  = overallCoordX >= pcX;
 			
-			if (conditionOne && conditionTwo && conditionThree && conditionFour)
-				return pointer;    // При пересечении вернуть указатель объект-помеху
-		}
+            if (conditionOne && conditionTwo && conditionThree && conditionFour)
+                return pointer;    // При пересечении вернуть указатель объект-помеху
+    }
     for (auto& pointer : _objectsEntity)
         if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
             float pcY = pointer->getY();
@@ -333,7 +337,7 @@ std::unique_ptr<GameObject>& Game::checkIntersects(float x, float y,
                 return pointer;    // При пересечении вернуть указатель объект-помеху
         }
 
-	return returnObject;
+    return returnObject;
 }
 
 bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
@@ -373,7 +377,7 @@ bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
 }
 
 int Game::getObjectsCount(enum GameObjectType type) const {
-	int totalCount = 0;
+    int totalCount = 0;
     
     if (int(type) >= 10 && int(type) < 100) {
         for (auto& pointer : _objectsTerrain)
@@ -386,14 +390,14 @@ int Game::getObjectsCount(enum GameObjectType type) const {
                 totalCount++;
     }
 
-	return totalCount;
+    return totalCount;
 }
 
 std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
                                                 float x, float y) const {
     static std::unique_ptr<GameObject> object;
 
-	switch (type) {
+    switch (type) {
         case GameObjectType::WALL :
             object.reset(new Wall(*this, level::wall::BRICK_IMAGE));
             break;
@@ -435,6 +439,9 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
         case GameObjectType::ENEMY_SPAWNER :
             object.reset(new EnemySpawner(*this));
             break;
+
+        default :
+            break;
     }
 
     if (!object)
@@ -466,6 +473,9 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
             }
             object.reset();
             break;
+
+        default :
+            break;
     }
     return object;
 }
@@ -486,6 +496,9 @@ void Game::destroyObject(const class GameObject* object) {
                     pointer.reset();
                     return;
                 }
+            break;
+
+        default :
             break;
     }
 }

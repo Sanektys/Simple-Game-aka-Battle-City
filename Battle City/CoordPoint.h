@@ -32,7 +32,7 @@ struct CoordPoint
 	/// <param name="typePoint">- вариация расположения объекта CoordPoint
     /// внутри целевого объекта</param>
 	void setCoordPoint(class GameObject* modifyObject,
-		               enum class typeCoordPoint typePoint);
+		               enum typeCoordPoint typePoint);
 
     // Начальная горизонтальная координата четвертинки искомого объекта
     float coordX{0.0f};
