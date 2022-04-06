@@ -90,9 +90,9 @@ namespace level {
             const float SPEED  = 6.0f;
             const float FIRE_COOLDOWN_TIME = 1.8f;
 
-            const sf::IntRect FIRST_IMAGE (0, 0, PIXELS_WIDTH + 2, 
+            const sf::IntRect FIRST_IMAGE (0, 0, PIXELS_WIDTH, 
                                                  PIXELS_HEIGHT + PIXELS_GUN_LENGTH);
-            const sf::IntRect SECOND_IMAGE(0, 88, PIXELS_WIDTH + 2,
+            const sf::IntRect SECOND_IMAGE(0, 88, PIXELS_WIDTH,
                                                   PIXELS_HEIGHT + PIXELS_GUN_LENGTH);
         }
 
@@ -110,7 +110,7 @@ namespace level {
                 const float AI_ANALIZER_TIME   = 0.8f;
                 const float FIRE_COOLDOWN_TIME = 2.0f;
 
-                const sf::IntRect IMAGE(0, 176, PIXELS_WIDTH + 2,
+                const sf::IntRect IMAGE(0, 176, PIXELS_WIDTH,
                                                 PIXELS_HEIGHT + PIXELS_GUN_LENGTH);
             }
         }

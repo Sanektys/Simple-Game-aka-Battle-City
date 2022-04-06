@@ -46,13 +46,22 @@ void Game::setupSystem() {
 
 	// Загрузка текстур из атласов
 	level::ATLAS_TERRAIN = new sf::Texture();
-	level::ATLAS_TERRAIN->loadFromFile("atlas_terrain.png");
-	level::ATLAS_ENTITY = new sf::Texture();
-	level::ATLAS_ENTITY->loadFromFile("atlas_entity.png");
+    if (!level::ATLAS_TERRAIN->loadFromFile("./Build/atlas_terrain.png"))
+        if (!level::ATLAS_TERRAIN->loadFromFile("./build/atlas_terrain.png"))
+            if (!level::ATLAS_TERRAIN->loadFromFile("atlas_terrain.png"))
+                std::exit(1);
+   	level::ATLAS_ENTITY = new sf::Texture();
+    if (!level::ATLAS_ENTITY->loadFromFile("./Build/atlas_entity.png"))
+        if (!level::ATLAS_ENTITY->loadFromFile("./build/atlas_entity.png"))
+            if (!level::ATLAS_ENTITY->loadFromFile("atlas_entity.png"))
+                std::exit(1);
 
 	// Загрузка шрифтов
 	_debugFont.reset(new sf::Font);
-	_debugFont->loadFromFile("progresspixel-bold.ttf");
+    if (!_debugFont->loadFromFile("./Build/progresspixel-bold.ttf"))
+        if (!_debugFont->loadFromFile("./build/progresspixel-bold.ttf"))
+            if (!_debugFont->loadFromFile("progresspixel-bold.ttf"))
+                std::exit(1);
 }
 
 void Game::initialize() {

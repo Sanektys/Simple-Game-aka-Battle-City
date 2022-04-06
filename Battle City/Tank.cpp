@@ -29,7 +29,7 @@ Tank::Tank(const class Game& game) : GameObject(game) {
 
 	_spriteEntity.reset(new sf::Sprite());
 	_spriteEntity->setTexture(*(level::ATLAS_ENTITY));
-	_spriteEntity->setOrigin(level::tank::PIXELS_WIDTH / 2.0f + 1.0f,
+	_spriteEntity->setOrigin(level::tank::PIXELS_WIDTH / 2.0f,
                              level::tank::PIXELS_HEIGHT / 2.0f + level::tank::PIXELS_GUN_LENGTH);
 
 	_currentTrackShift = 0.0f;
@@ -129,7 +129,7 @@ void Tank::update(float dt) {
 // Отрисовка танка
 
 void Tank::renderTracksMoving() {
-	int TRACK_SHIFT_INTERVAL = 25;
+	const float TRACK_SHIFT_INTERVAL = 20.0f;
 
 	_currentTrackShift += _currentSpeed;
 	
@@ -138,14 +138,11 @@ void Tank::renderTracksMoving() {
 
 		sf::IntRect textureRect = _spriteEntity->getTextureRect();
 		// Переход на соседний спрайт по горизонтали в атласе
-		if (0 == textureRect.left) {
-			textureRect.left = 64;
-			_spriteEntity->setTextureRect(textureRect);
-		}
-		else {
+		if (0 == textureRect.left)
+            textureRect.left = level::tank::PIXELS_WIDTH;
+		else
 			textureRect.left = 0;
-			_spriteEntity->setTextureRect(textureRect);
-		}
+        _spriteEntity->setTextureRect(textureRect);
 	}
 }
 
@@ -537,7 +534,7 @@ bool Tank::rotation(float dt) {
 // Блок методов, реализующих выстрел танка
 
 void Tank::fire() {
-	if ((_fireCooldownTime > 0) || _rotation)
+	if (_fireCooldownTime > 0 || _rotation)
 		return;
 
     switch (getType()) {
