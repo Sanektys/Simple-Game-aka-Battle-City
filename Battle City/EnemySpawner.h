@@ -17,7 +17,6 @@ class EnemySpawner : public GameObject
         /// (время обработки логики и отрисовки за прошлый раз)</param>
         void update(float dt) override;
 
-    private :
         EnemySpawner(const EnemySpawner&) = delete;
         EnemySpawner operator=(const EnemySpawner&) = delete;
 

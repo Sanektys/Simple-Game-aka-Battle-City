@@ -212,7 +212,7 @@ void Game::render() {
 	// —чЄтчик обновлений в секунду
 	string = "UPS: " + std::to_string(_ups);
 	text.setString(string);
-	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 2.0f);
+	text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 2.0f);
 	text.setFillColor(sf::Color(165, 92, 126, 255));
 	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
 					               text.getGlobalBounds().height + 8.0f));
@@ -226,7 +226,7 @@ void Game::render() {
     #ifdef _DEBUG
 	string = "Objects: " + std::to_string(objectsCount);
 	text.setString(string);
-	text.setPosition(_renderWindow->getSize().x - text.getGlobalBounds().width, 34.0f);
+	text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 34.0f);
 	text.setFillColor(sf::Color(125, 155, 185, 200));
 	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
 					               text.getGlobalBounds().height + 8.0f));
@@ -435,6 +435,9 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
         case GameObjectType::ENEMY_SPAWNER :
             object.reset(new EnemySpawner(*this));
             break;
+
+        default :
+            break;
     }
 
     if (!object)
@@ -465,6 +468,9 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
                 }
             }
             object.reset();
+            break;
+
+        default :
             break;
     }
     return object;

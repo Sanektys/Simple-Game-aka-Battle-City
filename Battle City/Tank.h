@@ -10,7 +10,7 @@
 class Tank : public GameObject
 {
     public :
-		Tank(const class Game& game);
+		explicit Tank(const class Game& game);
         ~Tank() override {}
 
 		/// <summary>
@@ -20,6 +20,9 @@ class Tank : public GameObject
 		void update(float dt) override;
 
 		void render(sf::RenderWindow* rw) override;
+
+        Tank(const Tank&) = delete;
+        Tank operator=(const Tank&) = delete;
 
     protected :
 		/// <summary>

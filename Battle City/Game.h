@@ -105,6 +105,9 @@ class Game
 		/// </summary>
 		void increaseDiedEnemiesCount() const { ++_diedEnemiesCount; }
 
+        Game(const Game&) = delete;
+        Game& operator=(const Game&) = delete;
+
     private :
 		/// <summary>
 		/// Главный метод отрисовки окна игры.
@@ -124,9 +127,6 @@ class Game
 		/// позволяет корректно рассчитывать действия игровых объектов,
 		/// что зависят от времени выполнения</param>
 		void update(float dt);
-
-		Game(const Game&) = delete;
-		Game& operator=(const Game&) = delete;
 
     private :
 	    // Массив указателей на все объекты игрового окружения

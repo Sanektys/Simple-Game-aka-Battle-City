@@ -24,6 +24,9 @@ class Base : public GameObject
 		/// затраченного на предыдущий игровой такт</param>
 		virtual void update(float dt) override;
 
+        Base(const Base&) = delete;
+        Base operator=(const Base&) = delete;
+
 	private :
         /// <summary>
         /// Обновление спрайта базы в зависимости от оставшихся очков прочности
@@ -33,9 +36,6 @@ class Base : public GameObject
         /// <param name="rect">- прямоугольник "вырезающий" определённый спрайт
         /// из всего атласа</param>
         virtual void setTextureRect(sf::IntRect rect) override;
-
-	    Base(const Base&) = delete;
-		Base operator=(const Base&) = delete;
 
 	private :
 	    // Переменные для смены спрайта базы

@@ -25,13 +25,6 @@ class TankPlayer : public Tank
 		void update(float dt) override;
 
 		/// <summary>
-		/// ћетод установки соотвествующего спрайта дл€ танка игрока
-		/// </summary>
-		/// <param name="rect">- пр€моугольник "вырезающий"
-		/// определЄнный спрайт из атласа</param>
-		//virtual void setTextureRect(sf::IntRect rect) override;
-
-		/// <summary>
 		/// ћетод назначени€ определЄнных клавиш дл€ управлени€ танком
 		/// </summary>
 		/// <param name="keyLeft">- клавиша дл€ движени€ налево</param>
@@ -42,6 +35,9 @@ class TankPlayer : public Tank
 		void setKeys(sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
 					 sf::Keyboard::Key keyUp,   sf::Keyboard::Key keyDown,
 					 sf::Keyboard::Key keyFire);
+
+        TankPlayer(const TankPlayer&) = delete;
+        TankPlayer operator=(const TankPlayer&) = delete;
 
     private :
 	    // Ќазначаемые клавиши управлени€ танка игроком

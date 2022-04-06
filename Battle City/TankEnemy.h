@@ -9,9 +9,10 @@ class TankEnemy : public Tank
 	    TankEnemy(const class Game& game, sf::IntRect rect);
 		~TankEnemy() override;
 
-		//virtual void setTextureRect(sf::IntRect rect) override;
-
 		void update(float dt) override;
+
+        TankEnemy(const TankEnemy&) = delete;
+        TankEnemy operator=(const TankEnemy&) = delete;
 
     protected :
 		void analize(float dt);

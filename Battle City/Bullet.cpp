@@ -4,8 +4,8 @@
 
 
 Bullet::Bullet(const class Game& game, sf::IntRect rect,
-               enum class Direction direction, float speedX, float speedY,
-               enum class GameObjectType owner)
+               enum Direction direction, float speedX, float speedY,
+               enum GameObjectType owner)
     : GameObject(game), _ownerType(owner) {
     setGroup(GameObjectGroup::ENTITY);
     setType(GameObjectType::BULLET);
@@ -45,20 +45,26 @@ void Bullet::setTextureRect(sf::IntRect rect) {
 		case GameObjectType::TANK_ENEMY :
 			rect.left = level::bullet::basic::PIXELS_WIDTH * 2;
 			break;
+
+        default :
+            break;
 	}    
     // Поворот спрайта на основе направления движения
     // Функция поворачивает по часовой стрелке(а не как в тригонометрии)
-	_spriteEntity->setRotation(90.0f * (int)getDirection());
+	_spriteEntity->setRotation(90.0f * (float)getDirection());
 	_spriteEntity->setTextureRect(rect);
 }
 
-void Bullet::setDirection(enum class Direction direction) {
+void Bullet::setDirection(enum Direction direction) {
     // Инверсия дефолтных размеров снаряда если он летит по горизонтальной оси
     switch (getDirection()) {
         case Direction::LEFT:
         case Direction::RIGHT:
             setWidth(level::bullet::basic::HEIGHT);
             setHeight(level::bullet::basic::WIDTH);
+            break;
+
+        default :
             break;
     }
     GameObject::setDirection(direction);

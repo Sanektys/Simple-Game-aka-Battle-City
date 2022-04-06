@@ -79,6 +79,9 @@ void Base::setTextureRect(sf::IntRect rect) {
 		case 0 :
 			rect.top = 10 * level::PIXELS_PER_CELL;
 			break;
+
+        default :
+            break;
 	}   
 	_spriteTerrain->setTextureRect(rect);
 }

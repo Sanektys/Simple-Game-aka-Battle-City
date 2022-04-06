@@ -19,14 +19,14 @@ class SolidWall : public Wall
         /// <param name="rw">- указатель на объект окна игры</param>
         virtual void render(sf::RenderWindow* rw) override;
 
+        SolidWall(const SolidWall&) = delete;
+        SolidWall operator=(const SolidWall&) = delete;
+
     private :
         /// <summary>
         /// Метод выбора актуального, по очкам прочности стены, спрайта
         /// </summary>
         /// <param name="rect">- прямоугольник "вырезающий" нужный
         /// спрайт из атласа</param>
-        virtual void setTextureRect(sf::IntRect rect) override;
-
-        SolidWall(const SolidWall&) = delete;
-        SolidWall operator=(const SolidWall&) = delete;
+        virtual void setTextureRect(sf::IntRect rect) override;     
 };
