@@ -82,42 +82,42 @@ void Game::initialize() {
                     break;
 
                 case level::SYMBOL_SOLID_WALL :
-	            createObject(GameObjectType::SOLID_WALL, (float)c, (float)r);
+                createObject(GameObjectType::SOLID_WALL, (float)c, (float)r);
                     break;
                     
                 case level::SYMBOL_STEEL_WALL :
                     createObject(GameObjectType::STEEL_WALL, (float)c, (float)r);
                     break;
-			    
+    
                 case level::SYMBOL_BASE :
                     _base = &createObject(GameObjectType::BASE, (float)c, (float)r);
                     break;
-				
+    
                 case level::SYMBOL_PLAYER_1 :
                     _playerOne = &createObject(
                         GameObjectType::TANK_FIRST_PLAYER, (float)c, (float)r);
                     break;
-				
+    
                 case level::SYMBOL_PLAYER_2 :
                     _playerTwo = &createObject(
                         GameObjectType::TANK_SECOND_PLAYER, (float)c, (float)r);
                     break;
-				
+    
                 case level::SYMBOL_ENEMY_SPAWNER :
                     //createObject(GameObjectType::ENEMY_SPAWNER, (float)c, (float)r);
                     break;
-			}
-		}
-	}
+            }
+        }
+    }
 }
 
 bool Game::loop() {
     // Обработка закрытия игрового окна
     if (!_renderWindow->isOpen())
-	return false;
+        return false;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
-	_renderWindow->close();
-	return false;
+        _renderWindow->close();
+        return false;
     }
 
     using std::chrono::duration;
@@ -133,7 +133,7 @@ bool Game::loop() {
                !sf::Keyboard::isKeyPressed(sf::Keyboard::Space));        
     }
 
-	// Расчёт прошедшего времени за такт
+    // Расчёт прошедшего времени за такт
     if (!wasPause)
         clockNow = steady_clock::now();
 
@@ -149,16 +149,16 @@ bool Game::loop() {
     _oneSecond += deltaTime;
     _updatesCount++;
     if (_oneSecond >= 1.0f) {
-	_oneSecond = 0.0f;
-	_ups = _updatesCount;
-	_updatesCount = 0;
+        _oneSecond = 0.0f;
+        _ups = _updatesCount;
+        _updatesCount = 0;
     }
 
     // Отслеживание закрытия окна
     sf::Event event;
     while (_renderWindow->pollEvent(event))
-	if (event.type == sf::Event::Closed)
-            _renderWindow->close();
+    if (event.type == sf::Event::Closed)
+        _renderWindow->close();
 
     update(deltaTime);
     render();
@@ -208,7 +208,7 @@ void Game::render() {
             pointer->render(&*_renderWindow);
             objectsCount++;
         }
-	
+    
     // Сброс вида до разрешения монитора
     // Всё, что идёт дальше, отрисовывается относительно главного экрана
     _renderWindow->setView(_renderWindow->getDefaultView());
@@ -225,34 +225,34 @@ void Game::render() {
     rectangle.setFillColor(sf::Color(20, 20, 20, 220));
     _renderWindow->draw(rectangle);
     _renderWindow->draw(text);
-	
+    
     // Счётчик объектов в игре
     #ifdef _DEBUG
-	string = "Objects: " + std::to_string(objectsCount);
-	text.setString(string);
-	text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 34.0f);
-	text.setFillColor(sf::Color(125, 155, 185, 200));
-	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
-					               text.getGlobalBounds().height + 8.0f));
-	rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
-						               text.getGlobalBounds().top - 4.0f));
-	rectangle.setFillColor(sf::Color(20, 20, 20, 220));
-	_renderWindow->draw(rectangle);
-	_renderWindow->draw(text);
+    string = "Objects: " + std::to_string(objectsCount);
+    text.setString(string);
+    text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 34.0f);
+    text.setFillColor(sf::Color(125, 155, 185, 200));
+    rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
+                                   text.getGlobalBounds().height + 8.0f));
+    rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
+                                       text.getGlobalBounds().top - 4.0f));
+    rectangle.setFillColor(sf::Color(20, 20, 20, 220));
+    _renderWindow->draw(rectangle);
+    _renderWindow->draw(text);
 
-	// Текущее разрешение
-	string = std::to_string(sf::VideoMode::getDesktopMode().width) + "x"
-		     + std::to_string(sf::VideoMode::getDesktopMode().height);
-	text.setString(string);
-	text.setPosition(0.0f, 0.0f);
-	text.setFillColor(sf::Color(125, 155, 185, 200));
-	rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
-					               text.getGlobalBounds().height + 8.0f));
-	rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
-						               text.getGlobalBounds().top - 4.0f));
-	rectangle.setFillColor(sf::Color(20, 20, 20, 220));
-	_renderWindow->draw(rectangle);
-	_renderWindow->draw(text);
+    // Текущее разрешение
+    string = std::to_string(sf::VideoMode::getDesktopMode().width) + "x"
+             + std::to_string(sf::VideoMode::getDesktopMode().height);
+    text.setString(string);
+    text.setPosition(0.0f, 0.0f);
+    text.setFillColor(sf::Color(125, 155, 185, 200));
+    rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
+                                   text.getGlobalBounds().height + 8.0f));
+    rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
+                                       text.getGlobalBounds().top - 4.0f));
+    rectangle.setFillColor(sf::Color(20, 20, 20, 220));
+    _renderWindow->draw(rectangle);
+    _renderWindow->draw(text);
     #endif
 
     // Конец кадра
@@ -284,10 +284,10 @@ void Game::update(float dt) {
 
     // Уничтожение игроков
     if (*_playerOne && (*_playerOne)->getHealth() <= 0)
-	_playerOne->reset();
+        _playerOne->reset();
 
     if (*_playerTwo && (*_playerTwo)->getHealth() <= 0)
-	initialize();
+        initialize();
 
     // Все противники уничтожены
     if (_diedEnemiesCount == level::tank::enemy::PER_LEVEL)
@@ -305,19 +305,19 @@ std::unique_ptr<GameObject>& Game::checkIntersects(float x, float y,
     // Правый нижний угол входного объекта
     float overallCoordY = primaryCoordY + height - 0.00001f;
     float overallCoordX = primaryCoordX + width - 0.00001f;
-	
+
     for (auto& pointer : _objectsTerrain)
         if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
             float pcY = pointer->getY();
             float pcX = pointer->getX();
             float ocY = pcY + pointer->getHeight() - 0.00001f;
             float ocX = pcX + pointer->getWidth() - 0.00001f;
-			
+
             bool conditionOne   = primaryCoordY <= ocY;
             bool conditionTwo   = overallCoordY >= pcY;
             bool conditionThree = primaryCoordX <= ocX;
             bool conditionFour  = overallCoordX >= pcX;
-			
+
             if (conditionOne && conditionTwo && conditionThree && conditionFour)
                 return pointer;    // При пересечении вернуть указатель объект-помеху
     }
@@ -341,39 +341,39 @@ std::unique_ptr<GameObject>& Game::checkIntersects(float x, float y,
 }
 
 bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
-	// Координаты желаемой(новой) позиции
-	float newCoordY = y;
-	float newCoordX = x;
-	// Габариты объекта на новой позиции
-	float newOverallCoordY = newCoordY + object->getHeight() - 0.00001f;
-	float newOverallCoordX = newCoordX + object->getWidth() - 0.00001f;
+    // Координаты желаемой(новой) позиции
+    float newCoordY = y;
+    float newCoordX = x;
+    // Габариты объекта на новой позиции
+    float newOverallCoordY = newCoordY + object->getHeight() - 0.00001f;
+    float newOverallCoordX = newCoordX + object->getWidth() - 0.00001f;
 
-	// Проверка на неверные координаты (выход за пределы игрового поля)
-	bool conditionOne   = newCoordY < 0.0f;
-	bool conditionTwo   = newCoordX < 0.0f;
-	bool conditionThree = newOverallCoordY >= level::ROWS;
-	bool conditionFour  = newOverallCoordX >= level::COLUMNS;
-	
-	if (conditionOne || conditionTwo || conditionThree || conditionFour)
-		return false;
+    // Проверка на неверные координаты (выход за пределы игрового поля)
+    bool conditionOne   = newCoordY < 0.0f;
+    bool conditionTwo   = newCoordX < 0.0f;
+    bool conditionThree = newOverallCoordY >= level::ROWS;
+    bool conditionFour  = newOverallCoordX >= level::COLUMNS;
 
-	// Проверка на пересечение с другим объектом будто
-	// искомый объект уже на новой позиции
+    if (conditionOne || conditionTwo || conditionThree || conditionFour)
+        return false;
+
+    // Проверка на пересечение с другим объектом будто
+    // искомый объект уже на новой позиции
     std::unique_ptr<GameObject>& otherObject{checkIntersects(x, y, object->getWidth(),
                                                              object->getHeight(), object)};
 
-	// Если указатель ненулевой(есть пересечение с другим объектом),
-	// то выполнить поведение при столкновении
-	if (otherObject) {
-		object->intersect(&*otherObject);
-		object->setYSpeed(0.0f);
-		object->setXSpeed(0.0f);
-		return false;
-	} else {    //Иначе поставить объект на новую позицию
-		object->setX(x);
-		object->setY(y);
-		return true;
-	}
+    // Если указатель ненулевой(есть пересечение с другим объектом),
+    // то выполнить поведение при столкновении
+    if (otherObject) {
+        object->intersect(&*otherObject);
+        object->setYSpeed(0.0f);
+        object->setXSpeed(0.0f);
+        return false;
+    } else {    //Иначе поставить объект на новую позицию
+        object->setX(x);
+        object->setY(y);
+        return true;
+    }
 }
 
 int Game::getObjectsCount(enum GameObjectType type) const {
@@ -409,11 +409,11 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
         case GameObjectType::SOLID_WALL :
             object.reset(new SolidWall(*this, level::wall::SOLID_BRICK_IMAGE));
             break;
-				
+
         case GameObjectType::BASE :
             object.reset(new Base(*this, level::base::IMAGE));
             break;
-				
+
         case GameObjectType::TANK_FIRST_PLAYER :
             object.reset(new TankPlayer(*this, level::tank::player::FIRST_IMAGE,
                                         sf::Keyboard::Left, sf::Keyboard::Right,
@@ -427,15 +427,15 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
                                         sf::Keyboard::W, sf::Keyboard::S,
                                         sf::Keyboard::E));
             break;
-				
+
         case GameObjectType::TANK_ENEMY :
             object.reset(new TankEnemy(*this, level::tank::enemy::basic::IMAGE));
             break;
-				
+
         case GameObjectType::BULLET :
             object.reset(new Bullet(*this, level::bullet::basic::IMAGE));
             break;
-				
+
         case GameObjectType::ENEMY_SPAWNER :
             object.reset(new EnemySpawner(*this));
             break;

@@ -4,12 +4,12 @@
 ///////////////////////
 // Точка входа
 int main() {
-	std::unique_ptr<Game> game(new Game());
+    std::unique_ptr<Game> game(new Game());
 
-	game->setupSystem();
-	game->initialize();
+    game->setupSystem();
+    game->initialize();
 
-	while (game->loop());
+    while (game->loop());
 
-	return 0;
+    return 0;
 }

@@ -22,17 +22,17 @@ enum class typeCoordPoint
 /// </summary>
 struct CoordPoint
 {
-	/// <summary>
-	/// Метод, устанавливающий значения объекта CoordPoint согласно
+    /// <summary>
+    /// Метод, устанавливающий значения объекта CoordPoint согласно
     /// целевому объекту GameObject
-	/// </summary>
-	/// <param name="modifyObject">- целевой объект, на основе которого
+    /// </summary>
+    /// <param name="modifyObject">- целевой объект, на основе которого
     /// создаётся объект CoordPoint равный 1/4 размеров первого
     /// и внутри его границ</param>
-	/// <param name="typePoint">- вариация расположения объекта CoordPoint
+    /// <param name="typePoint">- вариация расположения объекта CoordPoint
     /// внутри целевого объекта</param>
-	void setCoordPoint(class GameObject* modifyObject,
-		               enum typeCoordPoint typePoint);
+    void setCoordPoint(class GameObject* modifyObject,
+                       enum typeCoordPoint typePoint);
 
     // Начальная горизонтальная координата четвертинки искомого объекта
     float coordX{0.0f};

@@ -28,5 +28,5 @@ class SolidWall : public Wall
         /// </summary>
         /// <param name="rect">- прямоугольник "вырезающий" нужный
         /// спрайт из атласа</param>
-        virtual void setTextureRect(sf::IntRect rect) override;     
+        virtual void setTextureRect(sf::IntRect rect) override;
 };

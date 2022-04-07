@@ -7,55 +7,55 @@
 GameObject::GameObject(const class Game& game) : _game(game) {
     _group = GameObjectGroup::NONE;
     _type = GameObjectType::NONE;
-	_direction = Direction::UP;
+    _direction = Direction::UP;
 }
 
 void GameObject::render(sf::RenderWindow* rw) {
     // Если объекту присвоен свой спрайт
-	if (_spriteTerrain || _spriteEntity) {
-		if (_spriteTerrain) {
+    if (_spriteTerrain || _spriteEntity) {
+        if (_spriteTerrain) {
             // Помещение спрайта на игровом поле.
             // Предполагается, что центр спрайта смещён на центр самой текстуры
-			_spriteTerrain->setPosition(getX() * level::PIXELS_PER_CELL
+            _spriteTerrain->setPosition(getX() * level::PIXELS_PER_CELL
                                         + (getWidth() * level::PIXELS_PER_CELL) / 2.0f,
-				                        getY() * level::PIXELS_PER_CELL
+                                        getY() * level::PIXELS_PER_CELL
                                         + (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
-			rw->draw(*_spriteTerrain);
-		}
-		else if (_spriteEntity) {
-		    _spriteEntity->setPosition(getX() * level::PIXELS_PER_CELL
+            rw->draw(*_spriteTerrain);
+        }
+        else if (_spriteEntity) {
+            _spriteEntity->setPosition(getX() * level::PIXELS_PER_CELL
                                        + (getWidth() * level::PIXELS_PER_CELL) / 2.0f,
-				                       getY() * level::PIXELS_PER_CELL
+                                       getY() * level::PIXELS_PER_CELL
                                        + (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
-			rw->draw(*_spriteEntity);
-		}
-	}
+            rw->draw(*_spriteEntity);
+        }
+    }
 }
 
 void GameObject::update(float dt) {
-	switch (getType()) {
-	    case GameObjectType::TANK_ENEMY :
-	    case GameObjectType::TANK_FIRST_PLAYER :
-		case GameObjectType::TANK_SECOND_PLAYER : {
+    switch (getType()) {
+        case GameObjectType::TANK_ENEMY :
+        case GameObjectType::TANK_FIRST_PLAYER :
+        case GameObjectType::TANK_SECOND_PLAYER : {
             // Если в данный момент объект не проходит намеренно сквозь другой объект
-			if (!getInBypass())
+            if (!getInBypass())
                 // То произвести проверку на коллизию
-			    _isSticking = bool(getGame().checkIntersects(getX(), getY(),
+                _isSticking = bool(getGame().checkIntersects(getX(), getY(),
                                                              getWidth(), getHeight(), this));
             // Если объект застрял в другом объекте
-			if (getIsSticking())
-				escapeSticking();
-		}
-		
+            if (getIsSticking())
+                escapeSticking();
+        }
+
         case GameObjectType::BULLET : {
             float oldX = getX();
-            float oldY = getY();        
+            float oldY = getY();
 
             float newX = getX() + getXSpeed() * dt; // Новая позиция по горизонтали
             float newY = getY() + getYSpeed() * dt; // Новая позиция по вертикали
             // Новые координаты высчитываются по текущей скорости и дельте времени,
             // затраченной на предыдущий такт обновления игровой логики
-         
+
             // Если одна из двух координат не совпадает с предыдущей,
             // то объект перемещается
             if ((oldX != newX || oldY != newY) && !_isSticking && !_inBypass) {
@@ -69,7 +69,7 @@ void GameObject::update(float dt) {
 
         default :
             break;
-	}
+    }
 }
 
 void GameObject::escapeSticking() {
@@ -77,13 +77,13 @@ void GameObject::escapeSticking() {
     CoordPoint topRightPoint;
     CoordPoint bottomRightPoint;
     CoordPoint bottomLeftPoint;
-		
+
     // Условное разделение текущего объекта на четыре равные части
     topLeftPoint.setCoordPoint    (this, typeCoordPoint::TOP_LEFT);
     topRightPoint.setCoordPoint   (this, typeCoordPoint::TOP_RIGHT);
     bottomRightPoint.setCoordPoint(this, typeCoordPoint::BOTTOM_RIGHT);
     bottomLeftPoint.setCoordPoint (this, typeCoordPoint::BOTTOM_LEFT);
-		
+
     // Проверка на коллизию с другим объектом каждой четверти текущего объекта
     /////////////////////////
     bool topLeftIntersect = bool(getGame().checkIntersects(
@@ -228,11 +228,11 @@ void GameObject::escapeSticking() {
 }
 
 void GameObject::doDamage(int damage) {
-	if (getInvulnerable())
-		return;
+    if (getInvulnerable())
+        return;
 
-	if (_health > damage)
-		_health -= damage;
-	else
-		_health = 0;
+    if (_health > damage)
+        _health -= damage;
+    else
+        _health = 0;
 }

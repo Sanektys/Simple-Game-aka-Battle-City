@@ -9,42 +9,42 @@
 class TankPlayer : public Tank
 {
     public :
-		TankPlayer(const class Game& game, sf::IntRect rect,
+        TankPlayer(const class Game& game, sf::IntRect rect,
                    sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
                    sf::Keyboard::Key keyUp,   sf::Keyboard::Key keyDown,
                    sf::Keyboard::Key keyFire);
-		~TankPlayer() override {}
+        ~TankPlayer() override {}
 
-		/// <summary>
-		/// Метод обновления состояния танка игрока
-		/// <para>Отслеживаются нажатые клавиши управления танком
-		/// для перевода в соотвествующее состояние</para>
-		/// </summary>
-		/// <param name="dt">- дельта времени, затраченное
-		/// на предыдущий игровой такт</param>
-		void update(float dt) override;
+        /// <summary>
+        /// Метод обновления состояния танка игрока
+        /// <para>Отслеживаются нажатые клавиши управления танком
+        /// для перевода в соотвествующее состояние</para>
+        /// </summary>
+        /// <param name="dt">- дельта времени, затраченное
+        /// на предыдущий игровой такт</param>
+        void update(float dt) override;
 
-		/// <summary>
-		/// Метод назначения определённых клавиш для управления танком
-		/// </summary>
-		/// <param name="keyLeft">- клавиша для движения налево</param>
-		/// <param name="keyRight">- клавиша для движения направо</param>
-		/// <param name="keyUp">- клавиша для движения вверх</param>
-		/// <param name="keyDown">- клавиша для движения вниз</param>
-		/// <param name="keyFire">- клавиша для выстрела</param>
-		void setKeys(sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
-					 sf::Keyboard::Key keyUp,   sf::Keyboard::Key keyDown,
-					 sf::Keyboard::Key keyFire);
+        /// <summary>
+        /// Метод назначения определённых клавиш для управления танком
+        /// </summary>
+        /// <param name="keyLeft">- клавиша для движения налево</param>
+        /// <param name="keyRight">- клавиша для движения направо</param>
+        /// <param name="keyUp">- клавиша для движения вверх</param>
+        /// <param name="keyDown">- клавиша для движения вниз</param>
+        /// <param name="keyFire">- клавиша для выстрела</param>
+        void setKeys(sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
+                     sf::Keyboard::Key keyUp,   sf::Keyboard::Key keyDown,
+                     sf::Keyboard::Key keyFire);
 
         TankPlayer(const TankPlayer&) = delete;
         TankPlayer operator=(const TankPlayer&) = delete;
 
     private :
-	    // Назначаемые клавиши управления танка игроком
-	    /////////////////////
-	    sf::Keyboard::Key _keyLeft {sf::Keyboard::Key::Unknown};
-		sf::Keyboard::Key _keyRight{sf::Keyboard::Key::Unknown};
-		sf::Keyboard::Key _keyUp   {sf::Keyboard::Key::Unknown};
-		sf::Keyboard::Key _keyDown {sf::Keyboard::Key::Unknown};
-		sf::Keyboard::Key _keyFire {sf::Keyboard::Key::Unknown};
+        // Назначаемые клавиши управления танка игроком
+        /////////////////////
+        sf::Keyboard::Key _keyLeft {sf::Keyboard::Key::Unknown};
+        sf::Keyboard::Key _keyRight{sf::Keyboard::Key::Unknown};
+        sf::Keyboard::Key _keyUp   {sf::Keyboard::Key::Unknown};
+        sf::Keyboard::Key _keyDown {sf::Keyboard::Key::Unknown};
+        sf::Keyboard::Key _keyFire {sf::Keyboard::Key::Unknown};
 };

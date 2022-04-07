@@ -15,20 +15,20 @@ class Bullet : public GameObject
                enum GameObjectType onwer = GameObjectType(0));
         ~Bullet() override {}
 
-		/// <summary>
-		/// Метод, определяющий поведение объекта снаряда при коллизии
+        /// <summary>
+        /// Метод, определяющий поведение объекта снаряда при коллизии
         /// с другим объектом
-		/// </summary>
-		/// <param name="object">- объект,
+        /// </summary>
+        /// <param name="object">- объект,
         /// с которым произошло столкновение/пересечение</param>
-		void intersect(class GameObject* object) override;
+        void intersect(class GameObject* object) override;
 
-		/// <summary>
-		/// Получение типа объекта, который выпустил данный снаряд
-		/// </summary>
-		/// <returns>Возвращает тип объект-хозаина
+        /// <summary>
+        /// Получение типа объекта, который выпустил данный снаряд
+        /// </summary>
+        /// <returns>Возвращает тип объект-хозаина
         ///  данного экземпляра снаряда</returns>
-		enum GameObjectType getOwnerType() const { return _ownerType; }
+        enum GameObjectType getOwnerType() const { return _ownerType; }
 
         Bullet(const Bullet&) = delete;
         Bullet operator=(const Bullet&) = delete;
@@ -57,6 +57,6 @@ class Bullet : public GameObject
         void setOwnerType(enum GameObjectType owner) { _ownerType = owner; }
 
     private :
-       // Тип объекта, что выпустил данный снаряд
-		enum GameObjectType _ownerType;
+        // Тип объекта, что выпустил данный снаряд
+        enum GameObjectType _ownerType;
 };

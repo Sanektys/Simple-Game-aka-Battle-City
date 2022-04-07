@@ -18,20 +18,20 @@ enum class GameObjectGroup
 /// </summary>
 enum class GameObjectType
 {
-	NONE,
+    NONE,
 
     // Типы игрового окружения
     ///////////////////////////
     WALL = 10,
     STEEL_WALL,
     SOLID_WALL,
-    
+
     // Типы сущностей
     ///////////////////////////
     BASE = 100,
     ENEMY_SPAWNER,
     TANK_ENEMY,
-	TANK_FIRST_PLAYER,
-	TANK_SECOND_PLAYER,
-	BULLET,
+    TANK_FIRST_PLAYER,
+    TANK_SECOND_PLAYER,
+    BULLET,
 };

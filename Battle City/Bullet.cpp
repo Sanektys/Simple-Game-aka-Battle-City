@@ -14,13 +14,13 @@ Bullet::Bullet(const class Game& game, sf::IntRect rect,
     setXSpeed(speedX);
     setYSpeed(speedY);
 
-	setWidth(level::bullet::basic::WIDTH);
-	setHeight(level::bullet::basic::HEIGHT);
+    setWidth(level::bullet::basic::WIDTH);
+    setHeight(level::bullet::basic::HEIGHT);
 
-	_spriteEntity.reset(new sf::Sprite());
-	_spriteEntity->setTexture(*level::ATLAS_ENTITY);
-	_spriteEntity->setOrigin(level::bullet::basic::PIXELS_WIDTH / 2.0f,
-		                     level::bullet::basic::PIXELS_HEIGHT / 2.0f);
+    _spriteEntity.reset(new sf::Sprite());
+    _spriteEntity->setTexture(*level::ATLAS_ENTITY);
+    _spriteEntity->setOrigin(level::bullet::basic::PIXELS_WIDTH / 2.0f,
+                             level::bullet::basic::PIXELS_HEIGHT / 2.0f);
     setTextureRect(rect);
 }
 
@@ -37,22 +37,22 @@ void Bullet::setTextureRect(sf::IntRect rect) {
     // текстуру из атласа
     //  ейс на танк первого игрока отсутствует,
     // т.к. он установлен по умолчанию
-	switch (getOwnerType()) {
-	    case GameObjectType::TANK_SECOND_PLAYER :
-			rect.left = level::bullet::basic::PIXELS_WIDTH;
-			break;  // —мещение спрайта по атласу налево
- 
-		case GameObjectType::TANK_ENEMY :
-			rect.left = level::bullet::basic::PIXELS_WIDTH * 2;
-			break;
+    switch (getOwnerType()) {
+        case GameObjectType::TANK_SECOND_PLAYER :
+            rect.left = level::bullet::basic::PIXELS_WIDTH;
+            break;  // —мещение спрайта по атласу налево
+
+        case GameObjectType::TANK_ENEMY :
+            rect.left = level::bullet::basic::PIXELS_WIDTH * 2;
+            break;
 
         default :
             break;
-	}    
+    }
     // ѕоворот спрайта на основе направлени€ движени€
     // ‘ункци€ поворачивает по часовой стрелке(а не как в тригонометрии)
-	_spriteEntity->setRotation(90.0f * (float)getDirection());
-	_spriteEntity->setTextureRect(rect);
+    _spriteEntity->setRotation(90.0f * (float)getDirection());
+    _spriteEntity->setTextureRect(rect);
 }
 
 void Bullet::setDirection(enum Direction direction) {

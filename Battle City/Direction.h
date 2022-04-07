@@ -7,12 +7,12 @@
 /// </summary>
 enum class Direction
 {
-	NONE,
+    NONE,
 
-	RIGHT,
-	DOWN,
-	LEFT,
-	UP,
+    RIGHT,
+    DOWN,
+    LEFT,
+    UP,
 
-	MAX
+    MAX
 };
