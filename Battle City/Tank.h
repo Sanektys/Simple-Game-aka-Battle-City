@@ -77,8 +77,8 @@ class Tank : public GameObject
 		void setRotationAngle(float rotationAngle) { _rotationAngle = rotationAngle; }
 		float getRotationAngle() { return _rotationAngle; }
 
-		void setOldDirection(enum class Direction oldDirection) { _oldDirection = oldDirection; }
-		enum class Direction getOldDirection() { return _oldDirection; }
+		void setOldDirection(enum Direction oldDirection) { _oldDirection = oldDirection; }
+		enum Direction getOldDirection() { return _oldDirection; }
 
     private:
 	    /// <summary>
