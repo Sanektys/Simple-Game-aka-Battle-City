@@ -6,7 +6,7 @@
 /// <para>(верхн€€ лева€ четверть, верхн€€ права€ четверть,
 /// нижн€€ лева€ четверть и нижн€€ права€ четверть)</para>
 /// </summary>
-enum class typeCoordPoint
+enum class TypeCoordPoint
 {
     TOP_LEFT,
     TOP_RIGHT,
@@ -22,6 +22,14 @@ enum class typeCoordPoint
 /// </summary>
 struct CoordPoint
 {
+    CoordPoint() = default;
+    CoordPoint(class GameObject* modifyObject,
+               enum TypeCoordPoint typePoint) {
+        setCoordPoint(modifyObject, typePoint);
+    }
+    CoordPoint(float coordX, float coordY, float width, float height)
+        : coordX(coordX), coordY(coordY), width(width), height(height) {}
+
     /// <summary>
     /// ћетод, устанавливающий значени€ объекта CoordPoint согласно
     /// целевому объекту GameObject
@@ -32,7 +40,7 @@ struct CoordPoint
     /// <param name="typePoint">- вариаци€ расположени€ объекта CoordPoint
     /// внутри целевого объекта</param>
     void setCoordPoint(class GameObject* modifyObject,
-                       enum typeCoordPoint typePoint);
+                       enum TypeCoordPoint typePoint);
 
     // Ќачальна€ горизонтальна€ координата четвертинки искомого объекта
     float coordX{0.0f};

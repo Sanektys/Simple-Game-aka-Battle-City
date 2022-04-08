@@ -5,7 +5,7 @@
 
 class TankEnemy : public Tank
 {
-    public :
+    public:
         TankEnemy(const class Game& game, sf::IntRect rect);
         ~TankEnemy() override;
 
@@ -14,14 +14,13 @@ class TankEnemy : public Tank
         TankEnemy(const TankEnemy&) = delete;
         TankEnemy operator=(const TankEnemy&) = delete;
 
-    protected :
-        void analize(float dt);
-        void moveRandomDirection(float dt);
+    protected:
+        void ai(float dt);
 
-    private :
-        float _analizeTimer;
-        float _analizeTime;
+        bool isAvoidSolidBarrier(float dt);
+        void changeDirection(float dt);
 
-        float _lastAnalizeX;
-        float _lastAnalizeY;
+    private:
+        float _changeDirectionPauseTime{0.0f};
+        //float _leavingTargetPauseTime{0.0f};
 };

@@ -133,36 +133,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="base.h" />
-    <ClInclude Include="bullet.h" />
-    <ClInclude Include="coordPoint.h" />
-    <ClInclude Include="direction.h" />
-    <ClInclude Include="enemySpawner.h" />
-    <ClInclude Include="game.h" />
-    <ClInclude Include="gameObject.h" />
-    <ClInclude Include="gameObjectType.h" />
-    <ClInclude Include="level.h" />
-    <ClInclude Include="solidWall.h" />
-    <ClInclude Include="tank.h" />
-    <ClInclude Include="tankEnemy.h" />
-    <ClInclude Include="tankPlayer.h" />
-    <ClInclude Include="utils.h" />
-    <ClInclude Include="wall.h" />
+    <ClInclude Include="Base.h" />
+    <ClInclude Include="Bullet.h" />
+    <ClInclude Include="CoordPoint.h" />
+    <ClInclude Include="Direction.h" />
+    <ClInclude Include="EnemySpawner.h" />
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObjectType.h" />
+    <ClInclude Include="Level.h" />
+    <ClInclude Include="SolidWall.h" />
+    <ClInclude Include="Tank.h" />
+    <ClInclude Include="TankEnemy.h" />
+    <ClInclude Include="TankPlayer.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="Wall.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="base.cpp" />
-    <ClCompile Include="bullet.cpp" />
+    <ClCompile Include="Base.cpp" />
+    <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="CoordPoint.cpp" />
-    <ClCompile Include="enemySpawner.cpp" />
-    <ClCompile Include="game.cpp" />
-    <ClCompile Include="gameObject.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="solidWall.cpp" />
-    <ClCompile Include="tank.cpp" />
-    <ClCompile Include="tankEnemy.cpp" />
-    <ClCompile Include="tankPlayer.cpp" />
-    <ClCompile Include="utils.cpp" />
-    <ClCompile Include="wall.cpp" />
+    <ClCompile Include="EnemySpawner.cpp" />
+    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SolidWall.cpp" />
+    <ClCompile Include="Tank.cpp" />
+    <ClCompile Include="TankEnemy.cpp" />
+    <ClCompile Include="TankPlayer.cpp" />
+    <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Wall.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

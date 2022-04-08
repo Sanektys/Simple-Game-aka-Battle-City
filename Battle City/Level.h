@@ -107,8 +107,8 @@ namespace level {
                 const short HEALTH = 6;
                 const float SPEED  = 4.5f;
                 const float SPAWN_TIME = 10.0f;
-                const float AI_ANALIZER_TIME   = 0.8f;
                 const float FIRE_COOLDOWN_TIME = 2.0f;
+                const int MAX_FIRE_DISTANCE = 16;
 
                 const sf::IntRect IMAGE(0, 176, PIXELS_WIDTH,
                                                 PIXELS_HEIGHT + PIXELS_GUN_LENGTH);

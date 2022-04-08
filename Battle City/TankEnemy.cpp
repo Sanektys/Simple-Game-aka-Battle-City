@@ -1,22 +1,18 @@
 #include <random>
 
 #include "TankEnemy.h"
+#include "CoordPoint.h"
 #include "Utils.h"
 #include "Wall.h"
 #include "Bullet.h"
-#include "GameObjectType.h"
 #include "Game.h"
 
 
 extern std::mt19937* RANDOM;
 
+
 TankEnemy::TankEnemy(const class Game& game, sf::IntRect rect) : Tank(game) {
     setType(GameObjectType::TANK_ENEMY);
-
-    _analizeTime = level::tank::enemy::basic::AI_ANALIZER_TIME;
-    _analizeTimer = getRandomFloat(0.0f, _analizeTime);
-    _lastAnalizeX = 0.0f;
-    _lastAnalizeY = 0.0f;
 
     setHealth(level::tank::enemy::basic::HEALTH);
     setMaxSpeed(level::tank::enemy::basic::SPEED);
@@ -32,111 +28,205 @@ TankEnemy::~TankEnemy() {
 }
 
 void TankEnemy::update(float dt) {
-    Tank::update(dt);
+    ai(dt);
 
-    _analizeTimer += dt;
-    if (_analizeTimer > _analizeTime) {
-        _analizeTimer = 0;
-        analize(dt);
-    }
+    Tank::update(dt);
 }
 
-void TankEnemy::analize(float dt) {
-    float x = 0.0;
-    float y = 0.0;
+void TankEnemy::ai(float dt) {
+    if (isAvoidSolidBarrier(dt))
+        return;
+
+    bool isChangeDirection{false};
+    if (_changeDirectionPauseTime <= 0.0f) {
+        _changeDirectionPauseTime = 1.0f;
+        isChangeDirection = (*RANDOM)() % 5 == 0;
+    } else {
+        _changeDirectionPauseTime -= dt;
+    }
+    if (isChangeDirection) {
+        // Двигаться в случайном направлении
+        changeDirection(dt);
+        return;
+    }
+
+    float x = 0.0f;
+    float y = 0.0f;
     calculateFrontCellPosition(x, y);
-
-    float xDelta = 0.0;
-    float yDelta = 0.0;
-
+        
+    float xDelta = 0.0f;
+    float yDelta = 0.0f;
+        
     switch (getDirection()) {
-        case Direction::LEFT : {
+        case Direction::LEFT :
             xDelta = -1.0f;
             break;
-        }
-        case Direction::RIGHT : {
-            xDelta = 1.0f;
+            
+        case Direction::RIGHT :
+            xDelta = +1.0f;
             break;
-        }
-        case Direction::UP : {
+            
+        case Direction::UP :
             yDelta = -1.0f;
             break;
-        }
-        case Direction::DOWN : {
-            yDelta = 1.0f;
+            
+        case Direction::DOWN :
+            yDelta = +1.0f;
             break;
-        }
-        default :
+            
+        default:
             break;
     }
 
     // Поиск ближайших объектов с дистанцией до них
     std::unique_ptr<GameObject>* object{nullptr};
-    float distance = 0;
+    int fireDistance{0};
     do {
-        object = &getGame().checkIntersects(x, y, 0.01f, 0.01f, 0);
-
+        object = &getGame().checkIntersects(x - 0.05f, y - 0.05f,
+                                            0.1f, 0.1f, this);
         x += xDelta;
         y += yDelta;
-        distance += 0.01f;
-    } while (!*object);
+        fireDistance += 1;
+    } while (!*object
+             && fireDistance <= level::tank::enemy::basic::MAX_FIRE_DISTANCE);
 
-    // Защита от снаряда
-    if ((*object)->getType() == GameObjectType::BULLET) {
-        if (dynamic_cast<Bullet&>(**object).getOwnerType() == GameObjectType::TANK_FIRST_PLAYER
-            || dynamic_cast<Bullet&>(**object).getOwnerType() == GameObjectType::TANK_SECOND_PLAYER)
-            fire();
-        return;
-    }
+    if (*object)
+        switch ((*object)->getType()) {
+            case GameObjectType::BULLET :
+                if (dynamic_cast<Bullet&>(**object).getOwnerType()
+                    == GameObjectType::TANK_FIRST_PLAYER
+                        ||
+                    dynamic_cast<Bullet&>(**object).getOwnerType()
+                    == GameObjectType::TANK_SECOND_PLAYER) {
+                    Tank::move(Direction::NONE, dt);
+                    fire();
+                    return;
+                }
+                break;
 
-    // Атака
-    if ((*object)->getType() == GameObjectType::TANK_FIRST_PLAYER
-        || (*object)->getType() == GameObjectType::TANK_SECOND_PLAYER
-        || (*object)->getType() == GameObjectType::BASE) {
-        fire();
-        return;
-    }
+            case GameObjectType::WALL :
+                if (dynamic_cast<Wall&>(**object).getInvulnerable() == false) {
+                    Tank::move(Direction::NONE, dt);
+                    fire();
+                    return;
+                }
+                break;
 
-    // 20% вероятность изменения направления
-    if (0 == (*RANDOM)() % 5) {
-        // Двигаться в случайном направлении
-        moveRandomDirection(dt);
-        return;
-    }
-
-    switch ((*object)->getType()) {
-        case GameObjectType::WALL : {
-            if (((class Wall*)object)->getInvulnerable() == false) {
+            case GameObjectType::SOLID_WALL :
+            case GameObjectType::BASE :
+            case GameObjectType::TANK_FIRST_PLAYER :
+            case GameObjectType::TANK_SECOND_PLAYER :
+                Tank::move(Direction::NONE, dt);
                 fire();
                 return;
-            }
-            break;
+                break;
+                
+            default:
+                break;
         }
-        default :
-            break;
+
+    // 10% вероятность изменения направления
+    if (_changeDirectionPauseTime <= 0.0f) {
+        _changeDirectionPauseTime = 1.0f;
+        isChangeDirection = (*RANDOM)() % 10 == 0;
+    } else {
+        _changeDirectionPauseTime -= dt;
     }
-
-    // Смена направления движения
-    bool conditionOne = distance == 1;
-    bool conditionTwo = _lastAnalizeX == getX();
-    bool conditionTree = _lastAnalizeY == getY();
-
-    if (conditionOne || (conditionTwo && conditionTree)) {
+    if (isChangeDirection) {
         // Двигаться в случайном направлении
-        moveRandomDirection(dt);
+        changeDirection(dt);
         return;
     }
 
-    _lastAnalizeX = getX();
-    _lastAnalizeY = getY();
+    Tank::move(getDirection(), dt);
 }
 
-void TankEnemy::moveRandomDirection(float dt) {
+bool TankEnemy::isAvoidSolidBarrier(float dt) {
+    switch (getDirection()) {
+        case Direction::UP : {
+            CoordPoint topLeft(this, TypeCoordPoint::TOP_LEFT);
+            CoordPoint topRight(this, TypeCoordPoint::TOP_RIGHT);
+
+            bool leftBarrier = bool(getGame().checkIntersects(
+                topLeft.coordX, topLeft.coordY - 0.05f,
+                topLeft.width, topLeft.height, this));
+            bool rightBarrier = bool(getGame().checkIntersects(
+                topRight.coordX, topRight.coordY - 0.05f,
+                topRight.width, topRight.height, this));
+
+            if ((leftBarrier || rightBarrier) && !getInBypass()) {
+                changeDirection(dt);
+                return true;
+            }
+        }
+        break;
+
+        case Direction::RIGHT : {
+            CoordPoint topRight(this, TypeCoordPoint::TOP_RIGHT);
+            CoordPoint bottomRight(this, TypeCoordPoint::BOTTOM_RIGHT);
+
+            bool topBarrier = bool(getGame().checkIntersects(
+                topRight.coordX + 0.05f, topRight.coordY,
+                topRight.width, topRight.height, this));
+            bool bottomBarrier = bool(getGame().checkIntersects(
+                bottomRight.coordX + 0.05f, bottomRight.coordY,
+                bottomRight.width, bottomRight.height, this));
+
+            if ((topBarrier || bottomBarrier) && !getInBypass()) {
+                changeDirection(dt);
+                return true;
+            }
+        }
+        break;
+
+        case Direction::DOWN : {
+            CoordPoint bottomLeft(this, TypeCoordPoint::BOTTOM_LEFT);
+            CoordPoint bottomRight(this, TypeCoordPoint::BOTTOM_RIGHT);
+
+            bool leftBarrier = bool(getGame().checkIntersects(
+                bottomLeft.coordX, bottomLeft.coordY + 0.05f,
+                bottomLeft.width, bottomLeft.height, this));
+            bool rightBarrier = bool(getGame().checkIntersects(
+                bottomRight.coordX, bottomRight.coordY + 0.05f,
+                bottomRight.width, bottomRight.height, this));
+
+            if ((leftBarrier || rightBarrier) && !getInBypass()) {
+                changeDirection(dt);
+                return true;
+            }
+        }
+        break;
+
+        case Direction::LEFT : {
+            CoordPoint topLeft(this, TypeCoordPoint::TOP_LEFT);
+            CoordPoint bottomLeft(this, TypeCoordPoint::BOTTOM_LEFT);
+
+            bool topBarrier = bool(getGame().checkIntersects(
+                topLeft.coordX - 0.05f, topLeft.coordY,
+                topLeft.width, topLeft.height, this));
+            bool bottomBarrier = bool(getGame().checkIntersects(
+                bottomLeft.coordX - 0.05f, bottomLeft.coordY,
+                bottomLeft.width, bottomLeft.height, this));
+
+            if ((topBarrier || bottomBarrier) && !getInBypass()) {
+                changeDirection(dt);
+                return true;
+            }
+        }
+        break;
+
+        default:
+            break;
+    }
+    return false;
+}
+
+void TankEnemy::changeDirection(float dt) {
     Direction prevDirection = getDirection();
     Direction newDirection{Direction::NONE};
     do
-        newDirection = (Direction)((*RANDOM)() % ((int)Direction::MAX));
+        newDirection = (Direction)((*RANDOM)() % ((unsigned)Direction::MAX - 1u) + 1u);
     while (prevDirection == newDirection);
     
-    move(newDirection, dt);
+    Tank::move(newDirection, dt);
 }

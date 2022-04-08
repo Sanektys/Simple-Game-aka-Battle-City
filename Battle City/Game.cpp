@@ -14,10 +14,10 @@
 ///////////////////////////////////////////////////////////
 // Глобальные переменные
 namespace level {
-    sf::Texture* ATLAS_TERRAIN;
-    sf::Texture* ATLAS_ENTITY;
+    sf::Texture* ATLAS_TERRAIN{nullptr};
+    sf::Texture* ATLAS_ENTITY{nullptr};
 }
-std::mt19937* RANDOM;
+std::mt19937* RANDOM{nullptr};
 
 
 Game::~Game() {
@@ -59,7 +59,6 @@ void Game::setupSystem() {
 
     // Загрузка шрифтов
     _debugFont.reset(new sf::Font);
-
     if (!_debugFont->loadFromFile("./Build/progresspixel-bold.ttf"))
         if (!_debugFont->loadFromFile("./build/progresspixel-bold.ttf"))
             if (!_debugFont->loadFromFile("progresspixel-bold.ttf"))
@@ -94,8 +93,8 @@ void Game::initialize() {
                     break;
     
                 case level::SYMBOL_PLAYER_1 :
-                    _playerOne = &createObject(
-                        GameObjectType::TANK_FIRST_PLAYER, (float)c, (float)r);
+                    //_playerOne = &createObject(
+                    //    GameObjectType::TANK_FIRST_PLAYER, (float)c, (float)r);
                     break;
     
                 case level::SYMBOL_PLAYER_2 :
@@ -104,7 +103,7 @@ void Game::initialize() {
                     break;
     
                 case level::SYMBOL_ENEMY_SPAWNER :
-                    //createObject(GameObjectType::ENEMY_SPAWNER, (float)c, (float)r);
+                    createObject(GameObjectType::ENEMY_SPAWNER, (float)c, (float)r);
                     break;
             }
         }
@@ -283,8 +282,8 @@ void Game::update(float dt) {
         initialize();
 
     // Уничтожение игроков
-    if (*_playerOne && (*_playerOne)->getHealth() <= 0)
-        _playerOne->reset();
+    //if (*_playerOne && (*_playerOne)->getHealth() <= 0)
+    //    _playerOne->reset();
 
     if (*_playerTwo && (*_playerTwo)->getHealth() <= 0)
         initialize();

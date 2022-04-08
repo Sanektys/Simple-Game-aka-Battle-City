@@ -73,16 +73,11 @@ void GameObject::update(float dt) {
 }
 
 void GameObject::escapeSticking() {
-    CoordPoint topLeftPoint;
-    CoordPoint topRightPoint;
-    CoordPoint bottomRightPoint;
-    CoordPoint bottomLeftPoint;
-
     // Условное разделение текущего объекта на четыре равные части
-    topLeftPoint.setCoordPoint    (this, typeCoordPoint::TOP_LEFT);
-    topRightPoint.setCoordPoint   (this, typeCoordPoint::TOP_RIGHT);
-    bottomRightPoint.setCoordPoint(this, typeCoordPoint::BOTTOM_RIGHT);
-    bottomLeftPoint.setCoordPoint (this, typeCoordPoint::BOTTOM_LEFT);
+    CoordPoint topLeftPoint    (this, TypeCoordPoint::TOP_LEFT);
+    CoordPoint topRightPoint   (this, TypeCoordPoint::TOP_RIGHT);
+    CoordPoint bottomRightPoint(this, TypeCoordPoint::BOTTOM_RIGHT);
+    CoordPoint bottomLeftPoint (this, TypeCoordPoint::BOTTOM_LEFT);
 
     // Проверка на коллизию с другим объектом каждой четверти текущего объекта
     /////////////////////////
