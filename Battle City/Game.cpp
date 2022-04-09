@@ -239,6 +239,22 @@ void Game::render() {
     _renderWindow->draw(rectangle);
     _renderWindow->draw(text);
 
+    // Счётчик уничтоженных и живых противников
+    objectsCount = getObjectsCount(GameObjectType::TANK_ENEMY);
+    string = "Destroyed enemies: " + std::to_string(getDiedEnemiesCount())
+             + "\nLiving enemies: " + std::to_string(objectsCount)
+             + "\nTotal on level: " + std::to_string(level::tank::enemy::PER_LEVEL);
+    text.setString(string);
+    text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 70.0f);
+    text.setFillColor(sf::Color(165, 92, 126, 255));
+    rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
+                      text.getGlobalBounds().height + 8.0f));
+    rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
+                          text.getGlobalBounds().top - 4.0f));
+    rectangle.setFillColor(sf::Color(20, 20, 20, 220));
+    _renderWindow->draw(rectangle);
+    _renderWindow->draw(text);
+
     // Текущее разрешение
     string = std::to_string(sf::VideoMode::getDesktopMode().width) + "x"
              + std::to_string(sf::VideoMode::getDesktopMode().height);
@@ -293,9 +309,9 @@ void Game::update(float dt) {
         initialize();
 }
 
-std::unique_ptr<GameObject>& Game::checkIntersects(float x, float y,
-                                                   float width, float height,
-                                                   class GameObject* exceptObject) const {
+std::unique_ptr<GameObject>& Game::checkIntersects(
+    float x, float y, float width, float height,
+    class GameObject* exceptObject, enum GameObjectGroup group) const {
     static std::unique_ptr<GameObject> returnObject;
 
     // Левый верхний угол входного объекта
@@ -303,38 +319,40 @@ std::unique_ptr<GameObject>& Game::checkIntersects(float x, float y,
     float primaryCoordX = x;
     // Правый нижний угол входного объекта
     float overallCoordY = primaryCoordY + height - 0.00001f;
-    float overallCoordX = primaryCoordX + width - 0.00001f;
+    float overallCoordX = primaryCoordX + width  - 0.00001f;
 
-    for (auto& pointer : _objectsTerrain)
-        if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
-            float pcY = pointer->getY();
-            float pcX = pointer->getX();
-            float ocY = pcY + pointer->getHeight() - 0.00001f;
-            float ocX = pcX + pointer->getWidth() - 0.00001f;
+    if (GameObjectGroup::ALL == group || GameObjectGroup::TERRAIN == group)
+        for (auto& pointer : _objectsTerrain)
+            if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
+                float pcY = pointer->getY();
+                float pcX = pointer->getX();
+                float ocY = pcY + pointer->getHeight() - 0.00001f;
+                float ocX = pcX + pointer->getWidth()  - 0.00001f;
 
-            bool conditionOne   = primaryCoordY <= ocY;
-            bool conditionTwo   = overallCoordY >= pcY;
-            bool conditionThree = primaryCoordX <= ocX;
-            bool conditionFour  = overallCoordX >= pcX;
+                bool conditionOne = primaryCoordY   <= ocY;
+                bool conditionTwo = overallCoordY   >= pcY;
+                bool conditionThree = primaryCoordX <= ocX;
+                bool conditionFour = overallCoordX  >= pcX;
+            
+                if (conditionOne && conditionTwo && conditionThree && conditionFour)
+                    return pointer;    // При пересечении вернуть указатель объект-помеху
+            }
+    if (GameObjectGroup::ALL == group || GameObjectGroup::ENTITY == group)
+        for (auto& pointer : _objectsEntity)
+            if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
+                float pcY = pointer->getY();
+                float pcX = pointer->getX();
+                float ocY = pcY + pointer->getHeight() - 0.00001f;
+                float ocX = pcX + pointer->getWidth()  - 0.00001f;
 
-            if (conditionOne && conditionTwo && conditionThree && conditionFour)
-                return pointer;    // При пересечении вернуть указатель объект-помеху
-    }
-    for (auto& pointer : _objectsEntity)
-        if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
-            float pcY = pointer->getY();
-            float pcX = pointer->getX();
-            float ocY = pcY + pointer->getHeight() - 0.00001f;
-            float ocX = pcX + pointer->getWidth() - 0.00001f;
-
-            bool conditionOne   = primaryCoordY <= ocY;
-            bool conditionTwo   = overallCoordY >= pcY;
-            bool conditionThree = primaryCoordX <= ocX;
-            bool conditionFour  = overallCoordX >= pcX;
-
-            if (conditionOne && conditionTwo && conditionThree && conditionFour)
-                return pointer;    // При пересечении вернуть указатель объект-помеху
-        }
+                bool conditionOne = primaryCoordY   <= ocY;
+                bool conditionTwo = overallCoordY   >= pcY;
+                bool conditionThree = primaryCoordX <= ocX;
+                bool conditionFour = overallCoordX  >= pcX;
+            
+                if (conditionOne && conditionTwo && conditionThree && conditionFour)
+                    return pointer;    // При пересечении вернуть указатель объект-помеху
+            }
 
     return returnObject;
 }
@@ -428,7 +446,10 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
             break;
 
         case GameObjectType::TANK_ENEMY :
-            object.reset(new TankEnemy(*this, level::tank::enemy::basic::IMAGE));
+            // Предварительная проверка того, что нет помехи для спавна
+            if (!checkIntersects(x - 4.5f, y - 4.5f, 9.0f, 9.0f, nullptr,
+                                 GameObjectGroup::ENTITY))
+                object.reset(new TankEnemy(*this, level::tank::enemy::basic::IMAGE));
             break;
 
         case GameObjectType::BULLET :

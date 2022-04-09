@@ -22,5 +22,4 @@ class TankEnemy : public Tank
 
     private:
         float _changeDirectionPauseTime{0.0f};
-        //float _leavingTargetPauseTime{0.0f};
 };

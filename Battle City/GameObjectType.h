@@ -10,7 +10,9 @@ enum class GameObjectGroup
     NONE,
 
     TERRAIN,
-    ENTITY
+    ENTITY,
+
+    ALL
 };
 
 /// <summary>
@@ -34,4 +36,6 @@ enum class GameObjectType
     TANK_FIRST_PLAYER,
     TANK_SECOND_PLAYER,
     BULLET,
+
+    ALL = 1000
 };

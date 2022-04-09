@@ -67,16 +67,18 @@ class Game
         /// <summary>
         /// Проверка на пересечение одного объекта другим
         /// </summary>
-        /// <param name="x">позиция исходного объекта по горизонтали</param>
-        /// <param name="y">позиция исходного объекта по вертикали</param>
-        /// <param name="width">ширина исходного объекта</param>
-        /// <param name="height">высота исходного объекта</param>
-        /// <param name="exceptObject">указатель на сам исходный объект</param>
+        /// <param name="x">- позиция исходного объекта по горизонтали</param>
+        /// <param name="y">- позиция исходного объекта по вертикали</param>
+        /// <param name="width">- ширина исходного объекта</param>
+        /// <param name="height">- высота исходного объекта</param>
+        /// <param name="exceptObject">- указатель на сам исходный объект</param>
+        /// <param name="group">- по какой группе объектов(окружения/сущностей/всех)
+        /// проверять на пересечение</param>
         /// <returns>Возвращает указатель на объект-помеху,
         /// или пустой указатель при отсутствии какой-либо помехи</returns>
         class std::unique_ptr<GameObject>& checkIntersects(float x, float y,
-                                                           float width, float height,
-                                                           GameObject* exceptObject) const;
+            float width, float height, class GameObject* exceptObject,
+            enum GameObjectGroup group = GameObjectGroup::ALL) const;
         /// <summary>
         /// Перемещение объекта на позицию x,y
         /// <para>Если перемещение невозможно (есть преграда),
@@ -87,7 +89,7 @@ class Game
         /// <param name="y">новая координата по вертикали</param>
         /// <returns>Возвращает false если есть помеха,
         /// и true если перемещение прошло успешно</returns>
-        bool moveObjectTo(GameObject* object, float x, float y) const;
+        bool moveObjectTo(class GameObject* object, float x, float y) const;
 
         /// <summary>
         /// Подсчёт количества объектов определённого типа
