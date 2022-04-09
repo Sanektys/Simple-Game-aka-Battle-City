@@ -44,6 +44,9 @@ void Game::setupSystem() {
         sf::FloatRect(0.0f, 0.0f,
                       level::CAMERA_WIDTH, level::CAMERA_HEIGHT)));
 
+    // Создание объекта, отвечающего за интерфейс
+    _interface.reset(new Interface(*this));
+
     // Загрузка текстур из атласов
     level::ATLAS_TERRAIN = new sf::Texture();
     if (!level::ATLAS_TERRAIN->loadFromFile("./Build/atlas_terrain.png"))
@@ -55,13 +58,6 @@ void Game::setupSystem() {
     if (!level::ATLAS_ENTITY->loadFromFile("./Build/atlas_entity.png"))
         if (!level::ATLAS_ENTITY->loadFromFile("./build/atlas_entity.png"))
             if (!level::ATLAS_ENTITY->loadFromFile("atlas_entity.png"))
-                std::exit(1);
-
-    // Загрузка шрифтов
-    _debugFont.reset(new sf::Font);
-    if (!_debugFont->loadFromFile("./Build/progresspixel-bold.ttf"))
-        if (!_debugFont->loadFromFile("./build/progresspixel-bold.ttf"))
-            if (!_debugFont->loadFromFile("progresspixel-bold.ttf"))
                 std::exit(1);
 }
 
@@ -176,13 +172,6 @@ void Game::shutdown() {
 }
 
 void Game::render() {
-    std::string string;
-    sf::Text text;
-    sf::RectangleShape rectangle;
-    text.setFont(*_debugFont);
-    text.setCharacterSize(24);
-    text.setLetterSpacing(1.6f);
-
     // Начало кадра
     _renderWindow->clear(sf::Color(20, 20, 20));
 
@@ -195,80 +184,19 @@ void Game::render() {
                              + (*_playerTwo)->getHeight() / 2.0f) * level::PIXELS_PER_CELL);
     _renderWindow->setView(*_playerCamera);
 
-    int objectsCount = 0;
     // Отрисовка всех игровых объектов
     for (auto& pointer : _objectsTerrain)
-        if (pointer) {
+        if (pointer)
             pointer->render(&*_renderWindow);
-            objectsCount++;
-        }
     for (auto& pointer : _objectsEntity)
-        if (pointer) {
+        if (pointer)
             pointer->render(&*_renderWindow);
-            objectsCount++;
-        }
     
     // Сброс вида до разрешения монитора
     // Всё, что идёт дальше, отрисовывается относительно главного экрана
     _renderWindow->setView(_renderWindow->getDefaultView());
 
-    // Счётчик обновлений в секунду
-    string = "UPS: " + std::to_string(_ups);
-    text.setString(string);
-    text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 2.0f);
-    text.setFillColor(sf::Color(165, 92, 126, 255));
-    rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
-                                   text.getGlobalBounds().height + 8.0f));
-    rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
-                                      text.getGlobalBounds().top - 4.0f));
-    rectangle.setFillColor(sf::Color(20, 20, 20, 220));
-    _renderWindow->draw(rectangle);
-    _renderWindow->draw(text);
-    
-    // Счётчик объектов в игре
-    #ifdef _DEBUG
-    string = "Objects: " + std::to_string(objectsCount);
-    text.setString(string);
-    text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 34.0f);
-    text.setFillColor(sf::Color(125, 155, 185, 200));
-    rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
-                                   text.getGlobalBounds().height + 8.0f));
-    rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
-                                       text.getGlobalBounds().top - 4.0f));
-    rectangle.setFillColor(sf::Color(20, 20, 20, 220));
-    _renderWindow->draw(rectangle);
-    _renderWindow->draw(text);
-
-    // Счётчик уничтоженных и живых противников
-    objectsCount = getObjectsCount(GameObjectType::TANK_ENEMY);
-    string = "Destroyed enemies: " + std::to_string(getDiedEnemiesCount())
-             + "\nLiving enemies: " + std::to_string(objectsCount)
-             + "\nTotal on level: " + std::to_string(level::tank::enemy::PER_LEVEL);
-    text.setString(string);
-    text.setPosition(float(_renderWindow->getSize().x) - text.getGlobalBounds().width, 70.0f);
-    text.setFillColor(sf::Color(165, 92, 126, 255));
-    rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
-                      text.getGlobalBounds().height + 8.0f));
-    rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
-                          text.getGlobalBounds().top - 4.0f));
-    rectangle.setFillColor(sf::Color(20, 20, 20, 220));
-    _renderWindow->draw(rectangle);
-    _renderWindow->draw(text);
-
-    // Текущее разрешение
-    string = std::to_string(sf::VideoMode::getDesktopMode().width) + "x"
-             + std::to_string(sf::VideoMode::getDesktopMode().height);
-    text.setString(string);
-    text.setPosition(0.0f, 0.0f);
-    text.setFillColor(sf::Color(125, 155, 185, 200));
-    rectangle.setSize(sf::Vector2f(text.getGlobalBounds().width + 8.0f,
-                                   text.getGlobalBounds().height + 8.0f));
-    rectangle.setPosition(sf::Vector2f(text.getGlobalBounds().left - 4.0f,
-                                       text.getGlobalBounds().top - 4.0f));
-    rectangle.setFillColor(sf::Color(20, 20, 20, 220));
-    _renderWindow->draw(rectangle);
-    _renderWindow->draw(text);
-    #endif
+    _interface->render();
 
     // Конец кадра
     _renderWindow->display();
@@ -406,6 +334,14 @@ int Game::getObjectsCount(enum GameObjectType type) const {
             if (pointer && pointer->getType() == type)
                 totalCount++;
     }
+    else if (GameObjectType::ALL == type) {
+        for (auto& pointer : _objectsTerrain)
+            if (pointer)
+                totalCount++;
+        for (auto& pointer : _objectsEntity)
+            if (pointer)
+                totalCount++;
+    }
 
     return totalCount;
 }
@@ -446,8 +382,8 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
             break;
 
         case GameObjectType::TANK_ENEMY :
-            // Предварительная проверка того, что нет помехи для спавна
-            if (!checkIntersects(x - 4.5f, y - 4.5f, 9.0f, 9.0f, nullptr,
+            // Предварительная проверка того, что нет помехи для спавна в квадрате 8х8
+            if (!checkIntersects(x - 3.0f, y - 3.0f, 8.0f, 8.0f, nullptr,
                                  GameObjectGroup::ENTITY))
                 object.reset(new TankEnemy(*this, level::tank::enemy::basic::IMAGE));
             break;

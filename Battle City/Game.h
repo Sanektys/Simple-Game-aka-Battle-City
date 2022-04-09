@@ -4,6 +4,7 @@
 #include <array>
 
 #include "Level.h"
+#include "Interface.h"
 #include "GameObject.h"
 
 
@@ -19,6 +20,8 @@ using std::chrono::steady_clock;
 class Game
 {
     public :
+        friend class Interface;
+
         Game() {}
         ~Game();
 
@@ -138,18 +141,19 @@ class Game
         mutable std::array<std::unique_ptr<GameObject>, ENTITY_OBJECTS_COUNT_MAX>
             _objectsEntity;
 
-        // Указатели на ключевые игровые объекты
-        ///////////////////////
-        std::unique_ptr<GameObject>* _base{nullptr};
-        std::unique_ptr<GameObject>* _playerOne{nullptr};
-        std::unique_ptr<GameObject>* _playerTwo{nullptr};
+        // Интерфейс игры
+        std::unique_ptr<Interface> _interface;
 
         // Игровое окно
         std::unique_ptr<sf::RenderWindow> _renderWindow;
         // Камера игрока
         std::unique_ptr<sf::View> _playerCamera;
-        // Шрифт отладочной информации
-        std::unique_ptr<sf::Font> _debugFont;
+
+        // Указатели на ключевые игровые объекты
+        ///////////////////////
+        std::unique_ptr<GameObject>* _base{nullptr};
+        std::unique_ptr<GameObject>* _playerOne{nullptr};
+        std::unique_ptr<GameObject>* _playerTwo{nullptr};
 
         // Время начала предыдущего кадра
         steady_clock::time_point _clockLastFrame;
