@@ -87,7 +87,7 @@ namespace level {
         // Параметры игрока
         namespace player {
             const short HEALTH = 16;
-            const float SPEED  = 6.0f;
+            const float SPEED  = 5.0f;
             const float FIRE_COOLDOWN_TIME = 1.8f;
 
             const sf::IntRect FIRST_IMAGE (0, 0, PIXELS_WIDTH, 
@@ -99,16 +99,16 @@ namespace level {
         ////////////////////////////////////
         // Параметры противников
         namespace enemy {
-            const short PER_LEVEL = 9;
-            const short PER_LEVEL_IN_ONE_MOMENT = 5;
+            const short PER_LEVEL = 8;
+            const short PER_LEVEL_IN_ONE_MOMENT = 4;
 
             // Параметры простых противников
             namespace basic {
                 const short HEALTH = 6;
-                const float SPEED  = 4.5f;
+                const float SPEED  = 4.0f;
                 const float SPAWN_TIME = 10.0f;
                 const float FIRE_COOLDOWN_TIME = 2.0f;
-                const int MAX_FIRE_DISTANCE = 16;
+                const int MAX_FIRE_DISTANCE = 12;
 
                 const sf::IntRect IMAGE(0, 176, PIXELS_WIDTH,
                                                 PIXELS_HEIGHT + PIXELS_GUN_LENGTH);

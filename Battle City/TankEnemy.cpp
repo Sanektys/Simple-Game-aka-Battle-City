@@ -16,8 +16,9 @@ TankEnemy::TankEnemy(const class Game& game, sf::IntRect rect) : Tank(game) {
 
     setHealth(level::tank::enemy::basic::HEALTH);
     setMaxSpeed(level::tank::enemy::basic::SPEED);
-    setSpeedup(10.0f);
-    setBrakingSpeed(8.0f);
+
+    setSpeedup(8.0f);
+    setBrakingSpeed(6.0f);
     setRotationTime(0.9f);
 
     _spriteEntity->setTextureRect(rect);
@@ -34,28 +35,33 @@ void TankEnemy::update(float dt) {
 }
 
 void TankEnemy::ai(float dt) {
+    // Сначала проверяется столкновение с преградой
     if (isAvoidSolidBarrier(dt))
         return;
 
+    // Для того, чтобы танк не расстреливал бесконечно одну линию блоков,
+    // установлен шанс смены направления до входа в секцию стрельбы  
     bool isChangeDirection{false};
-    if (_changeDirectionPauseTime <= 0.0f) {
+    if (_changeDirectionPauseTime <= 0.0f && getDirection() == Direction::NONE) {
         _changeDirectionPauseTime = 1.0f;
-        isChangeDirection = (*RANDOM)() % 5 == 0;
+        // 12.5% - вероятность изменения направления
+        isChangeDirection = (*RANDOM)() % 8 == 0;
     } else {
         _changeDirectionPauseTime -= dt;
     }
     if (isChangeDirection) {
-        // Двигаться в случайном направлении
-        changeDirection(dt);
+        changeDirection(dt);  // Сменить направление движения
         return;
     }
+
+    // Блок поиска возможных целей по направлению орудия
 
     float x = 0.0f;
     float y = 0.0f;
     calculateFrontCellPosition(x, y);
-        
-    float xDelta = 0.0f;
-    float yDelta = 0.0f;
+       
+    float xDelta = 0.0f;  // Шаг смещения по горизонтали при поиске   
+    float yDelta = 0.0f;  // Шаг смещения по вертикали при поиске
         
     switch (getDirection()) {
         case Direction::LEFT :
@@ -78,9 +84,8 @@ void TankEnemy::ai(float dt) {
             break;
     }
 
-    // Поиск ближайших объектов с дистанцией до них
     std::unique_ptr<GameObject>* object{nullptr};
-    int fireDistance{0};
+    int fireDistance{0};  // Текущая дистанция стрельбы
     do {
         object = &getGame().checkIntersects(x - 0.05f, y - 0.05f,
                                             0.1f, 0.1f, this);
@@ -90,14 +95,16 @@ void TankEnemy::ai(float dt) {
     } while (!*object
              && fireDistance <= level::tank::enemy::basic::MAX_FIRE_DISTANCE);
 
+    // Если объект найден
     if (*object)
         switch ((*object)->getType()) {
-            case GameObjectType::BULLET :
+            case GameObjectType::BULLET : // Только снаряды противников
                 if (dynamic_cast<Bullet&>(**object).getOwnerType()
                     == GameObjectType::TANK_FIRST_PLAYER
                         ||
                     dynamic_cast<Bullet&>(**object).getOwnerType()
                     == GameObjectType::TANK_SECOND_PLAYER) {
+                    // Остановка танка
                     Tank::move(Direction::NONE, dt);
                     fire();
                     return;
@@ -124,29 +131,37 @@ void TankEnemy::ai(float dt) {
             default:
                 break;
         }
+    // Если объект не найден, или он не является целью для атаки,
+    // то продолжить движение
 
-    // 10% вероятность изменения направления
+    // Если не активировался первый блок смены направления при остановке,
+    // то обрабатывается этот
     if (_changeDirectionPauseTime <= 0.0f) {
         _changeDirectionPauseTime = 1.0f;
-        isChangeDirection = (*RANDOM)() % 10 == 0;
+        // 5% вероятность изменения направления
+        isChangeDirection = (*RANDOM)() % 20 == 0;
     } else {
         _changeDirectionPauseTime -= dt;
     }
     if (isChangeDirection) {
-        // Двигаться в случайном направлении
         changeDirection(dt);
         return;
     }
 
+    // Если ни одно из действий выше не обработано, то продолжить движение
     Tank::move(getDirection(), dt);
 }
 
 bool TankEnemy::isAvoidSolidBarrier(float dt) {
     switch (getDirection()) {
         case Direction::UP : {
+            // Для проверки столкновения берутся две половинки переда танка
             CoordPoint topLeft(this, TypeCoordPoint::TOP_LEFT);
             CoordPoint topRight(this, TypeCoordPoint::TOP_RIGHT);
 
+            // Каждая половинка проверяется на пересечение с преградой
+            // перед танком, для этого их координаты слегка смещаются 
+            // на 0.05 пунков вперёд коллизии лба танка
             bool leftBarrier = bool(getGame().checkIntersects(
                 topLeft.coordX, topLeft.coordY - 0.05f,
                 topLeft.width, topLeft.height, this));
@@ -154,6 +169,8 @@ bool TankEnemy::isAvoidSolidBarrier(float dt) {
                 topRight.coordX, topRight.coordY - 0.05f,
                 topRight.width, topRight.height, this));
 
+            // Если одна половина имеет пересечение с преградой
+            // и танк не огибает эту помеху
             if ((leftBarrier || rightBarrier) && !getInBypass()) {
                 changeDirection(dt);
                 return true;
@@ -222,11 +239,15 @@ bool TankEnemy::isAvoidSolidBarrier(float dt) {
 }
 
 void TankEnemy::changeDirection(float dt) {
-    Direction prevDirection = getDirection();
+    Direction currentDirection = getDirection();
     Direction newDirection{Direction::NONE};
-    do
+    do  // Выбор случайного направления от 1(RIGHT) до 4(UP)
         newDirection = (Direction)((*RANDOM)() % ((unsigned)Direction::MAX - 1u) + 1u);
-    while (prevDirection == newDirection);
+        // Выбор осуществляется до тех пор, пока новое направление равно текущему
+        // и предыдущему. Однако, если танк зажат сверху и снизу или слева и справа,
+        // то он всё равно сможет взять предыдущее направление
+    while (!(newDirection != currentDirection && newDirection != _prevDirection));
+    _prevDirection = currentDirection;
     
     Tank::move(newDirection, dt);
 }
