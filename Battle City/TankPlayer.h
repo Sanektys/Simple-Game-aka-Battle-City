@@ -25,7 +25,7 @@ class TankPlayer : public Tank
         void update(float dt) override;
 
         /// <summary>
-        /// Метод назначения определённых клавиш для управления танком
+        /// Метод назначения основных клавиш для управления танком
         /// </summary>
         /// <param name="keyLeft">- клавиша для движения налево</param>
         /// <param name="keyRight">- клавиша для движения направо</param>
@@ -35,6 +35,17 @@ class TankPlayer : public Tank
         void setKeys(sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
                      sf::Keyboard::Key keyUp,   sf::Keyboard::Key keyDown,
                      sf::Keyboard::Key keyFire);
+        /// <summary>
+        /// Метод назначения альтернативных клавиш для управления танком
+        /// </summary>
+        /// <param name="keyLeft">- клавиша для движения налево</param>
+        /// <param name="keyRight">- клавиша для движения направо</param>
+        /// <param name="keyUp">- клавиша для движения вверх</param>
+        /// <param name="keyDown">- клавиша для движения вниз</param>
+        /// <param name="keyFire">- клавиша для выстрела</param>
+        void setAltKeys(sf::Keyboard::Key keyLeft, sf::Keyboard::Key keyRight,
+                        sf::Keyboard::Key keyUp,   sf::Keyboard::Key keyDown,
+                        sf::Keyboard::Key keyFire);
 
         TankPlayer(const TankPlayer&) = delete;
         TankPlayer operator=(const TankPlayer&) = delete;
@@ -47,4 +58,10 @@ class TankPlayer : public Tank
         sf::Keyboard::Key _keyUp   {sf::Keyboard::Key::Unknown};
         sf::Keyboard::Key _keyDown {sf::Keyboard::Key::Unknown};
         sf::Keyboard::Key _keyFire {sf::Keyboard::Key::Unknown};
+        /////////////////////
+        sf::Keyboard::Key _altKeyLeft {sf::Keyboard::Key::Unknown};
+        sf::Keyboard::Key _altKeyRight{sf::Keyboard::Key::Unknown};
+        sf::Keyboard::Key _altKeyUp   {sf::Keyboard::Key::Unknown};
+        sf::Keyboard::Key _altKeyDown {sf::Keyboard::Key::Unknown};
+        sf::Keyboard::Key _altKeyFire {sf::Keyboard::Key::Unknown};
 };

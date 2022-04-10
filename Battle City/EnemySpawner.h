@@ -3,6 +3,9 @@
 #include "GameObject.h"
 
 
+/// <summary>
+/// Класс спавнера противников
+/// </summary>
 class EnemySpawner : public GameObject
 {
     public :

@@ -3,7 +3,7 @@
 #include "GameObject.h"
 
 /// <summary>
-/// Ѕазисный класс дл€ всех игровых танков.
+/// Ѕазовый класс дл€ всех игровых танков.
 /// <para>—одержит основные расчЄты
 /// (скорости, выстрела, поворота, направлени€ и т.д.)</para>
 /// </summary>
@@ -125,35 +125,35 @@ class Tank : public GameObject
 
     private :
         /// <summary>¬рем€ перезар€дки оруди€</summary>
-        float _fireCooldownTime;
+        float _fireCooldownTime{0.0f};
         /// <summary>ћаксимальна€ скорость танка</summary>
-        float _maxSpeed;
+        float _maxSpeed{0.0f};
         /// <summary>Ќачальна€ скорость при ускорении танка</summary>
-        float _speedup;
+        float _speedup{0.0f};
         /// <summary>“екуща€ скорость танка</summary>
-        float _currentSpeed;
+        float _currentSpeed{0.0f};
         /// <summary>ќбратна€ скорость при торможении танка</summary>
-        float _brakingSpeed;
+        float _brakingSpeed{0.0f};
         /// <summary>–азность между шириной и высотой танка
         /// дл€ удобного пересчЄта габаритов при повороте</summary>
-        float _offset;
+        float _offset{0.0f};
 
         /// <summary>ѕроисходит ли вращение танка на данный момент (True/false)</summary>
-        bool _rotation;
+        bool _rotation{false};
         /// <summary>¬рем€ в секундах, за которое танк повернЄтс€ на 90 градусов</summary>
-        float _rotationTime;
+        float _rotationTime{0.0f};
         /// <summary>“екущий установленный угол ориентации танка</summary>
-        float _rotationAngle;
+        float _rotationAngle{0.0f};
         /// <summary>“екущее затраченное врем€ на поворот танка</summary>
-        float _currentRotationTime;
+        float _currentRotationTime{0.0f};
+
+        /// <summary>“екущее смещение траков танка, основанное на его скорости</summary>
+        float _currentTrackShift{0.0f};
 
         /// <summary>ѕредыдущее направление движени€ до поворота танка.
         /// ѕосле поворота приравниваетс€ к текущему направлению движени€</summary>
-        enum Direction _oldDirection;
+        enum Direction _oldDirection{Direction::UP};
         /// <summary>Ќаправление инерции танка.
         /// —оответствует прошлому направлению, перпендикул€рно направленному к текущему</summary>
-        enum Direction _inertiaDirection;
-
-        /// <summary>“екущее смещение траков танка, основанное на его скорости</summary>
-        float _currentTrackShift;
+        enum Direction _inertiaDirection{Direction::NONE};
 };

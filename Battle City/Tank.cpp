@@ -12,30 +12,16 @@ Tank::Tank(const class Game& game) : GameObject(game) {
     setHeight(level::tank::HEIGHT);
     _offset = (getHeight() - getWidth()) / 2.0f;
 
-    _maxSpeed = 10.0f;
-    _speedup = 12.0f;
-    _currentSpeed = 0.0f;
-    _brakingSpeed = 7.0f;
-
-    _fireCooldownTime = 0.0f;
-
-    _rotation = false;
-    _rotationTime = 0.8f;
     _rotationAngle = 90.0f * (float)getDirection();
-    _currentRotationTime = 0.0f;
-
-    _oldDirection = Direction::UP;
-    _inertiaDirection = Direction::LEFT;
 
     _spriteEntity.reset(new sf::Sprite());
     _spriteEntity->setTexture(*(level::ATLAS_ENTITY));
     _spriteEntity->setOrigin(level::tank::PIXELS_WIDTH / 2.0f,
-                             level::tank::PIXELS_HEIGHT / 2.0f + level::tank::PIXELS_GUN_LENGTH);
-
-    _currentTrackShift = 0.0f;
+                             level::tank::PIXELS_HEIGHT / 2.0f 
+                             + level::tank::PIXELS_GUN_LENGTH);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 // ќбновление состо€ни€ танка каждый игровой такт
 
 void Tank::update(float dt) {

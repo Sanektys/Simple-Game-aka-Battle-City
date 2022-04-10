@@ -3,6 +3,9 @@
 #include "GameObject.h"
 
 
+/// <summary>
+/// Класс базового снаряда
+/// </summary>
 class Bullet : public GameObject
 {
     public :

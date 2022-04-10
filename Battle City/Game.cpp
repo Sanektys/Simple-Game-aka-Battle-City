@@ -380,6 +380,10 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
                                         sf::Keyboard::A, sf::Keyboard::D,
                                         sf::Keyboard::W, sf::Keyboard::S,
                                         sf::Keyboard::E));
+            dynamic_cast<TankPlayer&>(*object).setAltKeys(
+                sf::Keyboard::Left, sf::Keyboard::Right,
+                sf::Keyboard::Up,   sf::Keyboard::Down,
+                sf::Keyboard::Space);
             break;
 
         case GameObjectType::TANK_ENEMY :
