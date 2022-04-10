@@ -64,6 +64,7 @@ void Game::setupSystem() {
 void Game::initialize() {
     shutdown();
 
+    _clockLastFrame = steady_clock::now();
     _diedEnemiesCount = 0;
 
     // «агрузка уровн€
@@ -382,8 +383,8 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
             break;
 
         case GameObjectType::TANK_ENEMY :
-            // ѕредварительна€ проверка того, что нет помехи дл€ спавна в квадрате 8х8
-            if (!checkIntersects(x - 3.0f, y - 3.0f, 8.0f, 8.0f, nullptr,
+            // ѕредварительна€ проверка того, что нет помехи дл€ спавна в квадрате 10х10
+            if (!checkIntersects(x - 4.0f, y - 4.0f, 10.0f, 10.0f, nullptr,
                                  GameObjectGroup::ENTITY))
                 object.reset(new TankEnemy(*this, level::tank::enemy::basic::IMAGE));
             break;

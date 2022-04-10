@@ -106,7 +106,7 @@ namespace level {
             namespace basic {
                 const short HEALTH = 6;
                 const float SPEED  = 4.0f;
-                const float SPAWN_TIME = 10.0f;
+                const float SPAWN_TIME = 20.0f;
                 const float FIRE_COOLDOWN_TIME = 2.0f;
                 const int MAX_FIRE_DISTANCE = 12;
 
