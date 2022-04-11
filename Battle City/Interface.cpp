@@ -7,14 +7,12 @@ Interface::Interface(class Game& game) : _game(game) {
     _debugFont.reset(new sf::Font);
     if (!_debugFont->loadFromFile("./Build/progresspixel-bold.ttf"))
         if (!_debugFont->loadFromFile("./build/progresspixel-bold.ttf"))
-            if (!_debugFont->loadFromFile("progresspixel-bold.ttf"))
-                std::exit(1);
+            _debugFont->loadFromFile("progresspixel-bold.ttf");
 
     _objectsDataFont.reset(new sf::Font);
     if (!_objectsDataFont->loadFromFile("./Build/CursedTimerUlil.ttf"))
         if (!_objectsDataFont->loadFromFile("./build/CursedTimerUlil.ttf"))
-            if (!_objectsDataFont->loadFromFile("CursedTimerUlil.ttf"))
-                std::exit(1);
+            _objectsDataFont->loadFromFile("CursedTimerUlil.ttf");
 }
 
 void Interface::render() {

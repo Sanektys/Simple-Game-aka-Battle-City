@@ -14,6 +14,9 @@ Tank::Tank(const class Game& game) : GameObject(game) {
 
     _rotationAngle = 90.0f * (float)getDirection();
 
+    _prevX = getX();
+    _prevY = getY();
+
     _spriteEntity.reset(new sf::Sprite());
     _spriteEntity->setTexture(*(level::ATLAS_ENTITY));
     _spriteEntity->setOrigin(level::tank::PIXELS_WIDTH / 2.0f,
@@ -27,11 +30,12 @@ Tank::Tank(const class Game& game) : GameObject(game) {
 void Tank::update(float dt) {
     // ѕри смене направлени€ движени€ на 90 градусов производитс€ обновление габаритов
     // танка вместе с его координатной точкой. “акже запускаетс€ процесс вращени€ спрайта
-    if ((_oldDirection != getDirection()) && (_rotation == false)) {
+    if (_oldDirection != getDirection() && _rotation == false) {
         _rotation = true;
 
         switch (getDirection()) {
-            // ≈сли направлени€ отличаютс€ на 180 градусов, то производить перерасчЄт габаритов не нужно	
+            // ≈сли направлени€ отличаютс€ на 180 градусов,
+            // то производить перерасчЄт габаритов не нужно
             case Direction::UP :
                 if (_oldDirection == Direction::DOWN)
                     break;
@@ -44,13 +48,19 @@ void Tank::update(float dt) {
                 float newWidth = level::tank::WIDTH;
                 float newHeight = level::tank::HEIGHT;
 
-                bool topIntersects = bool(
-                    getGame().checkIntersects(newX, newY, newWidth, _offset, this));
-                bool bottomIntersects = bool(
-                    getGame().checkIntersects(newX, getY() + getHeight(),
-                                              newWidth, _offset, this));
+                // Ќеобработка части габаритов танка, чтобы он мог развернутьс€
+                // в пределах квадрата 2х2 на “ и √ образных перекрЄстках
+                float uncollisionPart = level::tank::WIDTH / 10.0f;
 
-                // ≈сли танк зажат сверху и снизу, и его новые габариты не помещаютс€ на текущем месте,
+                bool topIntersects = bool(
+                    getGame().checkIntersects(newX + uncollisionPart, newY, 
+                                              newWidth - uncollisionPart * 2.0f, _offset, this));
+                bool bottomIntersects = bool(
+                    getGame().checkIntersects(newX + uncollisionPart, getY() + getHeight(),
+                                              newWidth - uncollisionPart * 2.0f, _offset, this));
+
+                // ≈сли танк зажат сверху и снизу,
+                // и его новые габариты не помещаютс€ на текущем месте,
                 // то отменить смену направлени€ и запуск вращени€
                 if (topIntersects && bottomIntersects) {
                     setDirection(_oldDirection);
@@ -78,12 +88,14 @@ void Tank::update(float dt) {
                 float newWidth = level::tank::HEIGHT;
                 float newHeight = level::tank::WIDTH;
 
+                float uncollisionPart = level::tank::WIDTH / 10.0f;
+
                 bool rightIntersects = bool(
-                    getGame().checkIntersects(getX() + getWidth(),newY,
-                                              _offset, newHeight, this));
+                    getGame().checkIntersects(getX() + getWidth(),newY + uncollisionPart,
+                                              _offset, newHeight - uncollisionPart * 2.0f, this));
                 bool leftIntersects = bool(
-                    getGame().checkIntersects(newX, newY, _offset,
-                                              newHeight, this));
+                    getGame().checkIntersects(newX, newY + uncollisionPart, _offset,
+                                              newHeight - uncollisionPart * 2.0f, this));
 
                 if (rightIntersects && leftIntersects) {
                     setDirection(_oldDirection);
@@ -104,34 +116,36 @@ void Tank::update(float dt) {
         }
     }
 
-    if (_rotation) {
+    if (_rotation)
         if (!rotation(dt)) {
             _rotation = false;
             _currentSpeed = 0.0f;
             _oldDirection = getDirection();
         }
-    }
-    else {
-        _oldDirection = getDirection();
-    }
 
     if (_fireCooldownTime > 0)
         _fireCooldownTime -= dt;
 
+    // ќбновление смещени€ траков
+    if (_prevX != getX() || _prevY != getY())
+        _currentTrackShift += std::abs(_currentSpeed) * dt;
+    _prevX = getX();
+    _prevY = getY();
+
     GameObject::update(dt);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 // ќтрисовка танка
 
 void Tank::renderTracksMoving() {
-    const float TRACK_SHIFT_INTERVAL = 20.0f;
+    // –ассто€ние, после прохождени€ которого мен€етс€ спрайт траков
+    const float TRACK_SHIFT_INTERVAL = 0.08f;
 
-    _currentTrackShift += _currentSpeed;
-
+    // ≈сли рассто€ние пройдено
     if (_currentTrackShift >= TRACK_SHIFT_INTERVAL) {
         _currentTrackShift = 0.0f;
-
+        
         sf::IntRect textureRect = _spriteEntity->getTextureRect();
         // ѕереход на соседний спрайт по горизонтали в атласе
         if (0 == textureRect.left)
@@ -145,6 +159,34 @@ void Tank::renderTracksMoving() {
 
 void Tank::render(sf::RenderWindow* rw) {
     renderTracksMoving();
+
+    /////////////////////////////////////
+    /*using level::PIXELS_PER_CELL;
+    float x{0.0f};
+    float y{0.0f};
+    calculateFrontCellPosition(x, y);
+    sf::RectangleShape pick;
+    pick.setFillColor(sf::Color(255, 0, 0));
+    switch (getDirection()) {
+        case Direction::UP : 
+            pick.setSize(sf::Vector2f(1.0f, 100.0f));
+            pick.setPosition(x * PIXELS_PER_CELL - 0.5f, y * PIXELS_PER_CELL - 100.0f);
+            break;
+        case Direction::DOWN :
+            pick.setSize(sf::Vector2f(1.0f, 100.0f));
+            pick.setPosition(x * PIXELS_PER_CELL - 0.5f, y * PIXELS_PER_CELL);
+            break;
+        case Direction::RIGHT :
+            pick.setSize(sf::Vector2f(100.0f, 1.0f));
+            pick.setPosition(x * PIXELS_PER_CELL, y * PIXELS_PER_CELL - 0.5f);
+            break;
+        case Direction::LEFT :
+            pick.setSize(sf::Vector2f(100.0f, 1.0f));
+            pick.setPosition(x * PIXELS_PER_CELL - 100.0f, y * PIXELS_PER_CELL - 0.5f);
+            break;
+    }
+    rw->draw(pick);*/
+    /////////////////////////////////////
 
     GameObject::render(rw);
 }
@@ -591,17 +633,16 @@ void Tank::fire() {
 
     // ”становка скорости полЄта снар€да и его центровка относительно
     // своих размеров к дулу оруди€ танка
-    // «десь width - всегда коротка€ сторона, а height - всегда длинна€
     switch (getDirection()) {
         case Direction::LEFT :
             bulletSpeedX = -level::bullet::basic::SPEED;
-            bulletPositionY -= (level::bullet::basic::WIDTH / 2.0f);
-            bulletPositionX -= level::bullet::basic::HEIGHT;
+            bulletPositionY -= (level::bullet::basic::HEIGHT / 2.0f);
+            bulletPositionX -= level::bullet::basic::WIDTH;
             break;
 
         case Direction::RIGHT :
             bulletSpeedX = level::bullet::basic::SPEED;
-            bulletPositionY -= (level::bullet::basic::WIDTH / 2.0f);
+            bulletPositionY -= (level::bullet::basic::HEIGHT / 2.0f);
             break;
 
         case Direction::UP :

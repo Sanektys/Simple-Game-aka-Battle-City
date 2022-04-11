@@ -58,11 +58,15 @@ void Bullet::setTextureRect(sf::IntRect rect) {
 void Bullet::setDirection(enum Direction direction) {
     // Инверсия дефолтных размеров снаряда если он летит по горизонтальной оси
     switch (getDirection()) {
-        case Direction::LEFT:
-        case Direction::RIGHT:
+        case Direction::LEFT :
+        case Direction::RIGHT : {
+            float offset = (getHeight() - getWidth()) / 2.0f;
+            setX(getX() - offset);  // Смещение начальных координат
+            setY(getY() + offset);  // из-за "поворота" габаритов
             setWidth(level::bullet::basic::HEIGHT);
             setHeight(level::bullet::basic::WIDTH);
             break;
+        }
 
         default :
             break;
