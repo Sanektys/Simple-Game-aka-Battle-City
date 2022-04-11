@@ -108,7 +108,8 @@ namespace level {
                 const float SPEED  = 4.0f;
                 const float SPAWN_TIME = 20.0f;
                 const float FIRE_COOLDOWN_TIME = 2.0f;
-                const int MAX_FIRE_DISTANCE = 12;
+                const float MAX_FIRE_DISTANCE_X = 12.0f;
+                const float MAX_FIRE_DISTANCE_Y = 6.0f;
 
                 const sf::IntRect IMAGE(0, 176, PIXELS_WIDTH,
                                                 PIXELS_HEIGHT + PIXELS_GUN_LENGTH);

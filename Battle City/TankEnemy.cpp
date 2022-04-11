@@ -85,15 +85,22 @@ void TankEnemy::ai(float dt) {
     }
 
     std::unique_ptr<GameObject>* object{nullptr};
-    int fireDistance{0};  // Текущая дистанция стрельбы
+    float fireDistanceX{0.0f};  // Текущая дистанция стрельбы по горизонтали
+    float fireDistanceY{0.0f};  // Текущая дистанция стрельбы по вертикали
+    bool isNotMaxFireX{true};
+    bool isNotMaxFireY{true};
     do {
-        object = &getGame().checkIntersects(x - 0.05f, y - 0.05f,
-                                            0.1f, 0.1f, this);
+        object = &getGame().checkIntersects(
+            x - level::bullet::basic::WIDTH / 2.0f,
+            y - level::bullet::basic::WIDTH / 2.0f,
+            level::bullet::basic::WIDTH, level::bullet::basic::WIDTH, this);
         x += xDelta;
-        y += yDelta;
-        fireDistance += 1;
-    } while (!*object
-             && fireDistance <= level::tank::enemy::basic::MAX_FIRE_DISTANCE);
+        y += yDelta; 
+        fireDistanceX += std::abs(xDelta);
+        fireDistanceY += std::abs(yDelta);
+        isNotMaxFireX = fireDistanceX <= level::tank::enemy::basic::MAX_FIRE_DISTANCE_X;
+        isNotMaxFireY = fireDistanceY <= level::tank::enemy::basic::MAX_FIRE_DISTANCE_Y;
+    } while (!*object && (isNotMaxFireX && isNotMaxFireY));
 
     // Если объект найден
     if (*object)
