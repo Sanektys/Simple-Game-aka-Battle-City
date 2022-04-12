@@ -112,7 +112,7 @@ class Tank : public GameObject
         /// <param name="direction">- направление движени€ (лево/право)</param>
         /// <param name="dt">- дельта времени одного игрового такта</param>
         /// <returns>¬озвращает уменьшенную скорость по X</returns>
-        float setBrakingSpeedX(float xSpeed, float dt);
+        float setBrakingSpeed(float xSpeed, float dt);
         //
         /// <summary>
         /// “орможение по вертикальной плоскости
@@ -121,7 +121,7 @@ class Tank : public GameObject
         /// <param name="direction">- направление движени€ (вверх/вниз)</param>
         /// <param name="dt">- дельта времени одного игрового такта</param>
         /// <returns>¬озвращает уменьшенную скорость по Y</returns>
-        float setBrakingSpeedY(float ySpeed, float dt);
+        //float setBrakingSpeedY(float ySpeed, float dt);
 
     private :
         /// <summary>¬рем€ перезар€дки оруди€</summary>

@@ -191,11 +191,11 @@ void Tank::render(sf::RenderWindow* rw) {
     GameObject::render(rw);
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 // –асчЄты по установке текущей скорости танка на каждом игровом такте
 
 void Tank::move(enum Direction direction, float dt) {
-    if ((_rotation) && ((_currentSpeed > 0) || (_currentSpeed < 0)))
+    if (_rotation && std::abs(_currentSpeed) > 0.0f)
         direction = Direction::NONE;
     else if (_rotation)
         return;
@@ -205,6 +205,8 @@ void Tank::move(enum Direction direction, float dt) {
     if (direction != Direction::NONE)
         setDirection(direction);
 
+    // !_rotation здесь означает, что вращение только что запущено путем смены
+    // направлени€ выше, но _rotation ещЄ не выставлено в true
     if (!_rotation)
         if (getDirection() != _oldDirection) {
             // ѕри смене траектории движени€, инерци€ устанавливаетс€
@@ -273,71 +275,75 @@ void Tank::move(enum Direction direction, float dt) {
             setInBypass(false);
 
             // ѕри повороте танка этот блок временно выполн€ет роль инерции по
-            // прошлому направлению
+            // прошлому направлению, а без поворота просто гасит текущую скорость
             switch (_oldDirection) {
-                case Direction::UP : {
+                case Direction::UP : 
                     // ≈сли (при повороте) на прошлой позиции танк "буксовал",
                     // то его потенциальна€ скорость сбрасываетс€ дл€
                     // недопущени€ резкого сдвига на освободившеес€ пространство
                     // при изменении габаритов танка
-                    if ((getYSpeed() == 0.0f) && (_currentSpeed >= 0.0f))
+                    if (getYSpeed() == 0.0f && _currentSpeed >= 0.0f)
                         _currentSpeed = 0.0f;
                     setYSpeed(-_currentSpeed);
                     break;
-                }
-                case Direction::DOWN : {
-                    if ((getYSpeed() == 0.0f) && (_currentSpeed >= 0.0f))
+
+                case Direction::DOWN :
+                    if (getYSpeed() == 0.0f && _currentSpeed >= 0.0f)
                         _currentSpeed = 0.0f;
                     setYSpeed(_currentSpeed);
                     break;
-                }
-                case Direction::LEFT : {
-                    if ((getXSpeed() == 0.0f) && (_currentSpeed >= 0.0f))
-                        _currentSpeed = 0.0f;
-                    setXSpeed(-_currentSpeed);
-                    break;
-                }
-                case Direction::RIGHT : {
-                    if ((getXSpeed() == 0.0f) && (_currentSpeed >= 0.0f))
+
+                case Direction::RIGHT :
+                    if (getXSpeed() == 0.0f && _currentSpeed >= 0.0f)
                         _currentSpeed = 0.0f;
                     setXSpeed(_currentSpeed);
                     break;
-                }
+
+                case Direction::LEFT :
+                    if (getXSpeed() == 0.0f && _currentSpeed >= 0.0f)
+                        _currentSpeed = 0.0f;
+                    setXSpeed(-_currentSpeed);
+                    break;
+
                 default :
                     break;
             }
             break;
-       }
+        }
         default :
             break;
     }
 
+    // ”меньшение оставшейс€ инерциальной скорости от прошлого направлени€,
+    // когда поворот уже завершилс€
     if (!_rotation)
         switch (_inertiaDirection) {
             case Direction::UP :
             case Direction::DOWN :
-                setYSpeed(setBrakingSpeedY(getYSpeed(), dt));
+                setYSpeed(setBrakingSpeed(getYSpeed(), dt));
                 break;
 
             case Direction::LEFT :
             case Direction::RIGHT :
-                setXSpeed(setBrakingSpeedX(getXSpeed(), dt));
+                setXSpeed(setBrakingSpeed(getXSpeed(), dt));
                 break;
 
-            default :
+            default:
                 break;
         }
 
     // ѕриведение текущей скорости танка к нулю
-    if ((_currentSpeed > 0.0f) && (_currentSpeed <= (_brakingSpeed * dt)))
-        _currentSpeed = 0.0f;
-    else if (_currentSpeed > 0.0f)
-        _currentSpeed -= _brakingSpeed * dt;	
+    _currentSpeed = setBrakingSpeed(_currentSpeed, dt);
+}
 
-    if ((_currentSpeed < 0.0f) && (_currentSpeed >= -(_brakingSpeed * dt)))
-        _currentSpeed = 0.0f;
-    else if (_currentSpeed < 0.0f)
-        _currentSpeed += _brakingSpeed * dt;
+float Tank::setBrakingSpeed(float speed, float dt) {
+    float reducedSpeed = std::abs(speed);
+    if (reducedSpeed >= 0.0f && reducedSpeed <= _brakingSpeed * dt)
+        return 0.0f;
+    else if (reducedSpeed > 0.0f)
+        return speed + (speed > 0.0f ?
+                        -(_brakingSpeed * dt) : +(_brakingSpeed * dt));
+    return 0.0f;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -501,19 +507,18 @@ bool Tank::bypassObstruction() {
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 // ¬ращение спрайта танка
 
 bool Tank::rotation(float dt) {
-    short targetRotation = short(90 * (int)getDirection());
-    if (_rotationAngle == targetRotation)
-        return false;
+    // RIGHT = 90, DOWN = 180, LEFT = 270, UP = 360
+    int targetRotation = 90 * (int)getDirection();
 
     _currentRotationTime += dt;
     float anglePerSecond = 90.0f / _rotationTime;
     short coefficientTime = 1;
 
-    switch (_oldDirection) {
+    switch (_oldDirection) {  // Ќаправление, с которого начат поворот
         case Direction::UP : {
             switch (getDirection()) {
                 case Direction::LEFT :
@@ -593,6 +598,7 @@ bool Tank::rotation(float dt) {
             break;
     }
 
+    // ‘инальна€ постановка на заданный угол при окончании времени на поворот
     if (_currentRotationTime >= _rotationTime * coefficientTime) {
         _rotationAngle = (float)targetRotation;
         _spriteEntity->setRotation(_rotationAngle);
@@ -603,7 +609,7 @@ bool Tank::rotation(float dt) {
     return true;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 // Ѕлок методов, реализующих выстрел танка
 
 void Tank::fire() {
@@ -668,11 +674,11 @@ void Tank::fire() {
         bullet.setXSpeed(bulletSpeedX);
         bullet.setYSpeed(bulletSpeedY);
         bullet.setDirection(this->getDirection());
-        bullet.setTextureRect(level::bullet::basic::IMAGE); // ƒл€ изменени€ дефолтного направлени€
+        bullet.setTextureRect(level::bullet::basic::IMAGE); // ƒл€ поворота спрайта
     }
 
     //ќтдача от выстрела
-    _currentSpeed -= _speedup / 6.0f;
+    _currentSpeed -= getMaxSpeed() / 2.0f;
 }
 
 
@@ -715,35 +721,4 @@ void Tank::calculateFrontCellPosition(float& x, float& y) {
         default :
             break;
     }
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Ѕлок методов торможени€ по инерции
-
-float Tank::setBrakingSpeedX(float xSpeed, float dt) {
-    if ((xSpeed > 0.0f) && (xSpeed <= (_brakingSpeed * dt)))
-        return 0.0f;
-    else if (xSpeed > 0.0f)
-        return xSpeed - _brakingSpeed * dt;
-
-    if ((xSpeed < 0.0f) && (xSpeed >= -(_brakingSpeed * dt)))
-        return 0.0f;
-    else if (xSpeed < 0.0f)
-        return xSpeed + _brakingSpeed * dt;
-
-    return 0.0f;
-}
-
-float Tank::setBrakingSpeedY(float ySpeed, float dt) {
-    if ((ySpeed > 0.0f) && (ySpeed <= (_brakingSpeed * dt)))
-        return 0.0f;
-    else if (ySpeed > 0.0f)
-        return ySpeed - _brakingSpeed * dt;
-
-    if ((ySpeed < 0.0f) && (ySpeed >= -(_brakingSpeed * dt)))
-        return 0.0f;
-    else if (ySpeed < 0.0f)
-        return ySpeed + _brakingSpeed * dt;
-
-    return 0.0f;
 }
