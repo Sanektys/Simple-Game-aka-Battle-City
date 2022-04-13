@@ -12,9 +12,9 @@ TankPlayer::TankPlayer(const class Game& game, sf::IntRect rect,
     setHealth(level::tank::player::HEALTH);
     setMaxSpeed(level::tank::player::SPEED);
 
-    setSpeedup(12.0f);
-    setBrakingSpeed(6.5f);
-    setRotationTime(0.76f);
+    setSpeedup(level::tank::player::SPEED);
+    setBrakingSpeed(level::tank::player::SPEED);
+    setRotationTime(0.6f);
 
     setDestroyAfterDeath(false);
 

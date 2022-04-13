@@ -17,8 +17,8 @@ TankEnemy::TankEnemy(const class Game& game, sf::IntRect rect) : Tank(game) {
     setHealth(level::tank::enemy::basic::HEALTH);
     setMaxSpeed(level::tank::enemy::basic::SPEED);
 
-    setSpeedup(8.0f);
-    setBrakingSpeed(6.0f);
+    setSpeedup(level::tank::enemy::basic::SPEED);
+    setBrakingSpeed(level::tank::enemy::basic::SPEED);
     setRotationTime(0.9f);
 
     _spriteEntity->setTextureRect(rect);

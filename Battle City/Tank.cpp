@@ -195,10 +195,8 @@ void Tank::render(sf::RenderWindow* rw) {
 // –асчЄты по установке текущей скорости танка на каждом игровом такте
 
 void Tank::move(enum Direction direction, float dt) {
-    if (_rotation && std::abs(_currentSpeed) > 0.0f)
+    if (_rotation)
         direction = Direction::NONE;
-    else if (_rotation)
-        return;
 
     // ќтсутствующее направление не устанавливаетс€ как параметр дл€ танка,
     // оно необходимо только дл€ временного использовани€ в пределах данной функции
@@ -276,6 +274,7 @@ void Tank::move(enum Direction direction, float dt) {
 
             // ѕри повороте танка этот блок временно выполн€ет роль инерции по
             // прошлому направлению, а без поворота просто гасит текущую скорость
+            _currentSpeed = setBrakingSpeed(_currentSpeed, dt);
             switch (_oldDirection) {
                 case Direction::UP : 
                     // ≈сли (при повороте) на прошлой позиции танк "буксовал",
@@ -331,9 +330,6 @@ void Tank::move(enum Direction direction, float dt) {
             default:
                 break;
         }
-
-    // ѕриведение текущей скорости танка к нулю
-    _currentSpeed = setBrakingSpeed(_currentSpeed, dt);
 }
 
 float Tank::setBrakingSpeed(float speed, float dt) {
@@ -514,95 +510,34 @@ bool Tank::rotation(float dt) {
     // RIGHT = 90, DOWN = 180, LEFT = 270, UP = 360
     int targetRotation = 90 * (int)getDirection();
 
-    _currentRotationTime += dt;
     float anglePerSecond = 90.0f / _rotationTime;
-    short coefficientTime = 1;
 
-    switch (_oldDirection) {  // Ќаправление, с которого начат поворот
-        case Direction::UP : {
-            switch (getDirection()) {
-                case Direction::LEFT :
-                    _rotationAngle -= anglePerSecond * dt;
-                    break;
+    // ѕо знаку разницы углов делаетс€ вывод, в каком направлении производить поворот
+    float deltaRotation = float(targetRotation) - _rotationAngle;
+    // ≈сли разница между текущим и целевым углом больше 180 градусов,
+    // то, €вно происходит смена направлени€ с UP(360) на RIGHT(90) или наоборот
+    if (std::abs(deltaRotation) > 180.0f) {
+        if (_rotationAngle >= 360.0f)  // ≈сли текущий угол уже на 360ти или выше,
+            _rotationAngle -= 360.0f;  // то сбросить к началу дл€ RIGHT(90)
+        else if (_rotationAngle >= 0.0f)  // ≈сли текущий угол в начале, то
+            _rotationAngle += 360.0f;     // добавить оборот дл€ UP(360)
 
-                case Direction::DOWN :
-                    coefficientTime = 2;
-                case Direction::RIGHT :
-                    _rotationAngle += anglePerSecond * dt;
-                    break;
-
-                default :
-                    break;
-            }
-            _spriteEntity->setRotation(_rotationAngle);
-            break;
-        }
-
-        case Direction::RIGHT : {
-            switch (getDirection()) {
-                case Direction::UP :
-                    _rotationAngle -= anglePerSecond * dt;
-                    break;
-
-                case Direction::LEFT :
-                    coefficientTime = 2;
-                case Direction::DOWN :
-                    _rotationAngle += anglePerSecond * dt;
-                    break;
-
-                default :
-                    break;
-            }
-            _spriteEntity->setRotation(_rotationAngle);
-            break;
-        }
-
-        case Direction::DOWN : {
-            switch (getDirection()) {
-                case Direction::RIGHT :
-                    _rotationAngle -= anglePerSecond * dt;
-                    break;
-
-                case Direction::UP :
-                    coefficientTime = 2;
-                case Direction::LEFT :
-                    _rotationAngle += anglePerSecond * dt;
-                    break;
-
-                default :
-                    break;
-            }
-            _spriteEntity->setRotation(_rotationAngle);
-            break;
-        }
-
-        case Direction::LEFT : {
-            switch (getDirection()) {
-                case Direction::DOWN :
-                    _rotationAngle -= anglePerSecond * dt;
-                    break;
-
-                case Direction::RIGHT:
-                    coefficientTime = 2;
-                case Direction::UP :
-                    _rotationAngle += anglePerSecond * dt;
-                    break;
-
-                default :
-                    break;
-            }
-            _spriteEntity->setRotation(_rotationAngle);
-            break;
-        }
-        default :
-            break;
+        deltaRotation = -deltaRotation; //—мена направлени€ вращени€
     }
+    if (deltaRotation >= 0.0f)
+        _rotationClockwise = true;
+    else
+        _rotationClockwise = false;
 
-    // ‘инальна€ постановка на заданный угол при окончании времени на поворот
-    if (_currentRotationTime >= _rotationTime * coefficientTime) {
+    _rotationAngle += _rotationClockwise ? +(anglePerSecond * dt)
+                                         : -(anglePerSecond * dt);
+    _spriteEntity->setRotation(_rotationAngle);
+
+    // “очна€ постановка на заданный угол при его достижении или "выбега" за него
+    if (_rotationClockwise ? _rotationAngle >= targetRotation
+                           : _rotationAngle <= targetRotation) {
         _rotationAngle = (float)targetRotation;
         _spriteEntity->setRotation(_rotationAngle);
-        _currentRotationTime = 0.0f;
         return false;
     }
 

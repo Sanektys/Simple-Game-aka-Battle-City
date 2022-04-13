@@ -144,8 +144,9 @@ class Tank : public GameObject
         float _rotationTime{0.0f};
         /// <summary>“екущий установленный угол ориентации танка</summary>
         float _rotationAngle{0.0f};
-        /// <summary>“екущее затраченное врем€ на поворот танка</summary>
-        float _currentRotationTime{0.0f};
+        /// <summary>Ќаправление, по которому ведЄтс€ поворот танка 
+        /// (true - по часовой, false - против)</summary>
+        bool _rotationClockwise{true};
 
         /// <summary>“екущее пройденное рассто€ние с прошлой смены спрайта траков</summary>
         float _currentTrackShift{0.0f};
