@@ -14,9 +14,6 @@ Tank::Tank(const class Game& game) : GameObject(game) {
 
     _rotationAngle = 90.0f * (float)getDirection();
 
-    _prevX = getX();
-    _prevY = getY();
-
     _spriteEntity.reset(new sf::Sprite());
     _spriteEntity->setTexture(*(level::ATLAS_ENTITY));
     _spriteEntity->setOrigin(level::tank::PIXELS_WIDTH / 2.0f,
@@ -28,134 +25,25 @@ Tank::Tank(const class Game& game) : GameObject(game) {
 // Обновление состояния танка каждый игровой такт
 
 void Tank::update(float dt) {
-    // При смене направления движения на 90 градусов производится обновление габаритов
-    // танка вместе с его координатной точкой. Также запускается процесс вращения спрайта
-    if (_oldDirection != getDirection() && _rotation == false) {
-        _rotation = true;
+    // Проверить вращение
+    rotation(dt);
 
-        switch (getDirection()) {
-            // Если направления отличаются на 180 градусов,
-            // то производить перерасчёт габаритов не нужно
-            case Direction::UP :
-                if (_oldDirection == Direction::DOWN)
-                    break;
-            case Direction::DOWN : {
-                if (_oldDirection == Direction::UP)
-                    break;
-
-                float newY = getY() - _offset;
-                float newX = getX() + _offset;
-                float newWidth = level::tank::WIDTH;
-                float newHeight = level::tank::HEIGHT;
-
-                // Необработка части габаритов танка, чтобы он мог развернуться
-                // в пределах квадрата 2х2 на Т и Г образных перекрёстках
-                float uncollisionPart = level::tank::WIDTH / 10.0f;
-
-                bool topIntersects = bool(
-                    getGame().checkIntersects(newX + uncollisionPart, newY, 
-                                              newWidth - uncollisionPart * 2.0f, _offset, this));
-                bool bottomIntersects = bool(
-                    getGame().checkIntersects(newX + uncollisionPart, getY() + getHeight(),
-                                              newWidth - uncollisionPart * 2.0f, _offset, this));
-
-                // Если танк зажат сверху и снизу,
-                // и его новые габариты не помещаются на текущем месте,
-                // то отменить смену направления и запуск вращения
-                if (topIntersects && bottomIntersects) {
-                    setDirection(_oldDirection);
-                    _rotation = false;
-                }
-
-                if (_rotation) {
-                    setY(newY);
-                    setX(newX);
-                    setWidth(newWidth);
-                    setHeight(newHeight);
-                }
-                break;
-            }
-
-            case Direction::RIGHT :
-                if (_oldDirection == Direction::LEFT)
-                    break;
-            case Direction::LEFT : {
-                if (_oldDirection == Direction::RIGHT)
-                    break;
-
-                float newY = getY() + _offset;
-                float newX = getX() - _offset;
-                float newWidth = level::tank::HEIGHT;
-                float newHeight = level::tank::WIDTH;
-
-                float uncollisionPart = level::tank::WIDTH / 10.0f;
-
-                bool rightIntersects = bool(
-                    getGame().checkIntersects(getX() + getWidth(),newY + uncollisionPart,
-                                              _offset, newHeight - uncollisionPart * 2.0f, this));
-                bool leftIntersects = bool(
-                    getGame().checkIntersects(newX, newY + uncollisionPart, _offset,
-                                              newHeight - uncollisionPart * 2.0f, this));
-
-                if (rightIntersects && leftIntersects) {
-                    setDirection(_oldDirection);
-                    _rotation = false;
-                }
-
-                if (_rotation) {
-                    setY(newY);
-                    setX(newX);
-                    setWidth(newWidth);
-                    setHeight(newHeight);
-                }
-                break;
-            }
-
-            default :
-                break;
-        }
-    }
-
-    if (_rotation)
-        if (!rotation(dt)) {
+    if (_rotation)  // Пока спрайт полностью не повернётся будет true
+        if (!spriteRotation(dt))
             _rotation = false;
-            _currentSpeed = 0.0f;
-            _oldDirection = getDirection();
-        }
 
     if (_fireCooldownTime > 0)
         _fireCooldownTime -= dt;
 
-    // Обновление смещения траков
-    if (_prevX != getX() || _prevY != getY())
-        _currentTrackShift += std::abs(_currentSpeed) * dt;
-    _prevX = getX();
-    _prevY = getY();
-
     GameObject::update(dt);
+
+    // Обновление смещения траков
+    if (getXSpeed() != 0.0f || getYSpeed() != 0.0f)
+        _currentTrackShift += std::abs(_currentSpeed) * dt;
 }
 
 ///////////////////////////////////////////////////////////
 // Отрисовка танка
-
-void Tank::renderTracksMoving() {
-    // Расстояние, после прохождения которого меняется спрайт траков
-    const float TRACK_SHIFT_INTERVAL = 0.08f;
-
-    // Если расстояние пройдено
-    if (_currentTrackShift >= TRACK_SHIFT_INTERVAL) {
-        _currentTrackShift = 0.0f;
-        
-        sf::IntRect textureRect = _spriteEntity->getTextureRect();
-        // Переход на соседний спрайт по горизонтали в атласе
-        if (0 == textureRect.left)
-            textureRect.left = level::tank::PIXELS_WIDTH;
-        else
-            textureRect.left = 0;
-
-        _spriteEntity->setTextureRect(textureRect);
-    }
-}
 
 void Tank::render(sf::RenderWindow* rw) {
     renderTracksMoving();
@@ -191,48 +79,70 @@ void Tank::render(sf::RenderWindow* rw) {
     GameObject::render(rw);
 }
 
+void Tank::renderTracksMoving() {
+    // Расстояние, после прохождения которого меняется спрайт траков
+    const float TRACK_SHIFT_INTERVAL = 0.08f;
+
+    // Если расстояние пройдено
+    if (_currentTrackShift >= TRACK_SHIFT_INTERVAL) {
+        _currentTrackShift = 0.0f;
+
+        sf::IntRect textureRect = _spriteEntity->getTextureRect();
+        // Переход на соседний спрайт по горизонтали в атласе
+        if (0 == textureRect.left)
+            textureRect.left = level::tank::PIXELS_WIDTH;
+        else
+            textureRect.left = 0;
+
+        _spriteEntity->setTextureRect(textureRect);
+    }
+}
+
 ///////////////////////////////////////////////////////////
-// Расчёты по установке текущей скорости танка на каждом игровом такте
+// Расчёты по установке текущей скорости и направления танка на каждом игровом такте
 
 void Tank::move(enum Direction direction, float dt) {
-    if (_rotation)
+    if (_rotation) {
+        if (direction != Direction::NONE)
+            setDirection(direction);  // Направление меняется сразу во время поворота
         direction = Direction::NONE;
+    }
 
     // Отсутствующее направление не устанавливается как параметр для танка,
     // оно необходимо только для временного использования в пределах данной функции
     if (direction != Direction::NONE)
         setDirection(direction);
 
-    // !_rotation здесь означает, что вращение только что запущено путем смены
-    // направления выше, но _rotation ещё не выставлено в true
-    if (!_rotation)
-        if (getDirection() != _oldDirection) {
-            // При смене траектории движения, инерция устанавливается
-            // по направлению, перпендикулярно направленному к текущему
-            switch (getDirection()) { 
-                case Direction::UP :
-                case Direction::DOWN : {
-                    if (Direction::UP == _oldDirection
-                        || Direction::DOWN == _oldDirection)
-                        break;
-                    else
-                        _inertiaDirection = _oldDirection;
+    // Если выше произошла смена направления движения, то меняется
+    // направление, по которому рассчитывается инерция
+    if (getDirection() != _oldDirection) {
+        // Инерция устанавливается по направлению,
+        // перпендикулярно направленному к текущему
+        switch (getDirection()) {
+            case Direction::UP :
+            case Direction::DOWN : {
+                if (Direction::UP == _oldDirection
+                    || Direction::DOWN == _oldDirection)
                     break;
-                }
-                case Direction::LEFT :
-                case Direction::RIGHT : {
-                    if (Direction::LEFT == _oldDirection
-                        || Direction::RIGHT == _oldDirection)
-                        break;
-                    else
-                        _inertiaDirection = _oldDirection;
-                    break;
-                }
-                default :
-                    break;
+                else
+                    _inertiaDirection = _oldDirection;
+                break;
             }
-            return;
+            case Direction::LEFT :
+            case Direction::RIGHT : {
+                if (Direction::LEFT == _oldDirection
+                    || Direction::RIGHT == _oldDirection)
+                    break;
+                else
+                    _inertiaDirection = _oldDirection;
+                break;
+            }
+            default:
+                break;
         }
+
+        return;  // Сразу произвести выход из функции
+    }
 
     if (getIsSticking())
         direction = Direction::NONE;
@@ -273,9 +183,9 @@ void Tank::move(enum Direction direction, float dt) {
             setInBypass(false);
 
             // При повороте танка этот блок временно выполняет роль инерции по
-            // прошлому направлению, а без поворота просто гасит текущую скорость
+            // направлению, параллельному новому, а без поворота просто гасит текущую скорость
             _currentSpeed = setBrakingSpeed(_currentSpeed, dt);
-            switch (_oldDirection) {
+            switch (getDirection()) {
                 case Direction::UP : 
                     // Если (при повороте) на прошлой позиции танк "буксовал",
                     // то его потенциальная скорость сбрасывается для
@@ -283,24 +193,35 @@ void Tank::move(enum Direction direction, float dt) {
                     // при изменении габаритов танка
                     if (getYSpeed() == 0.0f && _currentSpeed >= 0.0f)
                         _currentSpeed = 0.0f;
+                    // При повороте берётся уже набранная скорость по этой оси
+                    // и присваивается текущей скорости танка, постоянно снижаясь
+                    // во время поворота. Так танк сохранит инерцию при развороте на 180
+                    if (_rotation)
+                        _currentSpeed = setBrakingSpeed(-getYSpeed(), dt);
                     setYSpeed(-_currentSpeed);
                     break;
 
                 case Direction::DOWN :
                     if (getYSpeed() == 0.0f && _currentSpeed >= 0.0f)
                         _currentSpeed = 0.0f;
+                    if (_rotation)
+                        _currentSpeed = setBrakingSpeed(getYSpeed(), dt);
                     setYSpeed(_currentSpeed);
                     break;
 
                 case Direction::RIGHT :
                     if (getXSpeed() == 0.0f && _currentSpeed >= 0.0f)
                         _currentSpeed = 0.0f;
+                    if (_rotation)
+                        _currentSpeed = setBrakingSpeed(getXSpeed(), dt);
                     setXSpeed(_currentSpeed);
                     break;
 
                 case Direction::LEFT :
                     if (getXSpeed() == 0.0f && _currentSpeed >= 0.0f)
                         _currentSpeed = 0.0f;
+                    if (_rotation)
+                        _currentSpeed = setBrakingSpeed(-getXSpeed(), dt);
                     setXSpeed(-_currentSpeed);
                     break;
 
@@ -313,23 +234,22 @@ void Tank::move(enum Direction direction, float dt) {
             break;
     }
 
-    // Уменьшение оставшейся инерциальной скорости от прошлого направления,
-    // когда поворот уже завершился
-    if (!_rotation)
-        switch (_inertiaDirection) {
-            case Direction::UP :
-            case Direction::DOWN :
-                setYSpeed(setBrakingSpeed(getYSpeed(), dt));
-                break;
+    // Блок уменьшения инерциальной скорости танка
+    // Инерция всегда перпендикулярна текущему направлению движения
+    switch (_inertiaDirection) {
+        case Direction::UP :
+        case Direction::DOWN :
+            setYSpeed(setBrakingSpeed(getYSpeed(), dt));
+            break;
 
-            case Direction::LEFT :
-            case Direction::RIGHT :
-                setXSpeed(setBrakingSpeed(getXSpeed(), dt));
-                break;
+        case Direction::LEFT :
+        case Direction::RIGHT :
+            setXSpeed(setBrakingSpeed(getXSpeed(), dt));
+            break;
 
-            default:
-                break;
-        }
+        default:
+            break;
+    }
 }
 
 float Tank::setBrakingSpeed(float speed, float dt) {
@@ -504,9 +424,104 @@ bool Tank::bypassObstruction() {
 
 
 ///////////////////////////////////////////////////////////
-// Вращение спрайта танка
+// Вращение танка
 
-bool Tank::rotation(float dt) {
+void Tank::rotation(float dt) {
+    // При смене направления движения на 90 градусов производится обновление габаритов
+    // танка вместе с его координатной точкой. Также запускается процесс вращения спрайта
+    if (_oldDirection != getDirection()) {
+        _rotation = true;
+
+        switch (getDirection()) {
+            // Если направления отличаются на 180 градусов,
+            // то производить перерасчёт габаритов не нужно
+            case Direction::UP :
+                if (_oldDirection == Direction::DOWN) {
+                    // Предыдущее направление сразу приравнивается к новому
+                    _oldDirection = getDirection();
+                    break;
+                }
+            case Direction::DOWN : {
+                if (_oldDirection == Direction::UP) {
+                    _oldDirection = getDirection();
+                    break;
+                }
+
+                float newY = getY() - _offset;
+                float newX = getX() + _offset;
+                float newWidth = level::tank::WIDTH;
+                float newHeight = level::tank::HEIGHT;
+
+                // Необработка части габаритов танка, чтобы он мог развернуться
+                // в пределах квадрата 2х2 на Т и Г образных перекрёстках
+                float uncollisionPart = level::tank::WIDTH / 10.0f;
+
+                bool topIntersects = bool(
+                    getGame().checkIntersects(newX + uncollisionPart, newY,
+                    newWidth - uncollisionPart * 2.0f, _offset, this));
+                bool bottomIntersects = bool(
+                    getGame().checkIntersects(newX + uncollisionPart, getY() + getHeight(),
+                    newWidth - uncollisionPart * 2.0f, _offset, this));
+
+                // Если танк зажат сверху и снизу,
+                // и его новые габариты не помещаются на текущем месте,
+                // то отменить смену направления
+                if (topIntersects && bottomIntersects) {
+                    setDirection(_oldDirection);
+                } else {
+                    setY(newY);
+                    setX(newX);
+                    setWidth(newWidth);
+                    setHeight(newHeight);
+                    _oldDirection = getDirection();
+                }
+                break;
+            }
+
+            case Direction::RIGHT :
+                if (_oldDirection == Direction::LEFT) {
+                    _oldDirection = getDirection();
+                    break;
+                }
+            case Direction::LEFT : {
+                if (_oldDirection == Direction::RIGHT) {
+                    _oldDirection = getDirection();
+                    break;
+                }
+
+                float newY = getY() + _offset;
+                float newX = getX() - _offset;
+                float newWidth = level::tank::HEIGHT;
+                float newHeight = level::tank::WIDTH;
+
+                float uncollisionPart = level::tank::WIDTH / 10.0f;
+
+                bool rightIntersects = bool(
+                    getGame().checkIntersects(getX() + getWidth(), newY + uncollisionPart,
+                    _offset, newHeight - uncollisionPart * 2.0f, this));
+                bool leftIntersects = bool(
+                    getGame().checkIntersects(newX, newY + uncollisionPart, _offset,
+                    newHeight - uncollisionPart * 2.0f, this));
+
+                if (rightIntersects && leftIntersects) {
+                    setDirection(_oldDirection);
+                } else {
+                    setY(newY);
+                    setX(newX);
+                    setWidth(newWidth);
+                    setHeight(newHeight);
+                    _oldDirection = getDirection();
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+    }
+}
+
+bool Tank::spriteRotation(float dt) {
     // RIGHT = 90, DOWN = 180, LEFT = 270, UP = 360
     int targetRotation = 90 * (int)getDirection();
 
@@ -517,10 +532,10 @@ bool Tank::rotation(float dt) {
     // Если разница между текущим и целевым углом больше 180 градусов,
     // то, явно происходит смена направления с UP(360) на RIGHT(90) или наоборот
     if (std::abs(deltaRotation) > 180.0f) {
-        if (_rotationAngle >= 360.0f)  // Если текущий угол уже на 360ти или выше,
-            _rotationAngle -= 360.0f;  // то сбросить к началу для RIGHT(90)
-        else if (_rotationAngle >= 0.0f)  // Если текущий угол в начале, то
-            _rotationAngle += 360.0f;     // добавить оборот для UP(360)
+        if (_rotationAngle >= 270.0f)  // Если текущий угол уже на 270ти или выше,
+            _rotationAngle -= 360.0f;  // то отмотать оборот против часовой для RIGHT(90)
+        else if (_rotationAngle >= -90.0f)  // Если текущий угол где-то в начале, то
+            _rotationAngle += 360.0f;       // добавить оборот для UP(360)
 
         deltaRotation = -deltaRotation; //Смена направления вращения
     }

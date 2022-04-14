@@ -47,7 +47,7 @@ class Tank : public GameObject
         /// <returns></returns>
         void calculateFrontCellPosition(float& x, float& y);
 
-        ///////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////
         // Сеттеры/Геттеры
 
         void setFireCooldownTime(float cooldownTime) { _fireCooldownTime = cooldownTime; }
@@ -94,7 +94,9 @@ class Tank : public GameObject
         /// <returns>Если происходит разворот танка возвращает True.
         /// Если танк уже развёрнут в нужном направлении или
         /// только закончил разворот, возвращает False</returns>
-        bool rotation(float dt);
+        bool spriteRotation(float dt);
+
+        void rotation(float dt);
 
         /// <summary>
         /// Отрисовка вращения траков путем смены спрайта.
@@ -102,33 +104,20 @@ class Tank : public GameObject
         /// </summary>
         void renderTracksMoving();
 
-        ///////////////////////////////////////////////////////////////////////////////////////////
-        // Методы для торможения танка по инерции
-
         /// <summary>
-        /// Торможение по горизонтальной плоскости
+        /// Метод снижает скорость танка
         /// </summary>
-        /// <param name="xSpeed">- скорость по горизонтальной плоскости</param>
-        /// <param name="direction">- направление движения (лево/право)</param>
+        /// <param name="speed">- скорость танка</param>
         /// <param name="dt">- дельта времени одного игрового такта</param>
-        /// <returns>Возвращает уменьшенную скорость по X</returns>
-        float setBrakingSpeed(float xSpeed, float dt);
-        //
-        /// <summary>
-        /// Торможение по вертикальной плоскости
-        /// </summary>
-        /// <param name="xSpeed">- скорость по горизонтальной плоскости</param>
-        /// <param name="direction">- направление движения (вверх/вниз)</param>
-        /// <param name="dt">- дельта времени одного игрового такта</param>
-        /// <returns>Возвращает уменьшенную скорость по Y</returns>
-        //float setBrakingSpeedY(float ySpeed, float dt);
+        /// <returns>Возвращает уменьшенную скорость</returns>
+        float setBrakingSpeed(float speed, float dt);
 
     private :
         /// <summary>Время перезарядки орудия</summary>
         float _fireCooldownTime{0.0f};
         /// <summary>Максимальная скорость танка</summary>
         float _maxSpeed{0.0f};
-        /// <summary>Начальная скорость при ускорении танка</summary>
+        /// <summary>Величина ускорения танка</summary>
         float _speedup{0.0f};
         /// <summary>Текущая скорость танка</summary>
         float _currentSpeed{0.0f};
@@ -138,7 +127,7 @@ class Tank : public GameObject
         /// для удобного пересчёта габаритов при повороте</summary>
         float _offset{0.0f};
 
-        /// <summary>Происходит ли вращение танка на данный момент (True/false)</summary>
+        /// <summary>Происходит ли вращение танка на данный момент (true/false)</summary>
         bool _rotation{false};
         /// <summary>Время в секундах, за которое танк повернётся на 90 градусов</summary>
         float _rotationTime{0.0f};
@@ -150,9 +139,6 @@ class Tank : public GameObject
 
         /// <summary>Текущее пройденное расстояние с прошлой смены спрайта траков</summary>
         float _currentTrackShift{0.0f};
-
-        float _prevX{0.0f};  // Позиция по горизонтали на предыдущем такте
-        float _prevY{0.0f};  // Позиция по вертикали на предыдущем такте
 
         /// <summary>Предыдущее направление движения до поворота танка.
         /// После поворота приравнивается к текущему направлению движения</summary>
