@@ -14,11 +14,17 @@ class Tank : public GameObject
         ~Tank() override {}
 
         /// <summary>
-        /// Обновление базовых параметров танка
+        /// Метод обновления состояния танка, включая: 
+        /// поворот, перезарядку, анимацию траков
         /// </summary>
-        /// <param name="dt">- дельта времени одного игрового такта</param>
+        /// <param name="dt">- дельта времени, 
+        /// затраченное на обработку прошлого игрового такта</param>
         void update(float dt) override;
 
+        /// <summary>
+        /// Метод отрисовки танка
+        /// </summary>
+        /// <param name="rw">- указатель на объект игрового окна</param>
         void render(sf::RenderWindow* rw) override;
 
         Tank(const Tank&) = delete;
@@ -27,10 +33,12 @@ class Tank : public GameObject
     protected :
         /// <summary>
         /// Метод, задающий направление и скорость
-        /// движения танка
+        /// движения танка, направление и скорость его инерции
+        /// <para>Также запускает метод прохождения сквозь препятствия или запрещает
+        /// дальнейшее движение когда это необходимо</para>
         /// </summary>
         /// <param name="direction">- направление движения (вверх/вниз/вправо/влево)</param>
-        /// <param name="dt">- дельта времени одного игрового такта</param>
+        /// <param name="dt">- дельта времени, затраченное на прошлый игровой такт</param>
         void move(enum Direction direction, float dt);
 
         /// <summary>
@@ -47,67 +55,132 @@ class Tank : public GameObject
         /// <returns></returns>
         void calculateFrontCellPosition(float& x, float& y);
 
-        ///////////////////////////////////////////////////
-        // Сеттеры/Геттеры
 
+        /// <summary>
+        /// Установка времени перезарядки орудия танка
+        /// </summary>
+        /// <param name="cooldownTime">- время перезарядки</param>
         void setFireCooldownTime(float cooldownTime) { _fireCooldownTime = cooldownTime; }
+        /// <summary>
+        /// Получение времени перезарядки орудия танка
+        /// </summary>
+        /// <returns>Возвращает время перезарядки орудия</returns>
         float getFireCooldownTime() { return _fireCooldownTime; }
 
+        /// <summary>
+        /// Установка максимальной скорости танка
+        /// </summary>
+        /// <param name="maxSpeed">- максимальная скорость танка</param>
         void setMaxSpeed(float maxSpeed) { _maxSpeed = maxSpeed; }
+        /// <summary>
+        /// Получение максимальной скорости танка
+        /// </summary>
+        /// <returns>Возвращает максимальную скорость танка</returns>
         float getMaxSpeed() { return _maxSpeed; }
 
+        /// <summary>
+        /// Установка величины ускорения танка
+        /// </summary>
+        /// <param name="speedup">- значение величины ускорения танка</param>
         void setSpeedup(float speedup) { _speedup = speedup; }
+        /// <summary>
+        /// Получение величины ускорения танка
+        /// </summary>
+        /// <returns>Возвращает величину ускорения танка</returns>
         float getSpeedup() { return _speedup; }
 
+        /// <summary>
+        /// Установка текущей скорости танка
+        /// </summary>
+        /// <param name="currentSpeed">- устанавливаемая скорость танка</param>
         void setCurrentSpeed(float currentSpeed) { _currentSpeed = currentSpeed; }
+        /// <summary>
+        /// Получение текущей скорости танка
+        /// </summary>
+        /// <returns>Возвращает текущую скорость танка</returns>
         float getCurrentSpeed() { return _currentSpeed; }
 
+        /// <summary>
+        /// Установка скорости торможения танка
+        /// </summary>
+        /// <param name="brakingSpeed">- устанавливаемая скорость торможения</param>
         void setBrakingSpeed(float brakingSpeed) { _brakingSpeed = brakingSpeed; }
+        /// <summary>
+        /// Получение скорости торможения танка
+        /// </summary>
+        /// <returns>Возвращает скорость торможения танка</returns>
         float getBrakingSpeed() { return _brakingSpeed; }
 
+        /// <summary>
+        /// Установка половины разницы между шириной и высотой габаритов танка
+        /// </summary>
+        /// <param name="offset">- устанавливаемая разница между
+        /// шириной и высотой</param>
         void setOffset(float offset) { _offset = offset; }
+        /// <summary>
+        /// Получение половины разницы между шириной и высотой габаритов танка
+        /// </summary>
+        /// <returns>Возвращает разницу между
+        /// шириной и высотой габаритов танка</returns>
         float getOffset() { return _offset; }
 
-        void setRotation(bool rotation) { _rotation = rotation; }
+        /// <summary>
+        /// Получение статуса: вращается танк или нет
+        /// </summary>
+        /// <returns>Возвращает true если танк производит поворот,
+        /// false если нет</returns>
         bool getRotation() { return _rotation; }
 
+        /// <summary>
+        /// Установка времени, затрачиваемого на поворот танка
+        /// </summary>
+        /// <param name="rotationTime">- устанавливаемое время,
+        /// за которое танк повернется на 90 градусов</param>
         void setRotationTime(float rotationTime) { _rotationTime = rotationTime; }
+        /// <summary>
+        /// Получение времени, затрачиваемого на поворот танка
+        /// </summary>
+        /// <returns>Возвращает время, за которое
+        /// танк должен повернуться на 90 градусов</returns>
         float getRotationTime() { return _rotationTime; }
-
-        void setRotationAngle(float rotationAngle) { _rotationAngle = rotationAngle; }
-        float getRotationAngle() { return _rotationAngle; }
-
-        void setOldDirection(enum Direction oldDirection) { _oldDirection = oldDirection; }
-        enum Direction getOldDirection() { return _oldDirection; }
 
     private:
         /// <summary>
-        /// Метод уклонения от боковых препятствий на пути танка
+        /// Метод обхода препятствий танком, которые расположены либо
+        /// перед передними катками с одной из сторон, либо
+        /// когда они расположены сбоку от заднего катка
         /// </summary>
-        /// <returns>Возвращает True если одна из гусениц упирается в преграду перед танком</returns>
+        /// <returns>Возвращает true если преграда есть
+        /// и танк его пытается миновать</returns>
         bool bypassObstruction();
 
         /// <summary>
         /// Вращение спрайта танка на 90 или 180 градусов
         /// </summary>
-        /// <param name="dt">- дельта времени одного игрового такта</param>
-        /// <returns>Если происходит разворот танка возвращает True.
-        /// Если танк уже развёрнут в нужном направлении или
-        /// только закончил разворот, возвращает False</returns>
+        /// <param name="dt">- дельта времени, затраченное на прошлый игровой такт</param>
+        /// <returns>Пока спрайт вращается, возвращает true. 
+        /// <para>Как только спрайт установился на градус
+        /// текущего направления движения танка, возвращает false</para></returns>
         bool spriteRotation(float dt);
 
+        /// <summary>
+        /// Метод, обеспечивающий поворот танка на 90 или 180 градусов
+        /// <para>Как только произошла смена направления движения на 90 градусов,
+        ///  происходит обновление габаритов танка и его основной координатной точки</para>
+        /// </summary>
+        /// <param name="dt">- дельта времени, затраченного на предыдущий игровой такт</param>
         void rotation(float dt);
 
         /// <summary>
-        /// Отрисовка вращения траков путем смены спрайта.
+        /// Отрисовка движения траков путем смены спрайта.
         /// Чем выше скорость танка, тем чаще меняется спрайт.
         /// </summary>
         void renderTracksMoving();
 
         /// <summary>
-        /// Метод снижает скорость танка
+        /// Метод снижает указанную в аргументе скорость
         /// </summary>
-        /// <param name="speed">- скорость танка</param>
+        /// <param name="speed">- скорость, которую нужно снизить</param>
         /// <param name="dt">- дельта времени одного игрового такта</param>
         /// <returns>Возвращает уменьшенную скорость</returns>
         float setBrakingSpeed(float speed, float dt);
@@ -131,7 +204,7 @@ class Tank : public GameObject
         bool _rotation{false};
         /// <summary>Время в секундах, за которое танк повернётся на 90 градусов</summary>
         float _rotationTime{0.0f};
-        /// <summary>Текущий установленный угол ориентации танка</summary>
+        /// <summary>Текущий установленный угол ориентации спрайта танка</summary>
         float _rotationAngle{0.0f};
         /// <summary>Направление, по которому ведётся поворот танка 
         /// (true - по часовой, false - против)</summary>
@@ -140,8 +213,9 @@ class Tank : public GameObject
         /// <summary>Текущее пройденное расстояние с прошлой смены спрайта траков</summary>
         float _currentTrackShift{0.0f};
 
-        /// <summary>Предыдущее направление движения до поворота танка.
-        /// После поворота приравнивается к текущему направлению движения</summary>
+        /// <summary>Предыдущее направление движения к началу поворота танка.
+        /// <para>При успешной смене габаритов и координатной точки,
+        /// приравнивается к новому направлению движения</para></summary>
         enum Direction _oldDirection{Direction::UP};
         /// <summary>Направление инерции танка.
         /// Соответствует прошлому направлению, перпендикулярно направленному к текущему</summary>

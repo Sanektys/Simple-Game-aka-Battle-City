@@ -4,6 +4,10 @@
 #include "Utils.h"
 
 
+// Скорость выталкивания объекта из другого объекта
+const float SHIFT_SPEED{0.5f};
+
+
 GameObject::GameObject(const class Game& game) : _game(game) {
     _group = GameObjectGroup::NONE;
     _type = GameObjectType::NONE;
@@ -38,10 +42,12 @@ void GameObject::update(float dt) {
         case GameObjectType::TANK_FIRST_PLAYER :
         case GameObjectType::TANK_SECOND_PLAYER : {
             // Если в данный момент объект не проходит намеренно сквозь другой объект
-            if (!getInBypass())
+            if (!getInBypass()) {
                 // То произвести проверку на коллизию
-                _isSticking = bool(getGame().checkIntersects(getX(), getY(),
-                                                             getWidth(), getHeight(), this));
+                _isSticking = bool(
+                    getGame().checkIntersects(getX(), getY(),
+                                              getWidth(), getHeight(), this));
+            }
             // Если объект застрял в другом объекте
             if (getIsSticking())
                 escapeSticking();
@@ -99,8 +105,6 @@ void GameObject::escapeSticking() {
 
     // Две соседние четверти одновременно имеют коллизию
     bool primarySet{false};
-    // Скорость выталкивания объекта из другого объекта
-    const float SHIFT_SPEED{0.5f};
 
     // Первичные проверки на то, что две соседние части объекта
     // находятся внутри других объектов

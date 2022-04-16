@@ -48,34 +48,6 @@ void Tank::update(float dt) {
 void Tank::render(sf::RenderWindow* rw) {
     renderTracksMoving();
 
-    /////////////////////////////////////
-    /*using level::PIXELS_PER_CELL;
-    float x{0.0f};
-    float y{0.0f};
-    calculateFrontCellPosition(x, y);
-    sf::RectangleShape pick;
-    pick.setFillColor(sf::Color(255, 0, 0));
-    switch (getDirection()) {
-        case Direction::UP : 
-            pick.setSize(sf::Vector2f(1.0f, 100.0f));
-            pick.setPosition(x * PIXELS_PER_CELL - 0.5f, y * PIXELS_PER_CELL - 100.0f);
-            break;
-        case Direction::DOWN :
-            pick.setSize(sf::Vector2f(1.0f, 100.0f));
-            pick.setPosition(x * PIXELS_PER_CELL - 0.5f, y * PIXELS_PER_CELL);
-            break;
-        case Direction::RIGHT :
-            pick.setSize(sf::Vector2f(100.0f, 1.0f));
-            pick.setPosition(x * PIXELS_PER_CELL, y * PIXELS_PER_CELL - 0.5f);
-            break;
-        case Direction::LEFT :
-            pick.setSize(sf::Vector2f(100.0f, 1.0f));
-            pick.setPosition(x * PIXELS_PER_CELL - 100.0f, y * PIXELS_PER_CELL - 0.5f);
-            break;
-    }
-    rw->draw(pick);*/
-    /////////////////////////////////////
-
     GameObject::render(rw);
 }
 
@@ -199,6 +171,10 @@ void Tank::move(enum Direction direction, float dt) {
                     if (_rotation)
                         _currentSpeed = setBrakingSpeed(-getYSpeed(), dt);
                     setYSpeed(-_currentSpeed);
+                    // ≈сли есть инерци€ по перпендикул€рному направлению,
+                    // то проверить, можно ли отключить коллизию дл€ задних катков
+                    if (std::abs(getXSpeed()) != 0.0f)
+                        setInBypass(bypassObstruction());
                     break;
 
                 case Direction::DOWN :
@@ -207,6 +183,8 @@ void Tank::move(enum Direction direction, float dt) {
                     if (_rotation)
                         _currentSpeed = setBrakingSpeed(getYSpeed(), dt);
                     setYSpeed(_currentSpeed);
+                    if (std::abs(getXSpeed()) != 0.0f)
+                        setInBypass(bypassObstruction());
                     break;
 
                 case Direction::RIGHT :
@@ -215,6 +193,8 @@ void Tank::move(enum Direction direction, float dt) {
                     if (_rotation)
                         _currentSpeed = setBrakingSpeed(getXSpeed(), dt);
                     setXSpeed(_currentSpeed);
+                    if (std::abs(getYSpeed()) != 0.0f)
+                        setInBypass(bypassObstruction());
                     break;
 
                 case Direction::LEFT :
@@ -223,6 +203,8 @@ void Tank::move(enum Direction direction, float dt) {
                     if (_rotation)
                         _currentSpeed = setBrakingSpeed(-getXSpeed(), dt);
                     setXSpeed(-_currentSpeed);
+                    if (std::abs(getYSpeed()) != 0.0f)
+                        setInBypass(bypassObstruction());
                     break;
 
                 default :
@@ -275,61 +257,53 @@ bool Tank::bypassObstruction() {
     // центральна€ зона передней части танка
     CoordPoint middlePoint;
 
-    float size = 0.0f;
-
     // »значальный размер берЄтс€ по меньшей стороне танка (по переду танка)
-    if (getHeight() < getWidth())
-        size = getHeight();
-    else
-        size = getWidth();
+    float size = getHeight() < getWidth() ? getHeight() : getWidth();
 
     // √абариты зон квадратные, берутс€ за треть меньшей стороны танка
-    firstSidewardPoint.width = size / 3.0f;
-    firstSidewardPoint.height = size / 3.0f;
-    secondSidewardPoint.width = size / 3.0f;
-    secondSidewardPoint.height = size / 3.0f;
-    middlePoint.width = size / 3.0f;
-    middlePoint.height = size / 3.0f;
+    firstSidewardPoint.width  = firstSidewardPoint.height  = size / 3.0f;
+    secondSidewardPoint.width = secondSidewardPoint.height = size / 3.0f;
+    middlePoint.width         =  middlePoint.height        = size / 3.0f;
 
     // ¬ зависимости от направлени€, точки устанавливаютс€ точно на лобовую часть танка
     // с небольшим смещением в сторону оруди€
     switch (getDirection()) {
-        case Direction::UP : {
-            firstSidewardPoint.coordX = getX();
-            firstSidewardPoint.coordY = getY() - 0.1f;
+        case Direction::UP :
+            firstSidewardPoint.coordX  = getX();
             secondSidewardPoint.coordX = getX() + getWidth() - secondSidewardPoint.width;
-            secondSidewardPoint.coordY = getY() - 0.1f;
-            middlePoint.coordX = getX() + middlePoint.width;
-            middlePoint.coordY = getY() - 0.1f;
+            middlePoint.coordX         = getX() + middlePoint.width;
+
+            firstSidewardPoint.coordY = secondSidewardPoint.coordY
+                = middlePoint.coordY  = getY() - 0.1f;
             break;
-        }
-        case Direction::RIGHT : {
-            firstSidewardPoint.coordX = getX() + getWidth() - firstSidewardPoint.width + 0.1f;
-            firstSidewardPoint.coordY = getY();
-            secondSidewardPoint.coordX = getX() + getWidth() - secondSidewardPoint.width + 0.1f;
+
+        case Direction::RIGHT :
+            firstSidewardPoint.coordY  = getY();
             secondSidewardPoint.coordY = getY() + getHeight() - secondSidewardPoint.height;
-            middlePoint.coordX = getX() + getWidth() - middlePoint.width + 0.1f;
-            middlePoint.coordY = getY() + middlePoint.height;
+            middlePoint.coordY         = getY() + middlePoint.height;
+
+            firstSidewardPoint.coordX = secondSidewardPoint.coordX
+                = middlePoint.coordX  = getX() + getWidth() - middlePoint.width + 0.1f;
             break;
-        }
-        case Direction::DOWN : {
-            firstSidewardPoint.coordX = getX();
-            firstSidewardPoint.coordY = getY() + getHeight() - firstSidewardPoint.height + 0.1f;
+
+        case Direction::DOWN :
+            firstSidewardPoint.coordX  = getX();
             secondSidewardPoint.coordX = getX() + getWidth() - secondSidewardPoint.width;
-            secondSidewardPoint.coordY = getY() + getHeight() - secondSidewardPoint.height + 0.1f;
-            middlePoint.coordX = getX() + middlePoint.width;
-            middlePoint.coordY = getY() + getHeight() - middlePoint.height + 0.1f;
+            middlePoint.coordX         = getX() + middlePoint.width;
+
+            firstSidewardPoint.coordY = secondSidewardPoint.coordY
+                = middlePoint.coordY  = getY() + getHeight() - middlePoint.height + 0.1f;
             break;
-        }
-        case Direction::LEFT : {
-            firstSidewardPoint.coordX = getX() - 0.1f;
-            firstSidewardPoint.coordY = getY();
-            secondSidewardPoint.coordX = getX() - 0.1f;
+
+        case Direction::LEFT :
+            firstSidewardPoint.coordY  = getY();
             secondSidewardPoint.coordY = getY() + getHeight() - secondSidewardPoint.height;
-            middlePoint.coordX = getX() - 0.1f;
-            middlePoint.coordY = getY() + middlePoint.height;
+            middlePoint.coordY         = getY() + middlePoint.height;
+
+            firstSidewardPoint.coordX = secondSidewardPoint.coordX
+                = middlePoint.coordX  = getX() - 0.1f;
             break;
-        }
+
         default :
             break;
     }
@@ -347,11 +321,59 @@ bool Tank::bypassObstruction() {
                                   middlePoint.width, middlePoint.height,
                                   this));
 
-    if (!firstPointIntersects && !secondPointIntersects)
+    // ƒополнительные две точки на заднюю половину танка, дл€ избежани€ резкой
+    // остановки на дрифте после поворота, от столкновени€ с преп€тствием на задний каток
+    CoordPoint firstBackPoint, secondBackPoint;
+    switch (getDirection()) {
+        case Direction::UP :
+            firstBackPoint.setCoordPoint (this, TypeCoordPoint::BOTTOM_LEFT);
+            firstBackPoint.coordX  -= 0.1f;  // “очки слегка выпирают по бортам танка
+
+            secondBackPoint.setCoordPoint(this, TypeCoordPoint::BOTTOM_RIGHT);
+            secondBackPoint.coordX += 0.1f;
+            break;
+
+        case Direction::RIGHT :
+            firstBackPoint.setCoordPoint (this, TypeCoordPoint::TOP_LEFT);
+            firstBackPoint.coordY  -= 0.1f;
+
+            secondBackPoint.setCoordPoint(this, TypeCoordPoint::BOTTOM_LEFT);
+            secondBackPoint.coordY += 0.1f;
+            break;
+
+        case Direction::DOWN :
+            firstBackPoint.setCoordPoint (this, TypeCoordPoint::TOP_LEFT);
+            firstBackPoint.coordX  -= 0.1f;
+
+            secondBackPoint.setCoordPoint(this, TypeCoordPoint::TOP_RIGHT);
+            secondBackPoint.coordX += 0.1f;
+            break;
+
+        case Direction::LEFT :
+            firstBackPoint.setCoordPoint (this, TypeCoordPoint::TOP_RIGHT);
+            firstBackPoint.coordY  -= 0.1f;
+
+            secondBackPoint.setCoordPoint(this, TypeCoordPoint::BOTTOM_RIGHT);
+            secondBackPoint.coordY += 0.1f;
+            break;
+    }
+
+    bool firstBackIntersects  = bool(
+        getGame().checkIntersects(firstBackPoint.coordX, firstBackPoint.coordY,
+                                  firstBackPoint.width, firstBackPoint.height,
+                                  this));
+    bool secondBackIntersects = bool(
+        getGame().checkIntersects(secondBackPoint.coordX, secondBackPoint.coordY,
+                                  secondBackPoint.width, secondBackPoint.height,
+                                  this));
+
+    // ¬ообще нет коллизии с другими объектами
+    if (!firstPointIntersects && !secondPointIntersects
+        && !firstBackIntersects && !secondBackIntersects)
         return false;
 
     // ≈сли непосредственно под орудием есть объект-помеха,
-    // то смещать танк бессмысленно
+    // то смещать его бессмысленно
     if (middlePointIntersects)
         return false;
 
@@ -360,66 +382,173 @@ bool Tank::bypassObstruction() {
     if (firstPointIntersects && secondPointIntersects)
         return false;
 
-    float shiftSpeed = 0.6f;
+    const float SHIFT_SPEED{0.6f};  // —корость смещени€ танка от преп€тстви€
+    bool inBypass{false};  // ѕроисходит ли движение сквозь преп€тствие
 
     // ѕроизвести движение вбок от преп€тстви€
     if (firstPointIntersects) {
         switch (getDirection()) {
-            case Direction::UP : {
-                if (getXSpeed() < shiftSpeed)
-                    setXSpeed(shiftSpeed);
+            case Direction::UP :
+                if (getXSpeed() < SHIFT_SPEED)
+                    setXSpeed(SHIFT_SPEED);
                 break;
-            }
-            case Direction::RIGHT : {
-                if (getYSpeed() < shiftSpeed)
-                    setYSpeed(shiftSpeed);
+
+            case Direction::RIGHT :
+                if (getYSpeed() < SHIFT_SPEED)
+                    setYSpeed(SHIFT_SPEED);
                 break;
-            }
-            case Direction::DOWN : {
-                if (getXSpeed() < shiftSpeed)
-                    setXSpeed(shiftSpeed);
+
+            case Direction::DOWN :
+                if (getXSpeed() < SHIFT_SPEED)
+                    setXSpeed(SHIFT_SPEED);
                 break;
-            }
-            case Direction::LEFT : {
-                if (getYSpeed() < shiftSpeed)
-                    setYSpeed(shiftSpeed);
+
+            case Direction::LEFT :
+                if (getYSpeed() < SHIFT_SPEED)
+                    setYSpeed(SHIFT_SPEED);
                 break;
-            }
+
             default :
                 break;
         }
-        return true;
+        inBypass = true;
     }
 
     if (secondPointIntersects) {
         switch (getDirection()) {
-            case Direction::UP : {
-                if (getXSpeed() > -shiftSpeed)
-                    setXSpeed(-shiftSpeed);
+            case Direction::UP :
+                if (getXSpeed() > -SHIFT_SPEED)
+                    setXSpeed(-SHIFT_SPEED);
                 break;
-            }
-            case Direction::RIGHT : {
-                if (getYSpeed() > -shiftSpeed)
-                    setYSpeed(-shiftSpeed);
+
+            case Direction::RIGHT :
+                if (getYSpeed() > -SHIFT_SPEED)
+                    setYSpeed(-SHIFT_SPEED);
                 break;
-            }
-            case Direction::DOWN : {
-                if (getXSpeed() > -shiftSpeed)
-                    setXSpeed(-shiftSpeed);
+
+            case Direction::DOWN :
+                if (getXSpeed() > -SHIFT_SPEED)
+                    setXSpeed(-SHIFT_SPEED);
                 break;
-            }
-            case Direction::LEFT : {
-                if (getYSpeed() > -shiftSpeed)
-                    setYSpeed(-shiftSpeed);
+
+            case Direction::LEFT :
+                if (getYSpeed() > -SHIFT_SPEED)
+                    setYSpeed(-SHIFT_SPEED);
                 break;
-            }
+
             default :
                 break;
         }
-        return true;
+        inBypass = true;
+    }
+    
+    // ƒвижение задних катков через преп€тствие
+
+    bool hasObstacleAhead = middlePointIntersects
+                            || (firstPointIntersects && secondPointIntersects);
+
+    // ≈сли обе задние части бортов имеют пересечение с помехами,
+    // то не обрабатывать прохождение сквозь эти помехи
+    if (firstBackIntersects && secondBackIntersects)
+        return inBypass;
+
+    // ≈сли есть пересечение с помехами у борта и у переднего катка,
+    // то не обрабатывать прохождение сквозь помехи у задних катков
+    if ((firstBackIntersects || secondBackIntersects)
+        && (firstPointIntersects || secondPointIntersects))
+        return inBypass;
+
+    if (firstBackIntersects) {
+        switch (getDirection()) {
+            case Direction::UP :
+                if (hasObstacleAhead) {
+                    if (getXSpeed() < SHIFT_SPEED)
+                        setXSpeed(SHIFT_SPEED);
+                } else {
+                    if (getYSpeed() > -SHIFT_SPEED)
+                        setYSpeed(-SHIFT_SPEED);
+                }
+                break;
+
+            case Direction::RIGHT :
+                if (hasObstacleAhead) {
+                    if (getYSpeed() < SHIFT_SPEED)
+                        setYSpeed(SHIFT_SPEED);
+                } else {
+                    if (getXSpeed() < SHIFT_SPEED)
+                        setXSpeed(SHIFT_SPEED);
+                }
+                break;
+
+            case Direction::DOWN :
+                if (hasObstacleAhead) {
+                    if (getXSpeed() < SHIFT_SPEED)
+                        setXSpeed(SHIFT_SPEED);
+                } else {
+                    if (getYSpeed() < SHIFT_SPEED)
+                        setYSpeed(SHIFT_SPEED);
+                }
+                break;
+
+            case Direction::LEFT :
+                if (hasObstacleAhead) {
+                    if (getYSpeed() < SHIFT_SPEED)
+                        setYSpeed(SHIFT_SPEED);
+                } else {
+                    if (getXSpeed() > -SHIFT_SPEED)
+                        setXSpeed(-SHIFT_SPEED);
+                }
+                break;
+        }
+        inBypass = true;
     }
 
-    return false;
+    if (secondBackIntersects) {
+        switch (getDirection()) {
+            case Direction::UP :
+                if (hasObstacleAhead) {
+                    if (getXSpeed() > -SHIFT_SPEED)
+                        setXSpeed(-SHIFT_SPEED);
+                } else {
+                    if (getYSpeed() > -SHIFT_SPEED)
+                        setYSpeed(-SHIFT_SPEED);
+                }
+                break;
+
+            case Direction::RIGHT :
+                if (hasObstacleAhead) {
+                    if (getYSpeed() > -SHIFT_SPEED)
+                        setYSpeed(-SHIFT_SPEED);
+                } else {
+                    if (getXSpeed() < SHIFT_SPEED)
+                        setXSpeed(SHIFT_SPEED);
+                }
+                break;
+
+            case Direction::DOWN :
+                if (hasObstacleAhead) {
+                    if (getXSpeed() > -SHIFT_SPEED)
+                        setXSpeed(-SHIFT_SPEED);
+                } else {
+                    if (getYSpeed() < SHIFT_SPEED)
+                        setYSpeed(SHIFT_SPEED);
+                }
+                break;
+
+            case Direction::LEFT :
+                if (hasObstacleAhead) {
+                    if (getYSpeed() > -SHIFT_SPEED)
+                        setYSpeed(-SHIFT_SPEED);
+                } else {
+                    if (getXSpeed() > -SHIFT_SPEED)
+                        setXSpeed(-SHIFT_SPEED);
+                }
+                break;
+        }
+        inBypass = true;
+    }
+
+    return inBypass;
 }
 
 

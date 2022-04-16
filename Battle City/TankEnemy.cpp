@@ -44,8 +44,8 @@ void TankEnemy::ai(float dt) {
     bool isChangeDirection{false};
     if (_changeDirectionPauseTime <= 0.0f && getDirection() == Direction::NONE) {
         _changeDirectionPauseTime = 1.0f;
-        // 12.5% - вероятность изменения направления
-        isChangeDirection = (*RANDOM)() % 8 == 0;
+        // 20% - вероятность изменения направления
+        isChangeDirection = (*RANDOM)() % 5 == 0;
     } else {
         _changeDirectionPauseTime -= dt;
     }
