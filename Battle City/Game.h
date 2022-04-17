@@ -22,7 +22,7 @@ class Game
     public :
         friend class Interface;
 
-        Game() {}
+        Game() { _terrainCollision.fill(nullptr); }
         ~Game();
 
         /// <summary>
@@ -133,7 +133,22 @@ class Game
         /// что зависят от времени выполнения</param>
         void update(float dt);
 
+        /// <summary>
+        /// Закрепление объекта-владельца из объектов окружения
+        /// за определённым квадратом 1x1 на карте
+        /// <para>(Вся игровая карта условно поделена на одинаковые квадраты,
+        /// для ускорения нахождения объектов при коллизии)</para>
+        /// </summary>
+        /// <param name="owner">- указатель на объект игрового окружения, за которым числится этот квадрат игровой карты</param>
+        /// <param name="order">- порядок, в котором следует объект игрового окружения на карте</param>
+        void addCollisionCell(std::unique_ptr<GameObject>* owner, int order);
+
     private :
+        // Массив указателей на объекты игрового окружения, отсортированный по их
+        // расположению на игровом поле, по которому производится проверка коллизии
+        std::array<std::unique_ptr<GameObject>*, level::COLUMNS * level::ROWS>
+            _terrainCollision;
+
         // Массив указателей на все объекты игрового окружения
         mutable std::array<std::unique_ptr<GameObject>, TERRAIN_OBJECTS_COUNT_MAX>
             _objectsTerrain;

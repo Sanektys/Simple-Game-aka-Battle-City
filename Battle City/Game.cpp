@@ -69,22 +69,23 @@ void Game::initialize() {
     for (int r = 0; r < level::ROWS; r++) {
         for (int c = 0; c < level::COLUMNS; c++) {
             unsigned char cellSymbol = level::FIRST_MAP[r][c];
+            std::unique_ptr<GameObject>* terrainObject{nullptr};
 
             switch (cellSymbol) {
                 case level::SYMBOL_BRICK_WALL :
-                    createObject(GameObjectType::WALL, (float)c, (float)r);
+                    terrainObject = &createObject(GameObjectType::WALL, (float)c, (float)r);
                     break;
 
                 case level::SYMBOL_SOLID_WALL :
-                createObject(GameObjectType::SOLID_WALL, (float)c, (float)r);
+                    terrainObject = &createObject(GameObjectType::SOLID_WALL, (float)c, (float)r);
                     break;
                     
                 case level::SYMBOL_STEEL_WALL :
-                    createObject(GameObjectType::STEEL_WALL, (float)c, (float)r);
+                    terrainObject = &createObject(GameObjectType::STEEL_WALL, (float)c, (float)r);
                     break;
     
                 case level::SYMBOL_BASE :
-                    _base = &createObject(GameObjectType::BASE, (float)c, (float)r);
+                    terrainObject = _base = &createObject(GameObjectType::BASE, (float)c, (float)r);
                     break;
     
                 case level::SYMBOL_PLAYER_1 :
@@ -101,6 +102,28 @@ void Game::initialize() {
                     createObject(GameObjectType::ENEMY_SPAWNER, (float)c, (float)r);
                     break;
             }
+            addCollisionCell(terrainObject, r * level::COLUMNS + c);
+        }
+    }
+}
+
+void Game::addCollisionCell(std::unique_ptr<GameObject>* owner, int order) {
+    if (owner != nullptr && *owner) {
+        int row{0}, column{0};
+        int x{0}, y{0};
+
+        // Габариты всех объектов игрового окружения целочисленные
+        // Следовательно, пройтись по всей площади объекта, установив все
+        // занимаемые им квадраты игрового поля и закрепить их за ним
+        while (++row <= int((*owner)->getHeight())) {
+            while (++column <= int((*owner)->getWidth())) {
+                x = int((*owner)->getX()) + column - 1;
+                y = int((*owner)->getY()) + row - 1;
+
+                // Индекс массива - положение квадрата в пространстве
+                _terrainCollision[y * level::COLUMNS + x] = owner;
+            }
+            column = 0;
         }
     }
 }
@@ -168,6 +191,9 @@ void Game::shutdown() {
     for (auto& pointer : _objectsEntity)
         if (pointer)
             pointer.reset();
+
+    for (auto& cell : _terrainCollision)
+        cell = nullptr;
 }
 
 void Game::render() {
@@ -248,38 +274,54 @@ std::unique_ptr<GameObject>& Game::checkIntersects(
     float overallCoordY = primaryCoordY + height - 0.00001f;
     float overallCoordX = primaryCoordX + width  - 0.00001f;
 
-    if (GameObjectGroup::ALL == group || GameObjectGroup::TERRAIN == group)
-        for (auto& pointer : _objectsTerrain)
-            if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
-                float pcY = pointer->getY();
-                float pcX = pointer->getX();
-                float ocY = pcY + pointer->getHeight() - 0.00001f;
-                float ocX = pcX + pointer->getWidth()  - 0.00001f;
+    if (GameObjectGroup::ALL == group || GameObjectGroup::TERRAIN == group) {
+        std::unique_ptr<GameObject>* pointer{nullptr};
+        // Значение, определяющее с какого индекса начинается горизонталь квадратов,
+        // на котором находится основная координатная точка объекта
+        unsigned primaryY{unsigned(y) * level::COLUMNS};
+        // Значение, определяющее на каком индексе находится правый нижний угол объекта
+        unsigned finalCoordX{unsigned(overallCoordY) * level::COLUMNS
+                             + unsigned(overallCoordX)};
 
-                bool conditionOne = primaryCoordY   <= ocY;
-                bool conditionTwo = overallCoordY   >= pcY;
-                bool conditionThree = primaryCoordX <= ocX;
-                bool conditionFour = overallCoordX  >= pcX;
-            
-                if (conditionOne && conditionTwo && conditionThree && conditionFour)
-                    return pointer;    // При пересечении вернуть указатель объект-помеху
-            }
-    if (GameObjectGroup::ALL == group || GameObjectGroup::ENTITY == group)
+        for (size_t i{primaryY + unsigned(x)}; ; ) {
+            // Если индекс квадрата не ушёл за правую верхнюю точку объекта
+            if (i <= primaryY + unsigned(overallCoordX)) {
+                pointer = _terrainCollision[i];
+                if (pointer != nullptr && *pointer
+                    && &**pointer != exceptObject && (**pointer).getPhysical()) {
+                    return *pointer;  // Вернуть объект-помеху
+                } else {
+                    i++;
+                    continue;
+                }
+            } else if (i <= finalCoordX) {
+                primaryY += level::COLUMNS;  // Переход на следующую горизонталь квадратов
+                i = primaryY + unsigned(x);
+            } else
+                break;  // Объекта-помехи нет, пересечение отсутствует
+        }
+    }
+    if (GameObjectGroup::ALL == group || GameObjectGroup::ENTITY == group) {
+        float pcY{0.0f}, pcX{0.0f}, ocY{0.0f}, ocX{0.0f};
+        bool conditionOne  {false}, conditionTwo {false},
+             conditionThree{false}, conditionFour{false};
+
         for (auto& pointer : _objectsEntity)
             if (pointer && &*pointer != exceptObject && pointer->getPhysical()) {
-                float pcY = pointer->getY();
-                float pcX = pointer->getX();
-                float ocY = pcY + pointer->getHeight() - 0.00001f;
-                float ocX = pcX + pointer->getWidth()  - 0.00001f;
+                pcY = pointer->getY();
+                pcX = pointer->getX();
+                ocY = pcY + pointer->getHeight() - 0.00001f;
+                ocX = pcX + pointer->getWidth()  - 0.00001f;
 
-                bool conditionOne = primaryCoordY   <= ocY;
-                bool conditionTwo = overallCoordY   >= pcY;
-                bool conditionThree = primaryCoordX <= ocX;
-                bool conditionFour = overallCoordX  >= pcX;
-            
+                conditionOne   = primaryCoordY <= ocY;
+                conditionTwo   = overallCoordY >= pcY;
+                conditionThree = primaryCoordX <= ocX;
+                conditionFour  = overallCoordX >= pcX;
+
                 if (conditionOne && conditionTwo && conditionThree && conditionFour)
-                    return pointer;    // При пересечении вернуть указатель объект-помеху
+                    return pointer;  // При пересечении вернуть указатель объект-помеху
             }
+    }
 
     return returnObject;
 }
