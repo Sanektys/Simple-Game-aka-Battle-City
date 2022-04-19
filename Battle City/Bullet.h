@@ -3,6 +3,9 @@
 #include "GameObject.h"
 
 
+class BulletTracer;
+
+
 /// <summary>
 /// Класс базового снаряда
 /// </summary>
@@ -15,7 +18,15 @@ class Bullet : public GameObject
                enum Direction direction = Direction(0),
                float speedX = 0.0f, float speedY = 0.0f,
                enum GameObjectType onwer = GameObjectType(0));
-        ~Bullet() override {}
+        ~Bullet() override;
+
+        /// <summary>
+        /// Метод обновления состояния снаряда,
+        /// включая создание трассера, следующего за снарядом
+        /// </summary>
+        /// <param name="dt">- дельта времени,
+        /// затраченного на предыдущий игровой такт</param>
+        void update(float dt) override;
 
         /// <summary>
         /// Метод, определяющий поведение объекта снаряда при коллизии
@@ -61,4 +72,13 @@ class Bullet : public GameObject
     private :
         // Тип объекта, что выпустил данный снаряд
         enum GameObjectType _ownerType;
+
+        // Указатели на три объекта трассера снаряда
+        
+        class BulletTracer* _firstTracer {nullptr};
+        class BulletTracer* _secondTracer{nullptr};
+        class BulletTracer* _thirdTracer {nullptr};
+
+        // Дистанция, которую пролетел снаряд
+        float _spanDistance{0.0f};
 };

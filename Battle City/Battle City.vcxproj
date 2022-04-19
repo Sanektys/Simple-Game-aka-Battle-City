@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClInclude Include="Base.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="BulletTracer.h" />
     <ClInclude Include="CoordPoint.h" />
     <ClInclude Include="Direction.h" />
     <ClInclude Include="EnemySpawner.h" />
@@ -153,6 +154,7 @@
   <ItemGroup>
     <ClCompile Include="Base.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="BulletTracer.cpp" />
     <ClCompile Include="CoordPoint.cpp" />
     <ClCompile Include="EnemySpawner.cpp" />
     <ClCompile Include="Game.cpp" />

@@ -6,6 +6,7 @@
 #include "SolidWall.h"
 #include "Base.h"
 #include "Bullet.h"
+#include "BulletTracer.h"
 #include "TankPlayer.h"
 #include "TankEnemy.h"
 #include "EnemySpawner.h"
@@ -265,7 +266,7 @@ void Game::update(float dt) {
 std::unique_ptr<GameObject>& Game::checkIntersects(
     float x, float y, float width, float height,
     class GameObject* exceptObject, enum GameObjectGroup group) const {
-    static std::unique_ptr<GameObject> returnObject;
+    static std::unique_ptr<GameObject> nullObject(nullptr);
 
     // Левый верхний угол входного объекта
     float primaryCoordY = y;
@@ -323,7 +324,7 @@ std::unique_ptr<GameObject>& Game::checkIntersects(
             }
     }
 
-    return returnObject;
+    return nullObject;
 }
 
 bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
@@ -345,13 +346,15 @@ bool Game::moveObjectTo(class GameObject* object, float x, float y) const {
 
     // Проверка на пересечение с другим объектом будто
     // искомый объект уже на новой позиции
-    std::unique_ptr<GameObject>& otherObject{checkIntersects(x, y, object->getWidth(),
-                                                             object->getHeight(), object)};
+    std::unique_ptr<GameObject>* otherObject{nullptr};
+    if (object->getPhysical())
+        otherObject = &checkIntersects(x, y, object->getWidth(),
+                                       object->getHeight(), object);
 
     // Если указатель ненулевой(есть пересечение с другим объектом),
     // то выполнить поведение при столкновении
-    if (otherObject) {
-        object->intersect(&*otherObject);
+    if (otherObject && *otherObject) {
+        object->intersect(&**otherObject);
         object->setYSpeed(0.0f);
         object->setXSpeed(0.0f);
         return false;
@@ -435,6 +438,10 @@ std::unique_ptr<GameObject>& Game::createObject(enum GameObjectType type,
 
         case GameObjectType::BULLET :
             object.reset(new Bullet(*this, level::bullet::basic::IMAGE));
+            break;
+
+        case GameObjectType::BULLET_TRACER :
+            object.reset(new BulletTracer(*this));
             break;
 
         case GameObjectType::ENEMY_SPAWNER :

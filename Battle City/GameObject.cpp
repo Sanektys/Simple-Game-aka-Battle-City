@@ -15,24 +15,21 @@ GameObject::GameObject(const class Game& game) : _game(game) {
 }
 
 void GameObject::render(sf::RenderWindow* rw) {
-    // Если объекту присвоен свой спрайт
-    if (_spriteTerrain || _spriteEntity) {
-        if (_spriteTerrain) {
-            // Помещение спрайта на игровом поле.
-            // Предполагается, что центр спрайта смещён на центр самой текстуры
-            _spriteTerrain->setPosition(getX() * level::PIXELS_PER_CELL
-                                        + (getWidth() * level::PIXELS_PER_CELL) / 2.0f,
-                                        getY() * level::PIXELS_PER_CELL
-                                        + (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
-            rw->draw(*_spriteTerrain);
-        }
-        else if (_spriteEntity) {
-            _spriteEntity->setPosition(getX() * level::PIXELS_PER_CELL
-                                       + (getWidth() * level::PIXELS_PER_CELL) / 2.0f,
-                                       getY() * level::PIXELS_PER_CELL
-                                       + (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
-            rw->draw(*_spriteEntity);
-        }
+    if (_spriteTerrain) {
+        // Помещение спрайта на игровом поле.
+        // Предполагается, что центр спрайта смещён на центр самой текстуры
+        _spriteTerrain->setPosition(getX() * level::PIXELS_PER_CELL
+                                    + (getWidth() * level::PIXELS_PER_CELL) / 2.0f,
+                                    getY() * level::PIXELS_PER_CELL
+                                    + (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
+        rw->draw(*_spriteTerrain);
+    }
+    else if (_spriteEntity) {
+        _spriteEntity->setPosition(getX() * level::PIXELS_PER_CELL
+                                   + (getWidth() * level::PIXELS_PER_CELL) / 2.0f,
+                                   getY() * level::PIXELS_PER_CELL
+                                   + (getHeight() * level::PIXELS_PER_CELL) / 2.0f);
+        rw->draw(*_spriteEntity);
     }
 }
 
@@ -53,7 +50,8 @@ void GameObject::update(float dt) {
                 escapeSticking();
         }
 
-        case GameObjectType::BULLET : {
+        case GameObjectType::BULLET :
+        case GameObjectType::BULLET_TRACER : {
             float oldX = getX();
             float oldY = getY();
 

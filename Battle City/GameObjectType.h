@@ -36,6 +36,7 @@ enum class GameObjectType
     TANK_FIRST_PLAYER,
     TANK_SECOND_PLAYER,
     BULLET,
+    BULLET_TRACER,
 
     ALL = 1000
 };

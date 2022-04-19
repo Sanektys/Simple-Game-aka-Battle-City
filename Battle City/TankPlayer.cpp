@@ -7,7 +7,7 @@ TankPlayer::TankPlayer(const class Game& game, sf::IntRect rect,
                        sf::Keyboard::Key keyFire)
     : Tank(game), _keyLeft(keyLeft), _keyRight(keyRight),
       _keyUp(keyUp), _keyDown(keyDown), _keyFire(keyFire) {
-    setType(GameObjectType::TANK_FIRST_PLAYER);
+    setType(GameObjectType::TANK_SECOND_PLAYER);
 
     setHealth(level::tank::player::HEALTH);
     setMaxSpeed(level::tank::player::SPEED);

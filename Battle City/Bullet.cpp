@@ -1,6 +1,8 @@
 #include "Bullet.h"
+#include "BulletTracer.h"
 #include "GameObjectType.h"
 #include "Level.h"
+#include "Game.h"
 
 
 Bullet::Bullet(const class Game& game, sf::IntRect rect,
@@ -22,6 +24,110 @@ Bullet::Bullet(const class Game& game, sf::IntRect rect,
     _spriteEntity->setOrigin(level::bullet::basic::PIXELS_WIDTH / 2.0f,
                              level::bullet::basic::PIXELS_HEIGHT / 2.0f);
     setTextureRect(rect);
+}
+
+Bullet::~Bullet() {
+    // Сообщение всем имеющимся трассерам, что снаряд уничтожен
+    if (_firstTracer)  _firstTracer->bulletDestroyed();
+    if (_secondTracer) _secondTracer->bulletDestroyed();
+    if (_thirdTracer)  _thirdTracer->bulletDestroyed();
+}
+
+void Bullet::update(float dt) {
+    bool createNewTrace{false};
+    switch (getDirection()) {
+        case Direction::UP :
+        case Direction::DOWN :
+            _spanDistance += std::abs(getYSpeed()) * dt;          
+            break;
+            
+        case Direction::RIGHT :
+        case Direction::LEFT :
+            _spanDistance += std::abs(getXSpeed()) * dt;
+            break;
+
+        default :
+            break;
+    }
+    // Создание трёх трассеров по мере пролёта снаряда
+    if (!_firstTracer && _spanDistance >= BulletTracer::BASIC_HEIGHT)
+        createNewTrace = true;
+    else if (!_secondTracer && _spanDistance >= BulletTracer::BASIC_HEIGHT * 2.0F)
+        createNewTrace = true;
+    else if (!_thirdTracer && _spanDistance >= BulletTracer::BASIC_HEIGHT * 3.0F)
+        createNewTrace = true;
+
+    if (createNewTrace && (!_firstTracer || !_secondTracer || !_thirdTracer)) {
+        float spawnX{0.0f};
+        float spawnY{0.0f};
+
+        switch (getDirection()) {
+            case Direction::UP :
+                if      (!_firstTracer)  spawnY = getY() + getHeight();
+                else if (!_secondTracer) spawnY = getY() + getHeight()
+                                                  + BulletTracer::BASIC_HEIGHT;
+                else if (!_thirdTracer)  spawnY = getY() + getHeight()
+                                                  + BulletTracer::BASIC_HEIGHT * 2.0f;
+
+                spawnX = getX() + getWidth() / 2.0f - BulletTracer::BASIC_WIDTH / 2.0f;
+                break;
+
+            case Direction::DOWN :
+                if      (!_firstTracer)  spawnY = getY() - BulletTracer::BASIC_HEIGHT;
+                else if (!_secondTracer) spawnY = getY() - BulletTracer::BASIC_HEIGHT * 2.0f;
+                else if (!_thirdTracer)  spawnY = getY() - BulletTracer::BASIC_HEIGHT * 3.0f;
+
+                spawnX = getX() + getWidth() / 2.0f - BulletTracer::BASIC_WIDTH / 2.0f;
+                break;
+
+            case Direction::RIGHT :
+                if      (!_firstTracer)  spawnX = getX() - BulletTracer::BASIC_HEIGHT;
+                else if (!_secondTracer) spawnX = getX() - BulletTracer::BASIC_HEIGHT * 2.0f;
+                else if (!_thirdTracer)  spawnX = getX() - BulletTracer::BASIC_HEIGHT * 3.0f;
+
+                spawnY = getY() + getHeight() / 2.0f - BulletTracer::BASIC_WIDTH / 2.0f;
+                break;
+
+            case Direction::LEFT :
+                if      (!_firstTracer)  spawnX = getX() + getWidth();
+                else if (!_secondTracer) spawnX = getX() + getWidth()
+                                                  + BulletTracer::BASIC_HEIGHT;
+                else if (!_thirdTracer)  spawnX = getX() + getWidth()
+                                                  + BulletTracer::BASIC_HEIGHT * 2.0f;
+
+                spawnY = getY() + getHeight() / 2.0f - BulletTracer::BASIC_WIDTH / 2.0f;
+                break;
+
+            default :
+                break;
+        }
+
+        BulletTracer* tracer = dynamic_cast<BulletTracer*>(&*getGame().
+            createObject(GameObjectType::BULLET_TRACER, spawnX, spawnY));
+
+        if (tracer) {
+            tracer->setOwner(this);
+            tracer->setXSpeed(this->getXSpeed());
+            tracer->setYSpeed(this->getYSpeed());
+            tracer->setDirection(this->getDirection());
+
+            if (!_firstTracer) {
+                tracer->setGradation(3);
+                _firstTracer = tracer;
+            }
+            else if (!_secondTracer) {
+                tracer->setGradation(2);
+                _secondTracer = tracer;
+            }
+            else if (!_thirdTracer) {
+                tracer->setGradation(1);
+                _thirdTracer = tracer;
+            }
+            tracer->setShapeRect();  // Финальная установка параметров трассера
+        }
+    }
+
+    GameObject::update(dt);
 }
 
 void Bullet::intersect(class GameObject* object) {
@@ -49,22 +155,20 @@ void Bullet::setTextureRect(sf::IntRect rect) {
         default :
             break;
     }
+    _spriteEntity->setTextureRect(rect);
     // Поворот спрайта на основе направления движения
     // Функция поворачивает по часовой стрелке(а не как в тригонометрии)
     _spriteEntity->setRotation(90.0f * (float)getDirection());
-    _spriteEntity->setTextureRect(rect);
 }
 
 void Bullet::setDirection(enum Direction direction) {
     // Инверсия дефолтных размеров снаряда если он летит по горизонтальной оси
-    switch (getDirection()) {
+    switch (direction) {
         case Direction::LEFT :
         case Direction::RIGHT : {
-            float offset = (getHeight() - getWidth()) / 2.0f;
-            setX(getX() - offset);  // Смещение начальных координат
-            setY(getY() + offset);  // из-за "поворота" габаритов
-            setWidth(level::bullet::basic::HEIGHT);
-            setHeight(level::bullet::basic::WIDTH);
+            float temp{getWidth()};
+            setWidth(getHeight());
+            setHeight(temp);
             break;
         }
 

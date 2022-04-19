@@ -721,13 +721,13 @@ void Tank::fire() {
     switch (getDirection()) {
         case Direction::LEFT :
             bulletSpeedX = -level::bullet::basic::SPEED;
-            bulletPositionY -= (level::bullet::basic::HEIGHT / 2.0f);
-            bulletPositionX -= level::bullet::basic::WIDTH;
+            bulletPositionY -= (level::bullet::basic::WIDTH / 2.0f);
+            bulletPositionX -= level::bullet::basic::HEIGHT;
             break;
 
         case Direction::RIGHT :
             bulletSpeedX = level::bullet::basic::SPEED;
-            bulletPositionY -= (level::bullet::basic::HEIGHT / 2.0f);
+            bulletPositionY -= (level::bullet::basic::WIDTH / 2.0f);
             break;
 
         case Direction::UP :
@@ -769,7 +769,7 @@ void Tank::calculateFrontCellPosition(float& x, float& y) {
         case GameObjectType::TANK_FIRST_PLAYER :
         case GameObjectType::TANK_SECOND_PLAYER :
         case GameObjectType::TANK_ENEMY :
-            distanceToGunpoint = 0.3f;
+            distanceToGunpoint = 0.4f;
             break;
         default :
             break;
