@@ -37,3 +37,22 @@ Wall::Wall(const class Game& game, sf::IntRect rect, bool isInvulnerable)
     }
     _spriteTerrain->setTextureRect(rect);
 }
+
+void Wall::setMapPin() {
+    _rectanglePinOnMap.setSize(sf::Vector2f(getWidth()  * level::PIXELS_PER_CELL,
+                                            getHeight() * level::PIXELS_PER_CELL));
+    _rectanglePinOnMap.setPosition(getX() * level::PIXELS_PER_CELL,
+                                   getY() * level::PIXELS_PER_CELL);
+    switch (getType()) {
+        case GameObjectType::WALL :
+            _rectanglePinOnMap.setFillColor(sf::Color(96, 42, 28));
+            break;
+
+        case GameObjectType::STEEL_WALL :
+            _rectanglePinOnMap.setFillColor(sf::Color(141, 150, 151));
+            break;
+
+        default:
+            break;
+    }
+}

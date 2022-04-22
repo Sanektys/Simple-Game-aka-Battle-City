@@ -22,6 +22,10 @@ TankEnemy::TankEnemy(const class Game& game, sf::IntRect rect) : Tank(game) {
     setRotationTime(0.9f);
 
     _spriteEntity->setTextureRect(rect);
+
+    sf::Color pinColor(sf::Color::Red);  // Цвет маркера танка противника
+    pinColor.a = 200;
+    _circlePinOnMap.setFillColor(pinColor);
 }
 
 TankEnemy::~TankEnemy() {

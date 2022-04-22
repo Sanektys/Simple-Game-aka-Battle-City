@@ -75,18 +75,22 @@ void Game::initialize() {
             switch (cellSymbol) {
                 case level::SYMBOL_BRICK_WALL :
                     terrainObject = &createObject(GameObjectType::WALL, (float)c, (float)r);
+                    (*terrainObject)->setMapPin();
                     break;
 
                 case level::SYMBOL_SOLID_WALL :
                     terrainObject = &createObject(GameObjectType::SOLID_WALL, (float)c, (float)r);
+                    (*terrainObject)->setMapPin();
                     break;
                     
                 case level::SYMBOL_STEEL_WALL :
                     terrainObject = &createObject(GameObjectType::STEEL_WALL, (float)c, (float)r);
+                    (*terrainObject)->setMapPin();
                     break;
     
                 case level::SYMBOL_BASE :
                     terrainObject = _base = &createObject(GameObjectType::BASE, (float)c, (float)r);
+                    (*terrainObject)->setMapPin();
                     break;
     
                 case level::SYMBOL_PLAYER_1 :
@@ -178,6 +182,8 @@ bool Game::loop() {
     if (event.type == sf::Event::Closed)
         _renderWindow->close();
 
+    _interface->mapUpdate(deltaTime);
+
     update(deltaTime);
     render();
 
@@ -222,7 +228,8 @@ void Game::render() {
     // Всё, что идёт дальше, отрисовывается относительно главного экрана
     _renderWindow->setView(_renderWindow->getDefaultView());
 
-    _interface->render();
+    _interface->renderMap();
+    _interface->renderStats();
 
     // Конец кадра
     _renderWindow->display();

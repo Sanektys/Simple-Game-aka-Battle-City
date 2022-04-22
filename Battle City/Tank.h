@@ -26,6 +26,12 @@ class Tank : public GameObject
         /// </summary>
         /// <param name="rw">- указатель на объект игрового окна</param>
         void render(sf::RenderWindow* rw) override;
+        /// <summary>
+        /// Метод отрисовки круглого маркера танка на миникарте
+        /// </summary>
+        /// <param name="rt">- указатель на слой, на котором отрисовываются
+        /// все примитивы объектов для миникарты</param>
+        void mapRender(sf::RenderTexture* rt) override;
 
         Tank(const Tank&) = delete;
         Tank operator=(const Tank&) = delete;

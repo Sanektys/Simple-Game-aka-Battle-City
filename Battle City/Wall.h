@@ -15,6 +15,17 @@ class Wall : public GameObject
              bool isInvulnerable = false);
         ~Wall() override {}
 
+        /// <summary>
+        /// Метод отрисовки "значка" стены на миникарте
+        /// </summary>
+        /// <param name="rt">- указатель на слой, на котором отрисовываются
+        /// все примитивы объектов для миникарты</param>
+        void mapRender(sf::RenderTexture* rt) override { rt->draw(_rectanglePinOnMap); }
+        /// <summary>
+        /// Установка квадратного примитива на миникарте, обозначающего объект стены
+        /// </summary>
+        void setMapPin() override;
+
         Wall(const Wall&) = delete;
         Wall operator=(const Wall&) = delete;
 

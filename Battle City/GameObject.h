@@ -27,6 +27,17 @@ class GameObject
         /// <param name="rw">- указатель на объект окна игры</param>
         virtual void render(sf::RenderWindow* rw);
         /// <summary>
+        /// Метод отрисовки "значка" игрового объекта на миникарте
+        /// </summary>
+        /// <param name="rt">- указатель на слой отрисовываемых примитивов
+        /// игровых объектов для карты</param>
+        virtual void mapRender(sf::RenderTexture* rt) {}
+        /// <summary>
+        /// Установка "значка" игрового объекта с актуальным положением на миникарте
+        /// </summary>
+        virtual void setMapPin() {}
+
+        /// <summary>
         /// Основной метод обновления состояния игровых объектов
         /// <para>Проверяется застревание одного объекта в другом,
         /// а также вычисляется текущая позиция объекта на основе
@@ -264,6 +275,11 @@ class GameObject
         ////////////////
         std::unique_ptr<sf::Sprite> _spriteTerrain; // Указатель на спрайт окружения
         std::unique_ptr<sf::Sprite> _spriteEntity; // Указатель на спрайт сущности
+
+        // Прямоугольный маркер игрового объекта на миникарте
+        sf::RectangleShape _rectanglePinOnMap;
+        // Круглый/многоугольный маркер игрового объекта на миникарте
+        sf::CircleShape _circlePinOnMap;
 
     private :
         /// <summary>

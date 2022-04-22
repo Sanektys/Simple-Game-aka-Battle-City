@@ -27,6 +27,32 @@ void Base::render(sf::RenderWindow* rw) {
     GameObject::render(rw);
 }
 
+void Base::mapRender(sf::RenderTexture* rt) {
+    rt->draw(_rectanglePinOnMap);
+    rt->draw(_mapPinText);
+}
+
+void Base::setMapPin() {
+    _rectanglePinOnMap.setSize(sf::Vector2f(getWidth()  * level::PIXELS_PER_CELL,
+                                            getHeight() * level::PIXELS_PER_CELL));
+    _rectanglePinOnMap.setPosition(getX() * level::PIXELS_PER_CELL,
+                                   getY() * level::PIXELS_PER_CELL);
+    _rectanglePinOnMap.setFillColor(sf::Color(255, 197, 85, 60));
+
+    // Загрузка шрифта для подписи "база" на миникарте
+    if (!_mapPinFont.loadFromFile("./Build/progresspixel-bold.ttf"))
+        if (!_mapPinFont.loadFromFile("./build/progresspixel-bold.ttf"))
+            _mapPinFont.loadFromFile("progresspixel-bold.ttf");
+
+    _mapPinText.setFont(_mapPinFont);
+    _mapPinText.setCharacterSize(60);
+    _mapPinText.setLetterSpacing(2.8f);
+    _mapPinText.setFillColor(sf::Color(255, 197, 85, 220));
+    _mapPinText.setString("BASE");
+    _mapPinText.setPosition(getX() * level::PIXELS_PER_CELL + 22.0f,
+                            getY() * level::PIXELS_PER_CELL - 1.0f);
+}
+
 void Base::update(float dt) {
     // Задержка на переключение спрайта базы
     _frameSwitchTime += dt;

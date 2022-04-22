@@ -19,6 +19,10 @@ TankPlayer::TankPlayer(const class Game& game, sf::IntRect rect,
     setDestroyAfterDeath(false);
 
     _spriteEntity->setTextureRect(rect);
+
+    sf::Color pinColor(255, 197, 85);  // Цвет маркера танка игрока
+    pinColor.a = 200;
+    _circlePinOnMap.setFillColor(pinColor);
 }
 
 void TankPlayer::update(float dt) {

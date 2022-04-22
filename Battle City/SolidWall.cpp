@@ -18,6 +18,14 @@ void SolidWall::render(sf::RenderWindow* rw) {
     GameObject::render(rw);
 }
 
+void SolidWall::setMapPin() {
+    _rectanglePinOnMap.setSize(sf::Vector2f(getWidth()  * level::PIXELS_PER_CELL,
+                                            getHeight() * level::PIXELS_PER_CELL));
+    _rectanglePinOnMap.setPosition(getX() * level::PIXELS_PER_CELL,
+                                   getY() * level::PIXELS_PER_CELL);
+    _rectanglePinOnMap.setFillColor(sf::Color(119, 36, 18));
+}
+
 void SolidWall::setTextureRect(sf::IntRect rect) {
     // Выбор спрайта по очкам прочности стены
     // По умолчанию очков 3, поэтому этого варианта тут нет

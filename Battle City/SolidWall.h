@@ -17,7 +17,18 @@ class SolidWall : public Wall
         /// Метод отрисовки стены
         /// </summary>
         /// <param name="rw">- указатель на объект окна игры</param>
-        virtual void render(sf::RenderWindow* rw) override;
+        void render(sf::RenderWindow* rw) override;
+        /// <summary>
+        /// Метод отрисовки "значка" прочной стены на миникарте
+        /// </summary>
+        /// <param name="rt">- указатель на слой, на котором отрисовываются
+        /// все примитивы объектов для миникарты</param>
+        void mapRender(sf::RenderTexture* rt) override { rt->draw(_rectanglePinOnMap); }
+        /// <summary>
+        /// Установка квадратного примитива,
+        /// обозначающего прочную стену на миникарте
+        /// </summary>
+        void setMapPin() override;
 
         SolidWall(const SolidWall&) = delete;
         SolidWall operator=(const SolidWall&) = delete;

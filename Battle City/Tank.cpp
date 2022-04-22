@@ -19,6 +19,12 @@ Tank::Tank(const class Game& game) : GameObject(game) {
     _spriteEntity->setOrigin(level::tank::PIXELS_WIDTH / 2.0f,
                              level::tank::PIXELS_HEIGHT / 2.0f 
                              + level::tank::PIXELS_GUN_LENGTH);
+
+    sf::Color pinColor(sf::Color::White);  // ÷вет маркера танка по умолчанию
+    pinColor.a = 200;
+    _circlePinOnMap.setFillColor(pinColor);
+    _circlePinOnMap.setPointCount(16);
+    _circlePinOnMap.setRadius(level::tank::WIDTH * level::PIXELS_PER_CELL / 2.0F);
 }
 
 ///////////////////////////////////////////////////////////
@@ -49,6 +55,12 @@ void Tank::render(sf::RenderWindow* rw) {
     renderTracksMoving();
 
     GameObject::render(rw);
+}
+
+void Tank::mapRender(sf::RenderTexture* rt) {
+    _circlePinOnMap.setPosition(getX() * level::PIXELS_PER_CELL,
+                                getY() * level::PIXELS_PER_CELL);
+    rt->draw(_circlePinOnMap);
 }
 
 void Tank::renderTracksMoving() {
@@ -452,10 +464,16 @@ bool Tank::bypassObstruction() {
     if (firstBackIntersects && secondBackIntersects)
         return inBypass;
 
+    // ≈сли пересечение регистрируетс€ по диагонали,
+    // то вообще не производить обход преп€тстви€
+    if ((firstBackIntersects && secondPointIntersects)
+        || (secondBackIntersects && firstPointIntersects))
+        return false;
+
     // ≈сли есть пересечение с помехами у борта и у переднего катка,
     // то не обрабатывать прохождение сквозь помехи у задних катков
-    if ((firstBackIntersects || secondBackIntersects)
-        && (firstPointIntersects || secondPointIntersects))
+    if ((firstBackIntersects && firstPointIntersects)
+        || (secondBackIntersects && secondPointIntersects))
         return inBypass;
 
     if (firstBackIntersects) {

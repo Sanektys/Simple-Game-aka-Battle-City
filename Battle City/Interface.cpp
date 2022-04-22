@@ -2,6 +2,9 @@
 #include "Game.h"
 
 
+static void showBaseHealth(const class sf::RenderWindow* rw);
+
+
 Interface::Interface(class Game& game) : _game(game) {
     // Загрузка шрифтов
     _debugFont.reset(new sf::Font);
@@ -13,9 +16,45 @@ Interface::Interface(class Game& game) : _game(game) {
     if (!_objectsDataFont->loadFromFile("./Build/CursedTimerUlil.ttf"))
         if (!_objectsDataFont->loadFromFile("./build/CursedTimerUlil.ttf"))
             _objectsDataFont->loadFromFile("CursedTimerUlil.ttf");
+
+
+    _mapLayout.reset(new sf::RenderTexture);
+    // Размер всего игрового поля
+    _mapLayout->create(level::COLUMNS * level::PIXELS_PER_CELL,
+                       level::ROWS    * level::PIXELS_PER_CELL);
+
+    float mapScale = 0.4f;  // Масштабирование слоя миникарты в меньшую сторону
+    _map.setScale(mapScale, mapScale);
+    _map.setPosition(30.0f, 50.0f);
+    _map.setTexture(_mapLayout->getTexture());
+
+    _mapFrame.setSize(sf::Vector2f(level::COLUMNS * level::PIXELS_PER_CELL * mapScale,
+                                   level::ROWS    * level::PIXELS_PER_CELL * mapScale));
+    _mapFrame.setPosition(_map.getPosition());
+    _mapFrame.setFillColor(sf::Color(0, 0, 0));
+    _mapFrame.setOutlineThickness(6.0f);
+    _mapFrame.setOutlineColor(sf::Color(255, 197, 85));
 }
 
-void Interface::render() {
+void Interface::renderMap() {
+    if (_mapUpdateTimer >= MAP_UPDATE_PERIOD) {
+        _mapUpdateTimer = 0.0f;
+
+        _mapLayout->clear();
+        for (auto& object : _game._objectsTerrain)
+            if (object)
+                object->mapRender(&*_mapLayout);
+        for (auto& object : _game._objectsEntity)
+            if (object)
+                object->mapRender(&*_mapLayout);
+        _mapLayout->display();
+    }
+
+    _game._renderWindow->draw(_mapFrame);
+    _game._renderWindow->draw(_map);
+}
+
+void Interface::renderStats() {
     std::string string;
     sf::Text text;
     sf::RectangleShape rectangle;
@@ -106,4 +145,8 @@ void Interface::render() {
 
     
 #endif
+}
+
+static void showBaseHealth(const class sf::RenderWindow* rw) {
+    
 }
