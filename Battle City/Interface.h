@@ -34,10 +34,15 @@ class Interface
         Interface operator=(const class Interface&) = delete;
 
     private :
+        void showBaseHealth();
+        void showTankHealth();
+        void showTankRecharge();
+
+    private :
         // Шрифт отладочной информации
-        std::unique_ptr<sf::Font> _debugFont;
+        sf::Font _debugFont;
         // Шрифт сводочных данных о состоянии ключевых объектов
-        std::unique_ptr<sf::Font> _objectsDataFont;
+        sf::Font _objectsDataFont;
 
         // Слой, на который накладываются примитивы, обозначающие игровые объекты,
         // с целью дальнейшей отрисовки на миникарте
@@ -47,6 +52,19 @@ class Interface
 
         float _mapUpdateTimer{2.0f};  // Таймер до следующего обновления миникарты
         const float MAP_UPDATE_PERIOD{2.0f};  // Через какой промежуток времени обновляется миникарта
+
+        sf::RectangleShape _baseHealthFrame;
+        sf::RectangleShape _baseHealthBar;
+        sf::Text _baseHealthText;
+        sf::Color _baseHealthColor;
+
+        sf::RectangleShape _tankHealthFrame;
+        sf::RectangleShape _tankHealthBar;
+        sf::Text _tankHealthText;
+        sf::Color _tankHealthColor;
+
+        sf::RectangleShape _rechargeFrame;
+        sf::RectangleShape _rechargeBar;
 
         // Ссылка на объект игровой логики, которому принадлежит интерфейс
         class Game& _game;
