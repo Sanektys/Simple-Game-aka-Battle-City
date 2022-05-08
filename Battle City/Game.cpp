@@ -110,6 +110,7 @@ void Game::initialize() {
             addCollisionCell(terrainObject, r * level::COLUMNS + c);
         }
     }
+    _interface->updateGameObjectsPointers();
 }
 
 void Game::addCollisionCell(std::unique_ptr<GameObject>* owner, int order) {
@@ -182,7 +183,7 @@ bool Game::loop() {
     if (event.type == sf::Event::Closed)
         _renderWindow->close();
 
-    _interface->mapUpdate(deltaTime);
+    _interface->timersUpdate(deltaTime);
 
     update(deltaTime);
     render();

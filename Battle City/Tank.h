@@ -36,6 +36,12 @@ class Tank : public GameObject
         Tank(const Tank&) = delete;
         Tank operator=(const Tank&) = delete;
 
+        /// <summary>
+        /// Получение времени перезарядки орудия танка
+        /// </summary>
+        /// <returns>Возвращает время перезарядки орудия</returns>
+        float getFireCooldownTime() { return _fireCooldownTime; }
+
     protected :
         /// <summary>
         /// Метод, задающий направление и скорость
@@ -67,11 +73,6 @@ class Tank : public GameObject
         /// </summary>
         /// <param name="cooldownTime">- время перезарядки</param>
         void setFireCooldownTime(float cooldownTime) { _fireCooldownTime = cooldownTime; }
-        /// <summary>
-        /// Получение времени перезарядки орудия танка
-        /// </summary>
-        /// <returns>Возвращает время перезарядки орудия</returns>
-        float getFireCooldownTime() { return _fireCooldownTime; }
 
         /// <summary>
         /// Установка максимальной скорости танка
